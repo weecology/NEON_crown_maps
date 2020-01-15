@@ -2,14 +2,10 @@
 Create a cluster of GPU nodes to perform parallel prediction of tiles
 """
 import argparse
-from dask_utility import start_dask_cluster
-from dask.distributed import wait
-
 import sys
 import socket
 from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, wait
-import yaml
 
 def args():
     parser     = argparse.ArgumentParser(description='Simple training script for training a RetinaNet network.')
