@@ -12,14 +12,17 @@ def test_platform():
 
 @dask.delayed
 def inc(x):
+    time.sleep(random.random())    
     return x + 1
 
 @dask.delayed
 def double(x):
+    time.sleep(random.random())    
     return x + 2
 
 @dask.delayed
 def add(x, y):
+    time.sleep(random.random())    
     return x + y
 
 def test_start_dask_cluster(test_platform):
@@ -28,7 +31,7 @@ def test_start_dask_cluster(test_platform):
         pass
     else:  
         client = start_dask_cluster(number_of_workers=2, mem_size="11GB")
-        data = [1, 2, 3, 4, 5]
+        data = [1, 2, 3, 4, 5] * 10
         
         output = []
         for x in data:
@@ -39,5 +42,5 @@ def test_start_dask_cluster(test_platform):
         
         output = dask.compute(output)[0]
         assert output[0] == 5
-        assert len(output) ==5 
+        assert len(output) ==50
 
