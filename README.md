@@ -7,7 +7,7 @@ The goal of this repo is to apply the DeepForest RGB crown model () to airborne 
 Conda environment
 
 ```
-conda create env -f=environment.yml
+conda env create --file=environment.yml
 ```
 
 # Manifest
