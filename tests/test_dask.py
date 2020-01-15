@@ -36,7 +36,8 @@ def test_start_dask_cluster(test_platform):
             b = double(x)
             c = add(a, b)
             output.append(c)
-            
+        
+        output = dask.compute(output) 
         assert output[0] == 5
         assert len(output) ==5 
 
