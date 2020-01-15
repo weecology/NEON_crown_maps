@@ -10,6 +10,18 @@ def test_platform():
     test_platform = platform.system()
     return test_platform
 
+def inc(x):
+    time.sleep(random.random())
+    return x + 1
+
+def dec(x):
+    time.sleep(random.random())
+    return x - 1
+    
+def add(x, y):
+    time.sleep(random.random())
+    return x + y
+
 def test_start_dask_cluster(test_platform):
     
     if test_platform =="Darwin":
@@ -31,14 +43,3 @@ def test_start_dask_cluster(test_platform):
         assert len(zs) == 256
         assert zs[0] == 0
 
-def inc(x):
-    time.sleep(random.random())
-    return x + 1
-
-def dec(x):
-    time.sleep(random.random())
-    return x - 1
-    
-def add(x, y):
-    time.sleep(random.random())
-    return x + y
