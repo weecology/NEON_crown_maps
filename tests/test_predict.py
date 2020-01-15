@@ -13,7 +13,7 @@ def test_platform():
 
 @pytest.fixture()
 def create_tile_list():
-    tile_list = glob.glob("../data/*.tif")
+    tile_list = glob.glob("data/*.tif")
     return tile_list
 
 def test_predict_tiles(create_tile_list):
