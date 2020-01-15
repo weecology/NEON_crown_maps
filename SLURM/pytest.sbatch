@@ -18,4 +18,4 @@ cd /home/b.weinstein/NEON_crown_maps/
 
 #comet debug
 
-python test_dask.py
+python test_start_cluster.py
