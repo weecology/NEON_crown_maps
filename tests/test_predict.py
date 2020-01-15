@@ -20,7 +20,7 @@ def test_predict_tiles(create_tile_list):
     boxes = predict.predict_tiles(create_tile_list, client=None)
     assert boxes.shape[1] == 6
         
-def test_predict_tiles(create_tile_list, test_platform):
+def test_predict_tiles_dask(create_tile_list, test_platform):
     #Skip locally, just test on cluster
     if test_platform =="Darwin":
         pass 
