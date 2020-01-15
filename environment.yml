@@ -9,3 +9,4 @@ dependencies:
     - deepforest==0.2.8
     - distributed==2.9.1
     - pytest
+    - bokeh

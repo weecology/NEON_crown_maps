@@ -26,7 +26,7 @@ def add(x, y):
     return x + y
 
 client = start_dask_cluster(number_of_workers=2, mem_size="11GB")
-data = [1, 2, 3, 4, 5] * 100
+data = [1, 2, 3, 4, 5] * 10
 
 output = []
 for x in data:
@@ -37,5 +37,5 @@ for x in data:
 
 output = dask.compute(output)[0]
 assert output[0] == 5
-assert len(output) ==500
+assert len(output) ==50
 
