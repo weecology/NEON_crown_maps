@@ -20,4 +20,4 @@ cd /home/b.weinstein/NEON_crown_maps/tests
 
 #comet debug
 
-python -m pytest
+python -m pytest test_dask.py
