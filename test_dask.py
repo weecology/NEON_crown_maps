@@ -39,3 +39,5 @@ output = dask.compute(output)[0]
 assert output[0] == 5
 assert len(output) ==50
 
+boxes = predict.predict_tiles(tile_list = glob.glob("tests/data/*.tif"), client=client)
+assert boxes.shape[1] == 6

@@ -19,13 +19,3 @@ def create_tile_list():
 def test_predict_tiles(create_tile_list):
     boxes = predict.predict_tiles(create_tile_list, client=None)
     assert boxes.shape[1] == 6
-        
-def test_predict_tiles_dask(create_tile_list, test_platform):
-    #Skip locally, just test on cluster
-    if test_platform =="Darwin":
-        pass 
-    else:
-        client = start_cluster.start_dask_cluster(number_of_workers=2)
-        boxes = predict.predict_tiles(create_tile_list, client=client)
-        assert boxes.shape[1] == 6
-    

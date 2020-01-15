@@ -23,36 +23,18 @@ def add(x, y):
     time.sleep(random.random())    
     return x + y
 
-def test_start_dask_cluster(test_platform):
+def test_dask(test_platform):
+    client = Client()
+    print(client)
+    data = [1, 2, 3, 4, 5] * 10
     
-    if test_platform =="Darwin":
-        client = Client()
-        print(client)
-        data = [1, 2, 3, 4, 5] * 10
-        
-        output = []
-        for x in data:
-            a = dask.delayed(inc)(x)
-            b = dask.delayed(double)(x)
-            c = dask.delayed(add)(a, b)
-            output.append(c)
-        
-        output = dask.compute(*output)
-        assert output[0] == 5
-        assert len(output) ==50
-        
-    else:  
-        client = start_dask_cluster(number_of_workers=2, mem_size="11GB")
-        data = [1, 2, 3, 4, 5] * 10
-        
-        output = []
-        for x in data:
-            a = dask.delayed(inc)(x)
-            b = dask.delayed(double)(x)
-            c = dask.delayed(add)(a, b)
-            output.append(c)
-        
-        output = dask.compute(*output)
-        assert output[0] == 5
-        assert len(output) ==50
-
+    output = []
+    for x in data:
+        a = dask.delayed(inc)(x)
+        b = dask.delayed(double)(x)
+        c = dask.delayed(add)(a, b)
+        output.append(c)
+    
+    output = dask.compute(*output)
+    assert output[0] == 5
+    assert len(output) ==50
