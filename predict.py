@@ -31,7 +31,7 @@ def predict_tiles(tile_list, client=None):
         model = create_model()
         results = []
         for tile in tile_list:
-            boxes = model.predict_tile(tile)
+            boxes = model.predict_tile(tile,patch_overlap=0.15,patch_size=800)
             results.append(boxes)
             
         all_boxes = results
