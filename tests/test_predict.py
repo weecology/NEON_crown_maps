@@ -6,7 +6,7 @@ from dask.distributed import Client
 from .. import predict
 from .. import start_cluster
 
-@pytest.fixture
+@pytest.fixture()
 def test_platform():
     test_platform = platform.system()
     return test_platform
