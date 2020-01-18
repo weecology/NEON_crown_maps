@@ -1,6 +1,7 @@
 #Generate tfrecords
 from start_cluster import start_dask_cluster
 import tfrecords
+import glob
 
 def find_files():
     tile_list = glob.glob("tests/data/*.tif")
