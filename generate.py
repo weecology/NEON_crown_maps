@@ -6,7 +6,7 @@ import glob
 
 def find_files():
     #tile_list = glob.glob("tests/data/*.tif")
-    tile_list = glob.glob("./**/*image.tif",recursive=True)
+    tile_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
     return tile_list
 
 #Start SLURM cluster
