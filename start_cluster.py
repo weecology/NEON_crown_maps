@@ -58,23 +58,6 @@ def start_dask_cluster(number_of_workers, mem_size="10GB"):
     dask_client.run_on_scheduler(start_tunnel)  
     
     return dask_client
-
-if __name__=="__main__":
-    #Local debug. If False, paths on UF hypergator supercomputing cluster
-    system_args = args()
-    DEBUG = system_args.debug
-  
-    if DEBUG:
-        dask_client = None
-        tile_list = ""
-    else:
-        dask_client = start_dask_cluster(number_of_workers=system_args.workers, mem_size="11GB")
-    
-        #find list of tiles
-        tile_list = find_tiles()
-    
-    df = predict_tiles(dask_client, tile_list)
-    df.to_csv("predicted_trees.csv",index=False)
                 
                 
     
