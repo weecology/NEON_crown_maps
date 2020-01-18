@@ -1,5 +1,6 @@
 #Generate tfrecords
 from start_cluster import start_dask_cluster
+from dask.distributed import wait
 import tfrecords
 import glob
 
