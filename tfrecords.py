@@ -69,7 +69,6 @@ def create_tfrecords(tile_path,patch_size=400, patch_overlap=0.15, savedir="."):
         
 #Reading
 def _parse_fn(example):
-    
     #Define features
     features = {
         'image/filename': tf.io.FixedLenFeature([], tf.string)
@@ -82,6 +81,7 @@ def _parse_fn(example):
     filename = tf.cast(example["image/filename"],tf.string)    
     loaded_image = tf.read_file(filename)
     loaded_image = tf.image.decode_image(loaded_image, 3)
+    loaded_image = tf.reshape(loaded_image, tf.stack([800, 800, 3]), name="cast_loaded_image")            
     
     return loaded_image
 
@@ -94,7 +94,6 @@ def create_dataset(filepath, batch_size=1):
     Returns:
         dataset: a tensorflow dataset object for model training or prediction
     """
-    
     # This works with arrays as well
     dataset = tf.data.TFRecordDataset(filepath)
     
@@ -105,7 +104,7 @@ def create_dataset(filepath, batch_size=1):
     dataset = dataset.map(_parse_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE)
       
     ## Set the batchsize
-    dataset = dataset.batch(batch_size=batch_size, drop_remainder=False)
+    dataset = dataset.batch(batch_size=batch_size, drop_remainder=True)
     
     #Collect a queue of data tensors
     dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
@@ -115,7 +114,7 @@ def create_dataset(filepath, batch_size=1):
     
     return iterator
 
-def create_tensors(list_of_tfrecords):
+def create_tensors(list_of_tfrecords,batch_size):
     """Create a wired tensor target from a list of tfrecords
     
     Args:
@@ -126,7 +125,7 @@ def create_tensors(list_of_tfrecords):
         targets: target tensors of bounding boxes and classes
         """
     #Create tensorflow iterator
-    iterator = create_dataset(list_of_tfrecords)
+    iterator = create_dataset(list_of_tfrecords, batch_size=batch_size)
     next_element = iterator.get_next()
     
     return next_element

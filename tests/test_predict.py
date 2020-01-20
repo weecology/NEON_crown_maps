@@ -1,21 +1,17 @@
 #Test file for prediction methods
 import pytest
-import glob
-import platform
-from dask.distributed import Client
 from .. import predict
-from .. import start_cluster
+from .. import tfrecords
 
 @pytest.fixture()
-def test_platform():
-    test_platform = platform.system()
-    return test_platform
+def patch_size():
+    return 800
 
 @pytest.fixture()
-def create_tile_list():
-    tile_list = glob.glob("data/*.tif")
-    return tile_list
+def record(patch_size):
+    record = tfrecords.create_tfrecords(tile_path="data/OSBS_029.tif",patch_size=patch_size, savedir="output")    
+    return record
 
-def test_predict_tiles(create_tile_list):
-    boxes = predict.predict_tiles(create_tile_list, client=None)
+def test_predict_tile(record):
+    boxes = predict.predict_tile(record, batch_size=1)
     assert boxes.shape[1] == 6
