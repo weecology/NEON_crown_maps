@@ -44,23 +44,44 @@ def run_non_max_suppression(predicted_boxes, iou_threshold=0.15):
         return mosaic_df
     
 #predict a set of tiles
-def predict_tiles(model, records,patch_size=400, batch_size=1,raster_dir="./", score_threshold=0.05,max_detections=300,classes={0:"Tree"}):
+def predict_tiles(model, records, raster_path, patch_size=400, batch_size=1, raster_dir =["."], score_threshold=0.05,max_detections=300,classes={0:"Tree"},save_dir="."):
     """Parallel loop through tile list and predict tree crowns
-    Args:
-        tile_list: a list of paths on disk of RGB tiles to predict
-        client: a dask client with workers waiting for tasks (optional)
+    raster_dir: a list of directories to search for RGB image
     """ 
     #for each tfrecord create a tensor and step, might be more efficient to create a full set of tensors and 
     results = [ ]    
-    for tfrecord in records:
-        result = predict_tile(model=model, tfrecord=tfrecord, patch_size=patch_size, raster_dir=raster_dir, batch_size=batch_size, score_threshold=score_threshold, max_detections=max_detections, classes=classes)
-        results.append(result)
+    for index, tfrecord in enumerate(records):
+        #Run predictions
+        boxes = predict_tile(model=model, tfrecord=tfrecord, patch_size=patch_size, batch_size=batch_size, score_threshold=score_threshold, max_detections=max_detections, classes=classes)
         
-    full_df = pd.concat(results)
-    return full_df
-
-def predict_tile(model, tfrecord, patch_size, raster_dir, image_size=800, batch_size=1,score_threshold=0.05, max_detections=300, classes={0:"Tree"}):
-    """Predict a tile of a tfrecords"""
+        #Project to utm
+        raster_name = boxes.filename.unique()[0]        
+        raster_path = os.path.join(raster_dir[index], raster_name)
+        projected_boxes = project(raster_path, boxes)
+        
+        #Shapefile file path
+        shp_path = os.path.join(save_dir,'{}.shp'.format(raster_name))
+        
+        #Write
+        projected_boxes.to_file(shp_path, driver='ESRI Shapefile',crs_wkt=projected_boxes.crs)   
+        print("{} written".format(shp_path))
+        results.append(shp_path)
+        
+    return results
+        
+        
+def predict_tile(model, tfrecord, patch_size, image_size=800, batch_size=1,score_threshold=0.05, max_detections=300, classes={0:"Tree"}):
+    """Predict a tile of a tfrecords windows
+        Args:
+            model: a deepforest model object
+            tfrecord: a tfrecord with filenames of crops to run
+            patch_size: size of the crops of each window in px
+            image_size: keras-retinanet resizing
+            batch_size: number of windows to predict at once
+            score_threshold: min label score to include
+            max_detections: max number of detections per window
+            classes: dictionary to turn integers into string labels
+            """
     iterator = tfrecords.create_tensors(tfrecord, batch_size=batch_size)        
     record_results = [ ]        
     
@@ -122,17 +143,13 @@ def predict_tile(model, tfrecord, patch_size, raster_dir, image_size=800, batch_
     #pandas frame
     record_df = pd.concat(record_results)
     mosaic_df = run_non_max_suppression(record_df)
-    
-    #Project results into UTM
-    raster_name = "{}.tif".format(os.path.splitext(os.path.basename(tfrecord))[0])
-    raster_path = "{}/{}".format(raster_dir,raster_name)
-    mosaic_df = project(raster_path, mosaic_df)
-    mosaic_df["filename"] = raster_name
-    
+    mosaic_df["filename"] = tfrecord    
+
     return mosaic_df
     
 def project(raster_path, boxes):
     """Project boxes into utm"""
+        
     with rasterio.open(raster_path) as dataset:
         bounds = dataset.bounds
         pixelSizeX, pixelSizeY  = dataset.res
@@ -149,5 +166,5 @@ def project(raster_path, boxes):
     
     #set projection, (see dataset.crs) hard coded here
     boxes.crs = {'init' :"{}".format(dataset.crs)}
-    
+        
     return boxes

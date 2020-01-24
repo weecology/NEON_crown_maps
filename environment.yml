@@ -6,6 +6,7 @@ dependencies:
   - pip:
     - dask==2.9.1
     - rasterio
+    - geopandas
     - shapely
     - dask-jobqueue==0.7.0
     - deepforest==0.2.8
