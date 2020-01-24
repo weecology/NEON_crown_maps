@@ -1,7 +1,8 @@
-from .. import tfrecords
+import os
+import sys
 import tensorflow as tf
 import pytest
-import os
+from ..utils import tfrecords
 
 @pytest.fixture()
 def patch_size():

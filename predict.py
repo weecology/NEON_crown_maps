@@ -6,8 +6,8 @@ import numpy as np
 import geopandas
 import rasterio
 import shapely
+from utils import tfrecords
 
-from . import tfrecords
 from deepforest import deepforest
 
 def create_model():

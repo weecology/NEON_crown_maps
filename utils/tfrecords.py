@@ -23,7 +23,7 @@ def create_tf_example(fname):
     
     return example
 
-def create_tfrecords(tile_path,patch_size=400, patch_overlap=0.15, savedir="."):
+def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.15, savedir="."):
     """
     Write crops to file and write a tfrecord file to use for tf dataset API
     Args:

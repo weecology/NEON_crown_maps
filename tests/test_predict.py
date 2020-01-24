@@ -1,18 +1,21 @@
 #Test file for prediction methods
+import os
+import sys
+#relative path hack just for pytest
+sys.path.append(os.path.dirname(os.getcwd()))
+
 import pytest
 import glob
 from .. import predict
-from .. import tfrecords
+from ..utils import tfrecords
 
 @pytest.fixture()
 def model():
     model = predict.create_model()
-    
     return model
 
 @pytest.fixture()
 def patch_size():
-    
     return 200
 
 @pytest.fixture()
@@ -33,9 +36,9 @@ def record_list(patch_size):
 
 def test_predict_tile(model, record, patch_size):
     boxes = predict.predict_tile(model, record, patch_size, raster_dir="data/", batch_size=1)
-    assert (boxes.columns == ['xmin', 'ymin', 'xmax', 'ymax', 'score', 'label',"geometry"]).all()
+    assert (boxes.columns == ['xmin', 'ymin', 'xmax', 'ymax', 'score', 'label',"geometry","filename"]).all()
     
 def test_predict_tilelist(model, record_list,patch_size):
     boxes = predict.predict_tiles(model, records=record_list,patch_size=patch_size, batch_size=1,raster_dir="data/", score_threshold=0.05,max_detections=300,classes={0:"Tree"})    
     assert len(boxes.filename.unique()) == len(record_list)
-    assert (boxes.columns == ['xmin', 'ymin', 'xmax', 'ymax', 'score', 'label',"geometry"]).all()
+    assert (boxes.columns == ['xmin', 'ymin', 'xmax', 'ymax', 'score', 'label',"geometry","filename"]).all()
