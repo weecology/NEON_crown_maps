@@ -1,17 +1,41 @@
 #Test file for prediction methods
 import pytest
+import glob
 from .. import predict
 from .. import tfrecords
 
 @pytest.fixture()
+def model():
+    model = predict.create_model()
+    
+    return model
+
+@pytest.fixture()
 def patch_size():
-    return 800
+    
+    return 200
 
 @pytest.fixture()
 def record(patch_size):
     record = tfrecords.create_tfrecords(tile_path="data/OSBS_029.tif",patch_size=patch_size, savedir="output")    
+    
     return record
 
-def test_predict_tile(record):
-    boxes = predict.predict_tile(record, batch_size=1)
-    assert boxes.shape[1] == 6
+@pytest.fixture()
+def record_list(patch_size):
+    tifs = glob.glob("data/*.tif")
+    record_list = [ ]
+    for tif in tifs:
+        record = tfrecords.create_tfrecords(tile_path=tif,patch_size=patch_size, savedir="output")    
+        record_list.append(record)
+        
+    return record_list
+
+def test_predict_tile(model, record, patch_size):
+    boxes = predict.predict_tile(model, record, patch_size, raster_dir="data/", batch_size=1)
+    assert (boxes.columns == ['xmin', 'ymin', 'xmax', 'ymax', 'score', 'label',"geometry"]).all()
+    
+def test_predict_tilelist(model, record_list,patch_size):
+    boxes = predict.predict_tiles(model, records=record_list,patch_size=patch_size, batch_size=1,raster_dir="data/", score_threshold=0.05,max_detections=300,classes={0:"Tree"})    
+    assert len(boxes.filename.unique()) == len(record_list)
+    assert (boxes.columns == ['xmin', 'ymin', 'xmax', 'ymax', 'score', 'label',"geometry"]).all()

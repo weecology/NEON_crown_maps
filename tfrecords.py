@@ -48,6 +48,7 @@ def create_tfrecords(tile_path,patch_size=400, patch_overlap=0.15, savedir="."):
     tfwriter = tf.io.TFRecordWriter(tfrecord_filename)
     
     counter = 0
+    print("There are {} windows".format(len(windows)))
     for index in windows:
         #crop image
         crop = numpy_image[index.indices()] 
@@ -96,9 +97,6 @@ def create_dataset(filepath, batch_size=1):
     """
     # This works with arrays as well
     dataset = tf.data.TFRecordDataset(filepath)
-    
-    ## This dataset will go on forever
-    dataset = dataset.repeat()
         
     # Maps the parser on every filepath in the array. You can set the number of parallel loaders here
     dataset = dataset.map(_parse_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE)
@@ -109,10 +107,7 @@ def create_dataset(filepath, batch_size=1):
     #Collect a queue of data tensors
     dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
-    ## Create an iterator
-    iterator = dataset.make_one_shot_iterator()    
-    
-    return iterator
+    return dataset
 
 def create_tensors(list_of_tfrecords,batch_size):
     """Create a wired tensor target from a list of tfrecords
@@ -125,7 +120,8 @@ def create_tensors(list_of_tfrecords,batch_size):
         targets: target tensors of bounding boxes and classes
         """
     #Create tensorflow iterator
-    iterator = create_dataset(list_of_tfrecords, batch_size=batch_size)
+    dataset = create_dataset(list_of_tfrecords, batch_size=batch_size)
+    iterator = dataset.make_one_shot_iterator()        
     next_element = iterator.get_next()
     
     return next_element

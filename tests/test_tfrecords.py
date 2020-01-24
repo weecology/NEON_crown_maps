@@ -21,8 +21,7 @@ def test_create_tfrecords(patch_size):
     assert os.path.exists(written_records)
 
 def test_create_dataset(record, batch_size):
-    iterator = tfrecords.create_dataset(filepath=record, batch_size=batch_size)
-    output = iterator.get_next()
+    output = tfrecords.create_tensors(list_of_tfrecords=record, batch_size=batch_size)
     
     #Check image shape
     with tf.Session() as sess:
