@@ -55,8 +55,8 @@ def predict_tiles(model, records, patch_size=400, batch_size=1, raster_dir =["."
         boxes = predict_tile(model=model, tfrecord=tfrecord, patch_size=patch_size, batch_size=batch_size, score_threshold=score_threshold, max_detections=max_detections, classes=classes)
         
         #Project to utm
-        raster_name = boxes.filename.unique()[0]        
-        raster_path = os.path.join(raster_dir[index], raster_name)
+        raster_name = os.path.splitext(os.path.basename(boxes.filename.unique()[0]))[0]        
+        raster_path = os.path.join(raster_dir[index], "{}.tif".format(raster_name))
         projected_boxes = project(raster_path, boxes)
         
         #Shapefile file path
