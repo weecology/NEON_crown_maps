@@ -63,7 +63,7 @@ def predict_tiles(model, records, patch_size=400, batch_size=1, raster_dir =["."
         shp_path = os.path.join(save_dir,'{}.shp'.format(raster_name))
         
         #Write
-        projected_boxes.to_file(shp_path, driver='ESRI Shapefile',crs_wkt=projected_boxes.crs)   
+        projected_boxes.to_file(shp_path, driver='ESRI Shapefile')   
         print("{} written".format(shp_path))
         results.append(shp_path)
         
