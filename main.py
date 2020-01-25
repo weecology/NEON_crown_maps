@@ -16,7 +16,7 @@ indices = [rgb_names.index(x) for x in tfrecord_names]
 raster_dir = [rgb_list[x] for x in indices]
 raster_dir = [os.path.dirname(x) for x in raster_dir]
 
-records = records[:1]
+records = tfrecord_list[:1]
 
 #Create model and set config
 model = predict.create_model()
