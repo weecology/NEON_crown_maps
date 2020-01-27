@@ -10,6 +10,7 @@ import csv
 import numpy as np
 from PIL import Image
 import cv2
+import pandas as pd
 
 from deepforest import preprocess
 from keras_retinanet.utils import image as keras_retinanet_image
@@ -18,7 +19,7 @@ def create_tf_example(fname):
     
     #Save image information and metadata so that the tensors can be reshaped at runtime
     example = tf.train.Example(features=tf.train.Features(feature={                     
-        'image/filename':  tf.train.Feature(bytes_list=tf.train.BytesList(value=[fname.encode('utf-8')])),    
+        'image/filename':  tf.train.Feature(bytes_list=tf.train.BytesList(value=[fname.encode('utf-8')])),        
     }))
     
     return example
@@ -47,24 +48,36 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.15, savedir=".")
     tfrecord_filename = os.path.join(savedir, "{}.tfrecord".format(image_name))    
     tfwriter = tf.io.TFRecordWriter(tfrecord_filename)
     
-    counter = 0
     print("There are {} windows".format(len(windows)))
-    for index in windows:
+    metadata = []
+    for index, window in enumerate(windows):
         #crop image
-        crop = numpy_image[index.indices()] 
+        crop = numpy_image[windows[index].indices()] 
     
         #Crop and preprocess, resize
         crop        = keras_retinanet_image.preprocess_image(crop)
         crop, scale = keras_retinanet_image.resize_image(crop)    
-        filename = os.path.join(savedir,"{}_{}.jpg".format(image_name,counter))
+        filename = os.path.join(savedir,"{}_{}.jpg".format(image_name,index))
         
         #Write crop to file
         cv2.imwrite(img=crop,filename=filename)
-        counter +=1 
         
         #Write tfrecord
         tf_example = create_tf_example(filename)
         tfwriter.write(tf_example.SerializeToString())
+        
+        #Write metadata to csv
+        xmin, ymin, xmax, ymax = windows[index].getRect()        
+        d = {"window":[index],"xmin":[xmin],"xmax":[xmax],"ymin":[ymin],"ymax":[ymax]}
+        df = pd.DataFrame(d)
+
+        metadata.append(df)
+    
+    #Write metadata
+    df = pd.concat(metadata)
+    
+    csv_filename = os.path.join(savedir,"{}.csv".format(image_name))
+    df.to_csv(csv_filename)
     
     return tfrecord_filename
         

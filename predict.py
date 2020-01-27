@@ -60,7 +60,7 @@ def predict_tiles(model, records, patch_size=400, batch_size=1, raster_dir =["."
         raster_path = os.path.join(raster_dir[index], "{}.tif".format(raster_name))
         
         #Run predictions
-        boxes = predict_tile(model=model,raster_path=raster_path, tfrecord=tfrecord, patch_size=patch_size, batch_size=batch_size, score_threshold=score_threshold, max_detections=max_detections, classes=classes)
+        boxes = predict_tile(model=model, tfrecord=tfrecord, patch_size=patch_size, batch_size=batch_size, score_threshold=score_threshold, max_detections=max_detections, classes=classes)
         
         if boxes.empty:
             print("No predictions in record {}, skipping...".format(tfrecord))
@@ -80,13 +80,12 @@ def predict_tiles(model, records, patch_size=400, batch_size=1, raster_dir =["."
     return results
         
         
-def predict_tile(model, tfrecord, patch_size, raster_path, patch_overlap=0.15, image_size=800, batch_size=1,score_threshold=0.05, max_detections=300, classes={0:"Tree"}):
+def predict_tile(model, tfrecord, patch_size, patch_overlap=0.15, image_size=800, batch_size=1,score_threshold=0.05, max_detections=300, classes={0:"Tree"}):
     """Predict a tile of a tfrecords windows
         Args:
             model: a deepforest model object
             tfrecord: a tfrecord with filenames of crops to run
             patch_size: size of the crops of each window in px 
-            raster_path: path to original raster to create windows 
             image_size: keras-retinanet resizing
             batch_size: number of windows to predict at once
             score_threshold: min label score to include
@@ -96,15 +95,10 @@ def predict_tile(model, tfrecord, patch_size, raster_path, patch_overlap=0.15, i
     iterator = tfrecords.create_tensors(tfrecord, batch_size=batch_size)        
     record_results = [ ]        
     
-    #Create window object to record 
-    raster = Image.open(raster_path)
-    numpy_image = np.array(raster)
-    windows = preprocess.compute_windows(numpy_image, patch_size,patch_overlap)    
-    
-    #delete large objects
-    del(raster)
-    del(numpy_image)
-    
+    #read window metadata
+    metadata_filename = "{}.csv".format(os.path.splitext(tfrecord)[0])
+    metadata = pd.read_csv(metadata_filename)
+
     #Create window crop index
     #predict tensor - throw error at end of record
     record_boxes = []
@@ -163,11 +157,11 @@ def predict_tile(model, tfrecord, patch_size, raster_path, patch_overlap=0.15, i
         
         #Add to window extent, create original windows object (must be consistant with generate)
         #transform coordinates to original system
-        xmin, ymin, xmax, ymax = windows[index].getRect()
-        df.xmin = df.xmin + xmin
-        df.xmax = df.xmax + xmin
-        df.ymin = df.ymin + ymin
-        df.ymax = df.ymax + ymin
+        window_df = metadata[metadata.window == index]
+        df.xmin = df.xmin + window_df.xmin
+        df.xmax = df.xmax + window_df.xmin
+        df.ymin = df.ymin + window_df.ymin
+        df.ymax = df.ymax + window_df.ymin
         
         record_results.append(df)
 
