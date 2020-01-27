@@ -21,13 +21,13 @@ raster_dir = [rgb_list[x] for x in indices]
 raster_dir = [os.path.dirname(x) for x in raster_dir]
 
 comet_experiment.log_parameter("Number of tiles",len(tfrecord_list))
-records = tfrecord_list[:1]
+records = tfrecord_list
 
 #Create model and set config
 model = predict.create_model()
 print(model.config)
-#model.config["multi-gpu"] = 2
-model.config["batch_size"] = 6 
+model.config["multi-gpu"] = 1
+model.config["batch_size"] = 1 
 
 #Predict
 comet_experiment.log_parameters(model.config)
