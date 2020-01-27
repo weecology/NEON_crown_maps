@@ -101,6 +101,10 @@ def predict_tile(model, tfrecord, patch_size, raster_path, patch_overlap=0.15, i
     numpy_image = np.array(raster)
     windows = preprocess.compute_windows(numpy_image, patch_size,patch_overlap)    
     
+    #delete large objects
+    del(raster)
+    del(numpy_image)
+    
     #Create window crop index
     #predict tensor - throw error at end of record
     record_boxes = []
