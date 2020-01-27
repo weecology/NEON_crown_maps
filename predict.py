@@ -51,6 +51,7 @@ def predict_tiles(model, records, patch_size=400, batch_size=1, raster_dir =["."
     #for each tfrecord create a tensor and step, might be more efficient to create a full set of tensors and 
     results = [ ]    
     for index, tfrecord in enumerate(records):
+        print("Running index {}, record {}".format(index, tfrecord))
         #Run predictions
         boxes = predict_tile(model=model, tfrecord=tfrecord, patch_size=patch_size, batch_size=batch_size, score_threshold=score_threshold, max_detections=max_detections, classes=classes)
         
@@ -91,15 +92,17 @@ def predict_tile(model, tfrecord, patch_size, image_size=800, batch_size=1,score
     record_labels = []
     
     #Iterate through tfrecord until the end
+    counter=0
     while True:
         try:
             box_array, score_array, label_array = model.prediction_model.predict_on_batch(iterator)
             record_boxes.append(box_array)        
             record_scores.append(score_array)
             record_labels.append(label_array)
-        
-        except tf.errors.OutOfRangeError:
-            break 
+            counter+=1
+        except tf.errors.OutOfRangeError: 
+            print("{} predictions in {}".format(counter,tfrecord))
+            break
     
     #Number of batches produced, combine into one array
     n = len(record_boxes)
