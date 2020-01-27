@@ -1,7 +1,7 @@
 #Generate tfrecords
 from start_cluster import start_dask_cluster
 from dask.distributed import wait
-import tfrecords
+from utils import tfrecords
 import glob
 
 def find_files():

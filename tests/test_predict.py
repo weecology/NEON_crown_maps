@@ -34,7 +34,7 @@ def record_list(patch_size):
     return record_list
 
 def test_predict_tile(model, record, patch_size):
-    boxes = predict.predict_tile(model, record, raster_path="data/OSBS_029.tif", patch_size=patch_size, batch_size=1)
+    boxes = predict.predict_tile(model, record, patch_size=patch_size, batch_size=1)
     assert (boxes.columns == ['xmin', 'ymin', 'xmax', 'ymax', 'score', 'label',"filename"]).all()
     
 def test_predict_tilelist(model, record_list,patch_size):
