@@ -117,7 +117,7 @@ def predict_tile(model, tfrecord, patch_size, raster_path, patch_overlap=0.15, i
             record_labels.append(label_array)
             counter+=1
         except tf.errors.OutOfRangeError: 
-            print("{} predictions in {}".format(counter,tfrecord))
+            print("{} windows in {}".format(counter,tfrecord))
             break
     
     #Number of batches produced, combine into one array
@@ -169,10 +169,11 @@ def predict_tile(model, tfrecord, patch_size, raster_path, patch_overlap=0.15, i
 
     #pandas frame
     record_df = pd.concat(record_results)
-    mosaic_df = run_non_max_suppression(record_df)
-    mosaic_df["filename"] = tfrecord    
+    record_df["filename"] = tfrecord    
+    #mosaic_df = run_non_max_suppression(record_df)
+    #mosaic_df["filename"] = tfrecord    
 
-    return mosaic_df
+    return record_df
     
 def project(raster_path, boxes):
     """Project boxes into utm"""
