@@ -10,11 +10,11 @@ def find_files():
     return tile_list
 
 #Start SLURM cluster
-client = start_dask_cluster(number_of_workers=100)
+client = start_dask_cluster(number_of_workers=150)
 
 #Find files
 tile_list = find_files()
 
-written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=800, savedir="/orange/ewhite/b.weinstein/NEON/crops/")
+written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, savedir="/orange/ewhite/b.weinstein/NEON/crops/")
 wait(written_records)
 print("{} records created".format(len(written_records)))
