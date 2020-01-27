@@ -10,7 +10,7 @@ def find_files():
     return tile_list
 
 #Start SLURM cluster
-client = start_dask_cluster(number_of_workers=100)
+client = start_dask_cluster(number_of_workers=100, mem_size="7GB")
 
 #Find files
 tile_list = find_files()
