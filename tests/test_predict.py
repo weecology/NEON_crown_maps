@@ -4,6 +4,7 @@ import sys
 #relative path hack just for pytest
 sys.path.append(os.path.dirname(os.getcwd()))
 
+import numpy as np
 import pytest
 import glob
 from .. import predict

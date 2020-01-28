@@ -67,8 +67,8 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.15, savedir=".")
         tfwriter.write(tf_example.SerializeToString())
         
         #Write metadata to csv
-        xmin, ymin, xmax, ymax = windows[index].getRect()        
-        d = {"window":[index],"xmin":[xmin],"xmax":[xmax],"ymin":[ymin],"ymax":[ymax]}
+        xmin, ymin, w, h = windows[index].getRect()        
+        d = {"window":[index],"xmin":[xmin],"ymin":[ymin]}
         df = pd.DataFrame(d)
 
         metadata.append(df)

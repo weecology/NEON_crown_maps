@@ -30,7 +30,7 @@ def run_non_max_suppression(predicted_boxes, iou_threshold=0.15):
         
         #non-max suppression
         non_max_idxs = tf.image.non_max_suppression(boxes, scores, max_output_size=max_output_size, iou_threshold=iou_threshold)
-        new_boxes = tf.cast(tf.gather(boxes, non_max_idxs), tf.int32)
+        new_boxes = tf.cast(tf.gather(boxes, non_max_idxs), tf.float32)
         new_scores = tf.gather(scores, non_max_idxs)
         new_labels =  tf.gather(labels, non_max_idxs)
         
@@ -79,7 +79,33 @@ def predict_tiles(model, records, patch_size=400, batch_size=1, raster_dir =["."
         
     return results
         
-        
+def parse_prediction(boxes, scores, labels, image_size, patch_size, score_threshold):
+    """Reduce tf prediction into pandas dataframe"""
+    #for each record
+    scale = float(image_size/patch_size)
+
+    # correct boxes for image scale
+    boxes /= scale
+
+    # select indices which have a score above the threshold
+    indices = np.where(scores[0, :] > score_threshold)[0]
+
+    # select those scores
+    scores = scores[0][indices]
+
+    # find the order with which to sort the scores
+    scores_sort = np.argsort(-scores)
+
+    # select detections
+    image_boxes      = boxes[0, indices[scores_sort], :]
+    image_scores     = scores[scores_sort]
+    image_labels     = labels[0, indices[scores_sort]]
+    image_detections = np.concatenate([image_boxes, np.expand_dims(image_scores, axis=1), np.expand_dims(image_labels, axis=1)], axis=1)
+
+    df = pd.DataFrame(image_detections, columns = ["xmin","ymin","xmax","ymax","score","label"])
+    
+    return df
+
 def predict_tile(model, tfrecord, patch_size, patch_overlap=0.15, image_size=800, batch_size=1,score_threshold=0.05, max_detections=300, classes={0:"Tree"}):
     """Predict a tile of a tfrecords windows
         Args:
@@ -127,29 +153,8 @@ def predict_tile(model, tfrecord, patch_size, patch_overlap=0.15, image_size=800
         scores  = record_scores[index]
         labels  = record_labels[index]
         
-        #for each record
-        scale = float(image_size/patch_size)
-        
-        # correct boxes for image scale
-        boxes /= scale
-    
-        # select indices which have a score above the threshold
-        indices = np.where(scores[0, :] > score_threshold)[0]
-    
-        # select those scores
-        scores = scores[0][indices]
-    
-        # find the order with which to sort the scores
-        scores_sort = np.argsort(-scores)
-    
-        # select detections
-        image_boxes      = boxes[0, indices[scores_sort], :]
-        image_scores     = scores[scores_sort]
-        image_labels     = labels[0, indices[scores_sort]]
-        image_detections = np.concatenate([image_boxes, np.expand_dims(image_scores, axis=1), np.expand_dims(image_labels, axis=1)], axis=1)
-    
-        df = pd.DataFrame(image_detections, columns = ["xmin","ymin","xmax","ymax","score","label"])
-        
+        df = parse_prediction(boxes, scores, labels, image_size, patch_size, score_threshold)
+
         #Change numberic class into string label
         df.label = df.label.astype(int)
         df.label = df.label.apply(lambda x: classes[x])
@@ -158,10 +163,12 @@ def predict_tile(model, tfrecord, patch_size, patch_overlap=0.15, image_size=800
         #Add to window extent, create original windows object (must be consistant with generate)
         #transform coordinates to original system
         window_df = metadata[metadata.window == index]
-        df.xmin = df.xmin + window_df.xmin
-        df.xmax = df.xmax + window_df.xmin
-        df.ymin = df.ymin + window_df.ymin
-        df.ymax = df.ymax + window_df.ymin
+        xmin = window_df.xmin.values[0]
+        ymin = window_df.ymin.values[0]
+        df.xmin = df.xmin + xmin
+        df.xmax = df.xmax + xmin
+        df.ymin = df.ymin + ymin
+        df.ymax = df.ymax + ymin
         
         record_results.append(df)
 

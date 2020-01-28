@@ -47,7 +47,7 @@ def start_dask_cluster(number_of_workers, mem_size="10GB"):
         memory=mem_size, 
         walltime='24:00:00',
         job_extra=extra_args,
-        local_directory="/home/b.weinstein/logs/dask/", death_timeout=300)
+        local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)
 
     print(cluster.job_script())
     cluster.adapt(minimum=number_of_workers, maximum=number_of_workers)
