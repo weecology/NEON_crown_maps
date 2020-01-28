@@ -12,11 +12,6 @@ from utils import tfrecords
 from deepforest import deepforest
 from deepforest import preprocess
 
-def create_model():
-    model = deepforest.deepforest()
-    model.use_release()
-    return model
-
 def run_non_max_suppression(predicted_boxes, iou_threshold=0.15):
     """Run non-max supression on a pandas dataframe of results"""
     with tf.Session() as sess:

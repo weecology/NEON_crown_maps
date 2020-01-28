@@ -2,6 +2,7 @@ from comet_ml import Experiment
 import glob
 import predict
 import os
+from deepforest import deepforest
 
 comet_experiment = Experiment(api_key="ypQZhYfs3nSyKzOfz13iuJpj2",
                               project_name="frenchguiana", workspace="bw4sz")
@@ -24,9 +25,13 @@ comet_experiment.log_parameter("Number of tiles",len(tfrecord_list))
 records = tfrecord_list[:10]
 
 #Create model and set config
-model = predict.create_model()
+model = deepforest.deepforest()
 print(model.config)
+
+#Multi-gpu must be invoked before use release.
 model.config["multi-gpu"] = 1
+model.use_release()
+
 model.config["batch_size"] = 25
 
 #Predict
