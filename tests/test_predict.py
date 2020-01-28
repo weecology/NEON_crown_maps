@@ -35,9 +35,9 @@ def record_list(patch_size):
     return record_list
 
 def test_predict_tile(model, record, patch_size):
-    boxes = predict.predict_tile(model, record, patch_size=patch_size, batch_size=1)
+    boxes = predict.predict_tile(model, record, patch_size=patch_size, batch_size=2)
     assert (boxes.columns == ['xmin', 'ymin', 'xmax', 'ymax', 'score', 'label',"filename"]).all()
     
 def test_predict_tilelist(model, record_list,patch_size):
-    boxes = predict.predict_tiles(model, records=record_list,patch_size=patch_size, batch_size=1,raster_dir=["data","data"], score_threshold=0.05,max_detections=300,classes={0:"Tree"},save_dir="output")    
+    boxes = predict.predict_tiles(model, records=record_list,patch_size=patch_size, batch_size=2,raster_dir=["data","data"], score_threshold=0.05,max_detections=300,classes={0:"Tree"},save_dir="output")    
     assert len(boxes) == len(record_list)

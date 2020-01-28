@@ -30,7 +30,7 @@ def run_non_max_suppression(predicted_boxes, iou_threshold=0.15):
         
         #non-max suppression
         non_max_idxs = tf.image.non_max_suppression(boxes, scores, max_output_size=max_output_size, iou_threshold=iou_threshold)
-        new_boxes = tf.cast(tf.gather(boxes, non_max_idxs), tf.float32)
+        new_boxes = tf.cast(tf.gather(boxes, non_max_idxs), tf.uint32)
         new_scores = tf.gather(scores, non_max_idxs)
         new_labels =  tf.gather(labels, non_max_idxs)
         
@@ -135,23 +135,34 @@ def predict_tile(model, tfrecord, patch_size, patch_overlap=0.15, image_size=800
     counter=0
     while True:
         try:
+            #Predict batch of data
             box_array, score_array, label_array = model.prediction_model.predict_on_batch(iterator)
             record_boxes.append(box_array)        
             record_scores.append(score_array)
             record_labels.append(label_array)
             counter+=1
         except tf.errors.OutOfRangeError: 
-            print("{} windows in {}".format(counter,tfrecord))
+            print("{} batches in {}".format(counter,tfrecord))
             break
     
-    #Number of batches produced, combine into one array
-    n = len(record_boxes)
+    #Number of batches produced, TODO combine into one array?
+    record_boxes = np.concatenate(record_boxes)
+    record_scores = np.concatenate(record_scores)
+    record_labels = np.concatenate(record_labels)
+
+    n = record_boxes.shape[0]
     
-    #Process each prediction batch
+    #Parse predictions
     for index in np.arange(n):
-        boxes  = record_boxes[index]
-        scores  = record_scores[index]
-        labels  = record_labels[index]
+        #Process each prediction into batch of 1        
+        boxes  = record_boxes[index,:,:]
+        boxes =  np.expand_dims(boxes, 0)
+        
+        scores  = record_scores[index,:]
+        scores =  np.expand_dims(scores, 0)        
+        
+        labels  = record_labels[index,:]
+        labels =  np.expand_dims(labels, 0)
         
         df = parse_prediction(boxes, scores, labels, image_size, patch_size, score_threshold)
 
