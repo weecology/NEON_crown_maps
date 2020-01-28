@@ -21,16 +21,14 @@ indices = [rgb_names.index(x) for x in tfrecord_names]
 raster_dir = [rgb_list[x] for x in indices]
 raster_dir = [os.path.dirname(x) for x in raster_dir]
 
-comet_experiment.log_parameter("Number of tiles",len(tfrecord_list))
 records = tfrecord_list[:10]
+comet_experiment.log_parameter("Number of tiles",len(records))
 
-#Create model and set config
+#Create model to get path to use release
 model = deepforest.deepforest()
-print(model.config)
+model.use_release(gpus=2)
 
-#Multi-gpu must be invoked before use release.
-model.config["multi-gpu"] = 1
-model.use_release()
+print(model.config)
 
 model.config["batch_size"] = 25
 
