@@ -30,7 +30,7 @@ def run_non_max_suppression(predicted_boxes, iou_threshold=0.15):
         
         #non-max suppression
         non_max_idxs = tf.image.non_max_suppression(boxes, scores, max_output_size=max_output_size, iou_threshold=iou_threshold)
-        new_boxes = tf.cast(tf.gather(boxes, non_max_idxs), tf.uint32)
+        new_boxes = tf.cast(tf.gather(boxes, non_max_idxs), tf.int32)
         new_scores = tf.gather(scores, non_max_idxs)
         new_labels =  tf.gather(labels, non_max_idxs)
         
