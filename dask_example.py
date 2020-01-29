@@ -1,15 +1,14 @@
 from dask_jobqueue import SLURMCluster
 from dask.distributed import Client
 
-#new line    
 #job args
 extra_args=[
     "--error=/home/b.weinstein/logs/dask-worker-%j.err",
     "--account=ewhite",
     "--output=/home/b.weinstein/logs/dask-worker-%j.out",
     "--partition=gpu",
-    "--gpus=1"
-]
+    "--gpus=1",
+ "module load tensorflow/1.14.0"]
 
 cluster = SLURMCluster(
     processes=1,
