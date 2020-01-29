@@ -3,7 +3,7 @@ import os
 from start_cluster import GPU_cluster
 from distributed import wait
 
-def run(records):
+def run(records, raster_dir):
     from comet_ml import Experiment    
     comet_experiment = Experiment(api_key="ypQZhYfs3nSyKzOfz13iuJpj2",
                               project_name="frenchguiana", workspace="bw4sz")
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     
     client = GPU_cluster(gpus=2)
     
-    results = client.map(run, records)
+    results = client.map(run, records, raster_dir)
     wait(results)
     
     
