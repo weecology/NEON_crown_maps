@@ -7,12 +7,14 @@ sys.path.append(os.path.dirname(os.getcwd()))
 import numpy as np
 import pytest
 import glob
-from .. import predict
+from deepforest import deepforest
 from ..utils import tfrecords
+from .. import predict
 
 @pytest.fixture()
 def model():
-    model = predict.create_model()
+    model = deepforest.deepforest()
+    model.use_release()
     return model
 
 @pytest.fixture()

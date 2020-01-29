@@ -125,7 +125,7 @@ def predict_tile(model, tfrecord, patch_size, patch_overlap=0.15, image_size=800
     record_boxes = []
     record_scores = []
     record_labels = []
-    
+
     #Iterate through tfrecord until the end
     counter=0
     while True:
