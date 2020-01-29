@@ -59,7 +59,7 @@ def start_dask_cluster(number_of_workers, mem_size="10GB"):
     
     return dask_client
                 
-def GPU_cluster(number_of_workers=2, mem_size="10GB"):
+def GPU_cluster(gpus=2, mem_size="10GB"):
     #################
     # Setup dask cluster
     #################
@@ -83,7 +83,7 @@ def GPU_cluster(number_of_workers=2, mem_size="10GB"):
         local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)
 
     print(cluster.job_script())
-    cluster.adapt(minimum=number_of_workers, maximum=number_of_workers)
+    cluster.adapt(minimum=gpus, maximum=gpus)
 
     dask_client = Client(cluster)
 

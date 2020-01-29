@@ -25,13 +25,11 @@ raster_dir = [os.path.dirname(x) for x in raster_dir]
 
 records = tfrecord_list[:10]
 
-comet_experiment.log_parameter("Number of tiles",len(records))
-
 #Splits into chunks of size GPU
 record_list = list(zip(*[iter(records)]*int(len(records)/GPUS)))
 
 #Start GPU cluster
-client = GPU_cluster(gpus=2)
+client = start_cluster.GPU_cluster(gpus=2)
 
 #Create model to get path to use release
 def run(records):
