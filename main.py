@@ -2,6 +2,7 @@ from comet_ml import Experiment
 import glob
 import predict
 import os
+from deepforest import deepforest
 
 comet_experiment = Experiment(api_key="ypQZhYfs3nSyKzOfz13iuJpj2",
                               project_name="frenchguiana", workspace="bw4sz")
@@ -24,7 +25,8 @@ comet_experiment.log_parameter("Number of tiles",len(tfrecord_list))
 records = tfrecord_list[:10]
 
 #Create model and set config
-model = predict.create_model()
+model = deepforest.deepforest()
+model.use_release()
 print(model.config)
 model.config["batch_size"] = 25
 
