@@ -40,7 +40,8 @@ if __name__ == "__main__":
     
     client = GPU_cluster(gpus=2)
     
-    results = client.map(run, records, raster_dir)
+    iterable = zip(records,raster_dir)
+    results = client.map(run, iterable)
     wait(results)
     
     
