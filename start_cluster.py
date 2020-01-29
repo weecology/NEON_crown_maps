@@ -82,10 +82,10 @@ def GPU_cluster(gpus=2, mem_size="20GB"):
         local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)
 
     print(cluster.job_script())
-    cluster.start_workers(gpus)
+    cluster.scale(gpus)    
 
     dask_client = Client(cluster)
-
+    
     #Start dask
     dask_client.run_on_scheduler(start_tunnel)  
     
