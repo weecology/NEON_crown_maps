@@ -36,7 +36,6 @@ if __name__ == "__main__":
     raster_dir = [rgb_list[x] for x in indices]
     raster_dir = [os.path.dirname(x) for x in raster_dir]
     
-    comet_experiment.log_parameter("Number of tiles",len(tfrecord_list))
     records = tfrecord_list[:10]
     
     client = GPU_cluster(gpus=2)
