@@ -42,7 +42,7 @@ if __name__ == "__main__":
     
     client = GPU_cluster(gpus=2)
     
-    results = client.map(run, records=records,raster_dir=raster_dir)
+    results = client.map(run, records,raster_dir)
     wait(results)
     
     
