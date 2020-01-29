@@ -19,7 +19,7 @@ def run(records, raster_dir):
     
     #Predict
     comet_experiment.log_parameters(model.config)
-    predict.predict_tiles(model, [records], patch_size=400, raster_dir=raster_dir, save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
+    predict.predict_tiles(model, [records], patch_size=400, raster_dir=[raster_dir], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
 
 #f
 if __name__ == "__main__":
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     
     client = GPU_cluster(gpus=2)
     
-    results = client.map(run, records,raster_dir)
+    results = client.map(run, records=records,raster_dir=raster_dir)
     wait(results)
     
     
