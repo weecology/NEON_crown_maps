@@ -37,10 +37,10 @@ if __name__ == "__main__":
     raster_dir = [rgb_list[x] for x in indices]
     raster_dir = [os.path.dirname(x) for x in raster_dir]
     
-    records = tfrecord_list[:10]
-    raster_dir =raster_dir[:10]
+    records = tfrecord_list[:50]
+    raster_dir =raster_dir[:50]
     
-    client = GPU_cluster(gpus=2)
+    client = GPU_cluster(gpus=5)
     
     results = client.map(run, records,raster_dir)
     wait(results)
