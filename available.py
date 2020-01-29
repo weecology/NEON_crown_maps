@@ -8,6 +8,6 @@ def devices():
     from tensorflow.python.client import device_lib
     return device_lib.list_local_devices()
 
-available()
+print(available())
 
-devices()
+print(devices())
