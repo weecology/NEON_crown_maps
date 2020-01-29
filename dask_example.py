@@ -3,15 +3,26 @@ import dask
 from distributed import wait
 import start_cluster
 
-def test():
-    tf.test.is_gpu_available()
-
 #new line    
 client = start_cluster.GPU_cluster(gpus=2)
 
+#available
+def available():
+    import tensorflow as tf    
+    return tf.test.is_gpu_available()
+    
+#list devices
+def devices():
+    from tensorflow.python.client import device_lib
+    return device_lib.list_local_devices()
 
-future = client.submit(test)
-future.result()
+#submit 
+future = client.submit(devices)
+print(future.result())
+    
+#submit 
+future = client.submit(available)
+print(future.result())
 
 def run():
     
