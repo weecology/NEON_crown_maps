@@ -59,7 +59,7 @@ def start_dask_cluster(number_of_workers, mem_size="10GB"):
     
     return dask_client
                 
-def GPU_cluster(gpus=2, mem_size="10GB"):
+def GPU_cluster(gpus=2, mem_size="20GB"):
     #################
     # Setup dask cluster
     #################
@@ -75,7 +75,6 @@ def GPU_cluster(gpus=2, mem_size="10GB"):
 
     cluster = SLURMCluster(
         processes=1,
-        queue='hpg2-compute',
         cores=1, 
         memory=mem_size, 
         walltime='24:00:00',
