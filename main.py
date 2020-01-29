@@ -3,7 +3,7 @@ import os
 from start_cluster import GPU_cluster
 from distributed import wait
 
-def run():
+def run(records):
     from comet_ml import Experiment    
     comet_experiment = Experiment(api_key="ypQZhYfs3nSyKzOfz13iuJpj2",
                               project_name="frenchguiana", workspace="bw4sz")
@@ -19,7 +19,7 @@ def run():
     
     #Predict
     comet_experiment.log_parameters(model.config)
-    predict.predict_tiles(model, records, patch_size=400, raster_dir=raster_dir, save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
+    predict.predict_tiles(model, [records], patch_size=400, raster_dir=raster_dir, save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
 
 if __name__ == "__main__":
     #RGB files
