@@ -7,8 +7,7 @@ extra_args=[
     "--account=ewhite",
     "--output=/home/b.weinstein/logs/dask-worker-%j.out",
     "--partition=gpu",
-    "--gpus=1",
- "module load tensorflow/1.14.0"]
+    "--gpus=1"]
 
 cluster = SLURMCluster(
     processes=1,
@@ -16,6 +15,10 @@ cluster = SLURMCluster(
     memory="20GB", 
     walltime='24:00:00',
     job_extra=extra_args,
+    env_extra=['module load tensorflow/1.14.0',
+               'export PATH=${PATH}:/apps/tensorflow/1.14.0py3/bin',
+               'echo $PYTHONPATH',
+               'echo $PATH'],
     local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)
 
 print(cluster.job_script())
@@ -25,6 +28,13 @@ client = Client(cluster)
 
 #available
 def available():
+    import os, sys
+    sys.path.insert(0,"/apps/lmod/lmod/init/")
+    
+    from env_modules_python import module
+    
+    module("load","tensorflow/1.14")
+    
     import tensorflow as tf    
     return tf.test.is_gpu_available()
 
