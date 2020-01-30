@@ -15,7 +15,7 @@ def run(records, raster_dir):
     model = deepforest.deepforest()
     model.use_release()
     print(model.config)
-    model.config["batch_size"] = 100
+    model.config["batch_size"] = 125
     
     #Predict
     comet_experiment.log_parameters(model.config)
