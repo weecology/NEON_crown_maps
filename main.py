@@ -4,9 +4,9 @@ from start_cluster import GPU_cluster, start_dask_cluster
 from distributed import wait
 
 def run(records, raster_dir):
-    from comet_ml import Experiment    
-    comet_experiment = Experiment(api_key="ypQZhYfs3nSyKzOfz13iuJpj2",
-                              project_name="frenchguiana", workspace="bw4sz")
+    #from comet_ml import Experiment    
+    #comet_experiment = Experiment(api_key="ypQZhYfs3nSyKzOfz13iuJpj2",
+    #                         project_name="frenchguiana", workspace="bw4sz")
 
     from deepforest import deepforest
     import predict
@@ -15,10 +15,10 @@ def run(records, raster_dir):
     model = deepforest.deepforest()
     model.use_release()
     print(model.config)
-    model.config["batch_size"] = 125
+    model.config["batch_size"] = 32
     
     #Predict
-    comet_experiment.log_parameters(model.config)
+    #comet_experiment.log_parameters(model.config)
     predict.predict_tiles(model, [records], patch_size=400, raster_dir=[raster_dir], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
 
 if __name__ == "__main__":
