@@ -83,6 +83,7 @@ def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0
 if __name__ == "__main__":
     
     from start_cluster import start_dask_cluster
+    from distributed import wait
     
     #Find files
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
@@ -98,4 +99,5 @@ if __name__ == "__main__":
     image_paths = [rgb_list[x] for x in indices]
     
     client = start_dask_cluster(number_of_workers=5)
-    client.map(run,image_paths,predictions,save_dir="/orange/ewhite/b.weinstein/NEON/mining/")
+    futures = client.map(run,image_paths,predictions,save_dir="/orange/ewhite/b.weinstein/NEON/mining/")
+    wait(futures)
