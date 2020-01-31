@@ -1,15 +1,11 @@
-#Hard Mining
+#Hard Mining of uncertain frames from DeepForest predictions
 import os
+import glob
 import geopandas
+import numpy as np
+import pandas as pd
 import rasterio
 from rasterio import windows as rwindow
-from rasterio import mask
-import cv2
-from PIL import Image
-import numpy as np
-from shapely.geometry import box
-import pandas as pd
-
 from deepforest import preprocess
 
 def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0.15):
