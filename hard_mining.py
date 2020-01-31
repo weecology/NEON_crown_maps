@@ -83,3 +83,23 @@ def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0
     #Format annotations frame
     shp_filename = os.path.join(save_dir,"{}_{}.shp".format(image_name,lowest_index))    
     worst_window.to_file(shp_filename, driver='ESRI Shapefile')
+    
+if __name__ == "__main__":
+    
+    from start_cluster import start_dask_cluster
+    
+    #Find files
+    rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
+    
+    #tfrecord files
+    predictions = glob.glob("/orange/ewhite/b.weinstein/NEON/predictions/*.shp")
+    
+    #match rgb list to tfrecords
+    rgb_names = [os.path.splitext(os.path.basename(x))[0] for x in rgb_list]
+    predictions_names = [os.path.splitext(os.path.basename(x))[0] for x in predictions]
+    
+    indices = [rgb_names.index(x) for x in predictions_names]
+    image_paths = [rgb_list[x] for x in indices]
+    
+    client = start_dask_cluster(number_of_workers=5)
+    client.map(run,image_paths,predictions,save_dir="/orange/ewhite/b.weinstein/NEON/mining/")
