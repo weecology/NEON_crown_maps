@@ -64,8 +64,9 @@ def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0
     #save RGB windows to file
     rasterio_window = rwindow.Window.from_slices(rows=crop_index[lowest_index].indices()[0],cols=crop_index[lowest_index].indices()[1])    
     crop_filename = os.path.join(save_dir,"{}_{}.tif".format(image_name,lowest_index)) 
-    rwindow.transform(rasterio_window,raster.window_transform)
+    rwindow.transform(rasterio_window,raster.window_transform(rasterio_window))
     
+    out_profile = raster.profile.copy()
     with  rasterio.open(crop_filename, 'w',dtype=out_profile["dtype"],
                         driver="GTiff",
                         count=3,
