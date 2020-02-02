@@ -8,8 +8,10 @@ import rasterio
 from rasterio import windows as rwindow
 from deepforest import preprocess
 
-def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0.15):
+def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0.15, min_tree = 1 ):
     """Run Hard Negative Mining. Loop through a series of DeepForest predictions, find the highest and lowest scoring quantiles and save them for retraining
+        Args:
+            min_tree: Minimum number of trees in an image to consider
     """
     #Read shapefile
     shp = geopandas.read_file(prediction_path)
@@ -28,6 +30,7 @@ def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0
     #Score dict
     scores = {}
     data = {}
+    trees = {}
     crop_index = {}
     
     #Create spatial index
@@ -36,6 +39,7 @@ def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0
     for index,window in enumerate(windows):
         window_xmin, window_ymin, width, height = window.getRect()
         print(index)
+        
         #transform    
         xmin = (window_xmin * cell_size) + left
         xmax = (window_xmin + width) * cell_size  + left
@@ -52,11 +56,17 @@ def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0
         except:
                 continue
         scores[index] = pd.to_numeric(filtered_boxes.score).mean()
+        trees[index] = filtered_boxes.shape[0]
         data[index] = filtered_boxes
         crop_index[index] = window
-    
+        
     #Find highest 5th and lowest fifth quartile
     score_df = pd.Series(scores)
+    tree_df = pd.Series(trees)
+    score_df = pd.DataFrame({"score":score_df,"tree":tree_df})
+    
+    #If min tree is greater than 1, eliminate windows
+    score_df = score_df[score_df.tree > min_tree] 
     lowest = score_df.min()
     lowest_index = score_df[score_df == lowest].index[0]
     worst_window = data[lowest_index]
@@ -80,7 +90,7 @@ def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0
     #Format annotations frame
     shp_filename = os.path.join(save_dir,"{}_{}.shp".format(image_name, lowest_index))    
     worst_window.to_file(shp_filename, driver='ESRI Shapefile')
-    
+
 if __name__ == "__main__":
     
     from start_cluster import start_dask_cluster
@@ -99,6 +109,13 @@ if __name__ == "__main__":
     indices = [rgb_names.index(x) for x in predictions_names]
     image_paths = [rgb_list[x] for x in indices]
     
-    client = start_dask_cluster(number_of_workers=5)
-    futures = client.map(run,image_paths,predictions,save_dir="/orange/ewhite/b.weinstein/NEON/mining/")
+    #Create cluster
+    client = start_dask_cluster(number_of_workers=10)
+    
+    #Strategy 1 - all windows
+    futures = client.map(run,image_paths,predictions,save_dir="/orange/ewhite/b.weinstein/NEON/mining/", min_tree = 1)
+    
+    #Strategy 2 - more than 10 trees
+    futures = client.map(run,image_paths,predictions,save_dir="/orange/ewhite/b.weinstein/NEON/mining/", min_tree = 10)
+    
     wait(futures)
