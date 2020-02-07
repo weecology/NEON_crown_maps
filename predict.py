@@ -193,16 +193,18 @@ def project(raster_path, boxes):
         pixelSizeX, pixelSizeY  = dataset.res
     
     #subtract origin. Recall that numpy origin is top left! Not bottom left.
-    boxes["xmin"] = (boxes["xmin"] *pixelSizeX) + bounds.left
-    boxes["xmax"] = (boxes["xmax"] * pixelSizeX) + bounds.left
-    boxes["ymin"] = bounds.top - (boxes["ymin"] * pixelSizeY) 
-    boxes["ymax"] = bounds.top - (boxes["ymax"] * pixelSizeY)
+    boxes["left"] = (boxes["xmin"] *pixelSizeX) + bounds.left
+    boxes["right"] = (boxes["xmax"] * pixelSizeX) + bounds.left
+    boxes["top"] = bounds.top - (boxes["ymin"] * pixelSizeY) 
+    boxes["bottom"] = bounds.top - (boxes["ymax"] * pixelSizeY)
     
     # combine column to a shapely Box() object, save shapefile
-    boxes['geometry'] = boxes.apply(lambda x: shapely.geometry.box(x.xmin,x.ymin,x.xmax,x.ymax), axis=1)
+    boxes['geometry'] = boxes.apply(lambda x: shapely.geometry.box(x.left,x.top,x.right,x.bottom), axis=1)
     boxes = geopandas.GeoDataFrame(boxes, geometry='geometry')
     
     #set projection, (see dataset.crs) hard coded here
     boxes.crs = {'init' :"{}".format(dataset.crs)}
-        
+    
+    #Select columns
+    boxes = boxes[["left","bottom","right","top","score","label","geometry"]]    
     return boxes

@@ -98,45 +98,6 @@ def load_lidar(laz_path, normalize=True):
     assert (not pc.data.points.shape[0] == 0), "Lidar tile is empty!"
     
     return pc
-
-def createPolygon(xmin, xmax, ymin, ymax):
-    '''
-    Convert a pandas row into a polygon bounding box
-    ''' 
-    p1 = geometry.Point(xmin,ymax)
-    p2 = geometry.Point(xmax,ymax)
-    p3 = geometry.Point(xmax,ymin)
-    p4 = geometry.Point(xmin,ymin)
-    
-    pointList = [p1, p2, p3, p4, p1]
-    
-    poly = geometry.Polygon([[p.x, p.y] for p in pointList])
-    
-    return poly
-
-
-def get_window_extent(annotations, row, windows, rgb_res):
-    '''
-    Get the geographic coordinates of the sliding window.
-    Be careful that the ymin in the geographic data refers to the utm (bottom) and the ymin in the cartesian refers to origin (top). 
-    '''
-    #Select tile from annotations to get extent
-    tile_annotations = annotations[annotations["rgb_path"]==row["tile"]]
-    
-    #Set tile extent to convert to UTMs, flipped origin from R to Python
-    tile_xmin = tile_annotations.tile_xmin.unique()[0]
-    tile_ymax = tile_annotations.tile_ymax.unique()[0]
-    tile_ymin = tile_annotations.tile_ymin.unique()[0]
-    
-    #Get window cartesian coordinates
-    x,y,w,h= windows[row["window"]].getRect()
-    
-    window_utm_xmin = x * rgb_res + tile_xmin
-    window_utm_xmax = (x+w) * rgb_res + tile_xmin
-    window_utm_ymax = tile_ymax - (y * rgb_res)
-    window_utm_ymin= tile_ymax - ((y+h) * rgb_res)
-    
-    return(window_utm_xmin, window_utm_xmax, window_utm_ymin, window_utm_ymax)
          
 def check_density(pc, bounds=[]):
     ''''
@@ -168,138 +129,45 @@ def check_density(pc, bounds=[]):
     
     return density
 
-def drape_boxes(boxes, pc, bounds=[]):
+def lookup_height(left, right, bottom, top,pc):
+    """Find max return height for each predicted tree
+    row: a geopandas dataframe row of bounding boxes
+    pc: a pyfor point cloud
+    """
+    box_points  = pc.data.points.loc[(pc.data.points.x > left) &
+                                         (pc.data.points.x < right)  &
+                                         (pc.data.points.y >bottom)   &
+                                         (pc.data.points.y < top)]
+
+    max_height = box_points.z.max()     
+    return max_height
+
+def drape_boxes(boxes, pc, min_height=3):
     '''
-    boxes: predictions from retinanet
+    boxes: geopandas dataframe of predictions from DeepForest
     pc: Optional point cloud from memory, on the fly generation
     bounds: optional utm bounds to restrict utm box
     '''
+    #Get max height of tree box    
+    boxes["height"] = boxes.apply(lambda row: lookup_height(row["left"], row["right"],row["bottom"],row["top"], pc),axis=1)
+        
+    #remove boxes too small
+    boxes = boxes[boxes["height"]>min_height]
     
-    #reset user_data column
-    pc.data.points.user_data =  np.nan
-        
-    tree_counter = 1
-    for box in boxes:
-
-        #Find utm coordinates
-        xmin, xmax, ymin, ymax = find_utm_coords(box=box, pc=pc, bounds=bounds)
-        
-        #Get max height of tree box
-        box_points  = pc.data.points.loc[(pc.data.points.x > xmin) & (pc.data.points.x < xmax)  & (pc.data.points.y > ymin)   & (pc.data.points.y < ymax)]
-        
-        max_height = box_points.z.max() 
-        
-        
-        #Skip if under 3 meters
-        if max_height < 3:
-            continue
-        else:
-            #Update points
-            pc.data.points.loc[(pc.data.points.x > xmin) & (pc.data.points.x < xmax)  & (pc.data.points.y > ymin)   & (pc.data.points.y < ymax),"user_data"] = tree_counter
-            
-            #update counter
-            tree_counter +=1 
-
-    return pc    
+    return boxes    
     
-def find_utm_coords(box, pc, rgb_res = 0.1, bounds = []):
-    
+def postprocess(shapefile, pc, bounds=None):
     """
-    Turn cartesian coordinates back to projected utm
-    bounds: an optional offset for finding the position of a window within the data
+    Drape a shapefile of bounding box predictions over LiDAR cloud
     """
-    xmin = box[0]
-    ymin = box[1]
-    xmax = box[2]
-    ymax = box[3]
+    #Read shapefile
+    df = geopandas.read(shapefile)
     
-    #add offset if needed
-    if len(bounds) > 0:
-        tile_xmin, _ , _ , tile_ymax = bounds   
-    else:
-        tile_xmin = pc.data.points.x.min()
-        tile_ymax = pc.data.points.y.max()
-        
-    window_utm_xmin = xmin * rgb_res + tile_xmin
-    window_utm_xmax = xmax * rgb_res + tile_xmin
-    window_utm_ymin = tile_ymax - (ymax * rgb_res)
-    window_utm_ymax= tile_ymax - (ymin* rgb_res)     
-        
-    return(window_utm_xmin, window_utm_xmax, window_utm_ymin, window_utm_ymax)
-
-def cloud_to_box(pc, bounds=[]):
-    ''''
-    pc: a pyfor point cloud with labeled tree data in the 'user_data' column.
-    Turn a point cloud with a "user_data" attribute into a numpy array of boxes
-    '''
-    tree_boxes = [ ]
+    #Convert data types
+    boxes[["left","bottom","right","top"]] = boxes[["left","bottom","right","top"]].astype(float)
     
-    tree_ids = pc.data.points.user_data.dropna().unique()
+    #Drape boxes
+    boxes = drape_boxes(boxes=df, pc = pc, min_height=3)     
     
-    #Try to follow order of input boxes, start at Tree 1.
-    tree_ids.sort()
-    
-    #For each tree, get the bounding box
-    for tree_id in tree_ids:
-        
-        #Select points
-        points = pc.data.points.loc[pc.data.points.user_data == tree_id,["x","y"]]
-        
-        #turn utm to cartesian, subtract min x and max y value, divide by cell size. Max y because numpy 0,0 origin is top left. utm N is top. 
-        #FIND UTM coords here
-        if len(bounds) > 0:
-            tile_xmin, _ , _ , tile_ymax = bounds     
-            points.x = points.x - tile_xmin
-            points.y = tile_ymax - points.y 
-        else:
-            points.x = points.x - pc.data.points.x.min()
-            points.y = pc.data.points.y.max() - points.y 
-        
-            points =  points/ 0.1
-        
-        s = gp.GeoSeries(map(geometry.Point, zip(points.x, points.y)))
-        point_collection = geometry.MultiPoint(list(s))        
-        point_bounds = point_collection.bounds
-        
-        #if no area, remove treeID, just a single lidar point.
-        if point_bounds[0] == point_bounds[2]:
-            continue
-        
-        tree_boxes.append(point_bounds)
-        
-    #pass as numpy array
-    tree_boxes =np.array(tree_boxes)
-    
-    return tree_boxes
-    
-def cloud_to_polygons(pc):
-    ''''
-    Turn a point cloud with a "Tree" attribute into 2d polygons for calculating IoU
-    returns a geopandas frame of convex hulls
-    '''
-        
-    hulls = [ ]
-    
-    tree_ids = pc.data.points.user_data.dropna().unique()
-    
-    for treeid in tree_ids:
-        
-        points = pc.data.points.loc[pc.data.points.user_data == treeid,["x","y"]].values
-        s = gp.GeoSeries(map(geometry.Point, zip(points[:,0], points[:,1])))
-        point_collection = geometry.MultiPoint(list(s))
-        convex_hull = point_collection.convex_hull
-        hulls.append(convex_hull)
-        
-    hulldf = gp.GeoSeries(hulls)
-    
-    return hulldf
-
-def postprocess(image_boxes, pc, bounds=None):
-    pc = drape_boxes(boxes=image_boxes, pc = pc, bounds=bounds)     
-
-    #Get new bounding boxes
-    image_boxes = postprocessing.cloud_to_box(pc, bounds)    
-    image_scores = image_scores[:image_boxes.shape[0]]
-    image_labels = image_labels[:image_boxes.shape[0]] 
-    
+    return boxes
     

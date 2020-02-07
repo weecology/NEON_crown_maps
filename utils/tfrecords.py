@@ -46,7 +46,7 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.15, savedir=".")
     #If more than 10% black, remove edge tile
     if is_black > 0.10:
         print("{} is an edge tile, {number:.{digits}f}% black pixels".format(tile_path,number=is_black*100,digits=1))
-        break
+        return None
     
     #Create window crop index
     windows = preprocess.compute_windows(numpy_image, patch_size,patch_overlap)
