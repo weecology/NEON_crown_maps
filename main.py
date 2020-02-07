@@ -20,7 +20,7 @@ def run(records, raster_dir):
     #Predict
     #comet_experiment.log_parameters(model.config)
     predict.predict_tiles(model, [records], patch_size=400, raster_dir=[raster_dir], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
-
+    
 if __name__ == "__main__":
     #RGB files
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
@@ -44,6 +44,7 @@ if __name__ == "__main__":
     results = client.map(run, records,raster_dir)
     wait(results)
     
+    #
     #cpu_client = start_dask_cluster(number_of_workers=10)
     #cpu_client()
     

@@ -67,6 +67,11 @@ def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0
     
     #If min tree is greater than 1, eliminate windows
     score_df = score_df[score_df.tree > min_tree] 
+    
+    if score_df.empty:
+        print("No windows with more than {} trees".format(min_tree))
+        break
+    
     lowest = score_df.min()
     lowest_index = score_df[score_df == lowest].index[0]
     worst_window = data[lowest_index]
