@@ -169,5 +169,8 @@ def postprocess(shapefile, pc, bounds=None):
     #Drape boxes
     boxes = drape_boxes(boxes=df, pc = pc, min_height=3)     
     
+    #Calculate crown area
+    boxes["area"] = (boxes["top"] - boxes["bottom"]) * (boxes["left"] - boxes["right"])
+    
     return boxes
     
