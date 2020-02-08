@@ -1,5 +1,5 @@
 #Generate tfrecords
-from start_cluster import start_dask_cluster
+from start_cluster import start
 from dask.distributed import wait
 from utils import tfrecords
 import glob
@@ -11,7 +11,7 @@ def find_files():
     return tile_list
 
 #Start SLURM cluster
-client = start_dask_cluster(number_of_workers=50, mem_size="7GB")
+client = start(cpus=50, mem_size="7GB")
 
 #Find files
 tile_list = find_files()

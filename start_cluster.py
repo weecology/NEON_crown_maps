@@ -28,29 +28,50 @@ def start_tunnel():
     #flush system
     sys.stdout.flush()
     
-def start_dask_cluster(number_of_workers, mem_size="10GB"):
+def start(cpus=0, gpus=0, mem_size="10GB"):
     #################
     # Setup dask cluster
     #################
 
-    #job args
-    extra_args=[
-        "--error=/home/b.weinstein/logs/dask-worker-%j.err",
-        "--account=ewhite",
-        "--output=/home/b.weinstein/logs/dask-worker-%j.out"
-    ]
-
-    cluster = SLURMCluster(
-        processes=1,
-        queue='hpg2-compute',
-        cores=1, 
-        memory=mem_size, 
-        walltime='24:00:00',
-        job_extra=extra_args,
-        local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)
-
-    print(cluster.job_script())
-    cluster.adapt(minimum=number_of_workers, maximum=number_of_workers)
+    if cpus > 0:
+        #job args
+        extra_args=[
+            "--error=/home/b.weinstein/logs/dask-worker-%j.err",
+            "--account=ewhite",
+            "--output=/home/b.weinstein/logs/dask-worker-%j.out"
+        ]
+    
+        cluster = SLURMCluster(
+            processes=1,
+            queue='hpg2-compute',
+            cores=1, 
+            memory=mem_size, 
+            walltime='24:00:00',
+            job_extra=extra_args,
+            extra=['--resources cpu=1'],
+            local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)
+    
+        print(cluster.job_script())
+        cluster.scale(minimum=cpus)
+        
+    if gpus:
+        #job args
+        extra_args=[
+            "--error=/home/b.weinstein/logs/dask-worker-%j.err",
+            "--account=ewhite",
+            "--output=/home/b.weinstein/logs/dask-worker-%j.out",
+            "--partition=gpu",
+            "--gpus=1"
+        ]
+    
+        cluster = SLURMCluster(
+            processes=1,
+            cores=1, 
+            memory=mem_size, 
+            walltime='24:00:00',
+            job_extra=extra_args,
+            extra=['--resources gpu=1'],            
+            local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)        
 
     dask_client = Client(cluster)
 
@@ -58,38 +79,5 @@ def start_dask_cluster(number_of_workers, mem_size="10GB"):
     dask_client.run_on_scheduler(start_tunnel)  
     
     return dask_client
-                
-def GPU_cluster(gpus=2, mem_size="20GB"):
-    #################
-    # Setup dask cluster
-    #################
-
-    #job args
-    extra_args=[
-        "--error=/home/b.weinstein/logs/dask-worker-%j.err",
-        "--account=ewhite",
-        "--output=/home/b.weinstein/logs/dask-worker-%j.out",
-        "--partition=gpu",
-        "--gpus=1"
-    ]
-
-    cluster = SLURMCluster(
-        processes=1,
-        cores=1, 
-        memory=mem_size, 
-        walltime='24:00:00',
-        job_extra=extra_args,
-        local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)
-
-    print(cluster.job_script())
-    cluster.scale(gpus)    
-
-    dask_client = Client(cluster)
-    
-    #Start dask
-    dask_client.run_on_scheduler(start_tunnel)  
-    
-    return dask_client                
-    
 
     

@@ -1,14 +1,10 @@
 import glob
 import os
-from start_cluster import GPU_cluster, start_dask_cluster
+from start_cluster import GPU_cluster, start
 from distributed import wait, as_completed
 import numpy as np
 
 def run(records, raster_dir):
-    #from comet_ml import Experiment    
-    #comet_experiment = Experiment(api_key="ypQZhYfs3nSyKzOfz13iuJpj2",
-    #                         project_name="frenchguiana", workspace="bw4sz")
-
     from deepforest import deepforest
     import predict
     import LIDAR
@@ -78,12 +74,19 @@ if __name__ == "__main__":
     records = tfrecord_list[:50]
     raster_dir =raster_dir[:50]
     
-    client = GPU_cluster(gpus=5, cpus = 10)
+    #Create dask cluster
+    client = start(gpus=5, cpus = 10)
     
-    results = client.map(run, records,raster_dir)
+    results = []
     
+    #Predict each tfrecord
+    for index, record in records:
+        result = client.submit(record,raster_dir[index], resource={"gpu":1})
+        result.append(results)
+    
+    #As predictions complete, run postprocess
     for future, result in as_completed(results, with_results=True):
-        postprocessed_filename = client.submit(lidar, result, lidar_list)
+        postprocessed_filename = client.submit(lidar, result, lidar_list, resource={"cpu":1})
         print("Postprocessed: {}".format(postprocessed_filename))
     
     
