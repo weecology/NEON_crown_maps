@@ -42,8 +42,9 @@ def generate_tfrecord(tile_list, n=None,site_regex=None):
         random.shuffle(tile_list)
         tile_list = tile_list[:n]
     
+    print("Running {} tiles: \n {}".format(len(written_records),tile_list))    
+    
     written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, savedir="/orange/ewhite/b.weinstein/NEON/crops/", resource={"gpu":1})
-    print("{} records created".format(len(written_records)))    
     
     return written_records
     
