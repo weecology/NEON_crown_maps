@@ -3,8 +3,51 @@ import os
 from start_cluster import GPU_cluster, start
 from distributed import wait, as_completed
 import numpy as np
+import random
+import re
 
-def run(records, raster_dir):
+def lookup_rgb_path(tfrecord,rgb_list):
+    #match rgb list to tfrecords
+    rgb_names = [os.path.splitext(os.path.basename(x))[0] for x in rgb_list]
+    tfrecord_name = os.path.splitext(os.path.basename(tfrecord))[0]
+    
+    #Find raster directory for each rgb file
+    index = rgb_names.index(tfrecord_name)
+    rgb_path = rgb_list[x]
+    
+    return rgb_path
+    
+def find_files(site_regex = None):
+    #Find available tiles
+    tile_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
+    
+    #select by sites 
+    if site_regex:
+        selected_index = np.where([bool(re.search(site_regex,x)) for x in tile_list])
+        tile_list = tile_list[selected_index]
+    
+    return tile_list
+
+def generate_tfrecord(tile_list, n=None,site_regex=None):
+    """Create tfrecords
+    tile_list: list of rgb tiles to generate tfrecord
+    n: number of tiles to limit for testing
+    site_regex: regular expression to search tile paths (e.g "OSBS|HARV")
+    """
+    
+    #Find files
+    tile_list = find_files(site_regex)
+    
+    if n:
+        random.shuffle(tile_list)
+        tile_list = tile_list[:n]
+    
+    written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, savedir="/orange/ewhite/b.weinstein/NEON/crops/", resource={"gpu":1})
+    print("{} records created".format(len(written_records)))    
+    
+    return written_records
+    
+def run_rgb(records, raster_dir):
     from deepforest import deepforest
     import predict
     import LIDAR
@@ -52,42 +95,40 @@ def run_lidar(shp,lidar_list, save_dir=""):
     return postprocessed_filename
     
 if __name__ == "__main__":
-    #RGB files
-    rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
-    
-    #tfrecord files
-    tfrecord_list = glob.glob("/orange/ewhite/b.weinstein/NEON/crops/*.tfrecord")
-    
-    #LiDAR files
-    lidar_list = glob.glob("/orange/ewhite/NeonData/**/ClassifiedPointCloud/*.laz",recursive=True)
-    
-    #match rgb list to tfrecords
-    rgb_names = [os.path.splitext(os.path.basename(x))[0] for x in rgb_list]
-    tfrecord_names = [os.path.splitext(os.path.basename(x))[0] for x in tfrecord_list]
-    
-    #Find raster directory for each rgb file
-    indices = [rgb_names.index(x) for x in tfrecord_names]
-    raster_dir = [rgb_list[x] for x in indices]
-    raster_dir = [os.path.dirname(x) for x in raster_dir]
-    
-    #Find LiDAR directory for each rgb file
-    records = tfrecord_list[:50]
-    raster_dir = raster_dir[:50]
     
     #Create dask cluster
     client = start(gpus=5, cpus = 10)
     
-    results = []
+    #File lists
+    rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
+    lidar_list = glob.glob("/orange/ewhite/NeonData/**/ClassifiedPointCloud/*.laz",recursive=True)
     
-    #Predict each tfrecord
-    for index, record in records:
-        result = client.submit(record,raster_dir[index], resource={"gpu":1})
-        result.append(results)
+    #Create tfrecords
+    generated_records = generate_tfrecord(rgb_list, site_regex=None, n= 50)
     
-    #As predictions complete, run postprocess
+    predictions = []    
+    
+    #As records are created, predict.
+    for future, result in as_completed(generated_records, with_results=True):
+        
+        #Lookup rgb path to create tfrecord
+        rgb_path = lookup_rgb_path(tfrecord = result, rgb_list = rgb_list)
+        
+        #Split into basename and dir
+        rgb_name = os.path.splitext(os.path.basename(rgb_path))[0]
+        raster_dir = os.path.dirname(rgb_path)
+        
+        #Predict record
+        result = client.submit(run_rgb, result, raster_dir, resource={"gpu":1})
+        predictions.append(result)
+    
+    #As predictions complete, run postprocess to drape LiDAR and extract height
     for future, result in as_completed(results, with_results=True):
         postprocessed_filename = client.submit(lidar, result, lidar_list, resource={"cpu":1})
         print("Postprocessed: {}".format(postprocessed_filename))
+        
+    #Wait until all futures are complete
+    wait(results)
     
     
     
