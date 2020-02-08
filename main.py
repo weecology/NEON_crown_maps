@@ -72,7 +72,7 @@ if __name__ == "__main__":
     
     #Find LiDAR directory for each rgb file
     records = tfrecord_list[:50]
-    raster_dir =raster_dir[:50]
+    raster_dir = raster_dir[:50]
     
     #Create dask cluster
     client = start(gpus=5, cpus = 10)
