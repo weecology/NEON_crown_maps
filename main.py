@@ -1,6 +1,6 @@
 import glob
 import os
-from start_cluster import GPU_cluster, start
+from start_cluster import start
 from distributed import wait, as_completed
 import numpy as np
 import random
