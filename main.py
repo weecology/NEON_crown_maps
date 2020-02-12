@@ -98,7 +98,9 @@ def run_lidar(shp,lidar_list, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask cluster
-    client = start(gpus=5, cpus = 10)
+    cpu_client = start(cpus = 10)
+    
+    gpu_client = start(gpus=3)
     
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
