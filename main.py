@@ -79,9 +79,15 @@ def run_lidar(shp,lidar_list, save_dir=""):
     import LIDAR
     
     #Get geoindex
-    lidar_name = os.path.splitext(os.path.basename(lidar_list))[0] 
-    geo_index = re.search("(\d+_\d+)_image",lidar_name).group(1)
+    lidar_name = [os.path.splitext(os.path.basename(x))[0] for x in lidar_list]
+    geo_index = re.search("(\d+_\d+)_image",shp).group(1)
     index = np.where([geo_index in x for x in lidar_name])
+    
+    if len(index) > 1:
+        raise ValueError("SHP file {} matches more than one .laz file".format(shp))
+    else:
+        #Tuple to numeric
+        index = list(index)[0][0]
         
     # lookup Lidar path
     laz_path = lidar_list[index]
