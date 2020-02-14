@@ -137,7 +137,7 @@ if __name__ == "__main__":
     draped_files = [ ]
     for future, result in as_completed(predictions, with_results=True):
         print("Postprocessing: {}".format(result))        
-        postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+        postprocessed_filename = cpu_client.submit(run_lidar, result[0], lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
         draped_files.append(postprocessed_filename)
     
     wait(draped_files)
