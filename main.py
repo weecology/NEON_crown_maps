@@ -28,9 +28,10 @@ def find_files(site_regex = None):
     
     return tile_list
 
-def generate_tfrecord(tile_list, n=None,site_regex=None):
+def generate_tfrecord(tile_list, client, n=None,site_regex=None):
     """Create tfrecords
     tile_list: list of rgb tiles to generate tfrecord
+    client: dask client
     n: number of tiles to limit for testing
     site_regex: regular expression to search tile paths (e.g "OSBS|HARV")
     """
@@ -97,7 +98,7 @@ def run_lidar(shp,lidar_list, save_dir=""):
     
 if __name__ == "__main__":
     
-    #Create dask cluster
+    #Create dask clusters
     cpu_client = start(cpus = 10)
     
     gpu_client = start(gpus=3)
@@ -107,7 +108,7 @@ if __name__ == "__main__":
     lidar_list = glob.glob("/orange/ewhite/NeonData/**/ClassifiedPointCloud/*.laz",recursive=True)
     
     #Create tfrecords
-    generated_records = generate_tfrecord(rgb_list, site_regex=None, n= 50)
+    generated_records = generate_tfrecord(rgb_list, cpu_client, site_regex=None, n= 50)
     
     predictions = []    
     
@@ -122,12 +123,12 @@ if __name__ == "__main__":
         raster_dir = os.path.dirname(rgb_path)
         
         #Predict record
-        result = client.submit(run_rgb, result, raster_dir, resource={"gpu":1})
+        result = gpu_client.submit(run_rgb, result, raster_dir, resource={"gpu":1})
         predictions.append(result)
     
     #As predictions complete, run postprocess to drape LiDAR and extract height
     for future, result in as_completed(results, with_results=True):
-        postprocessed_filename = client.submit(lidar, result, lidar_list, resource={"cpu":1})
+        postprocessed_filename = cpu_client.submit(lidar, result, lidar_list, resource={"cpu":1})
         print("Postprocessed: {}".format(postprocessed_filename))
         
     #Wait until all futures are complete

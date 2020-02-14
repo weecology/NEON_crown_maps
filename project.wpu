@@ -31,8 +31,7 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         (2,),
         (2,
          0)],
-                                 'selected-nodes': [(2,
-        0)],
+                                 'selected-nodes': [(5,)],
                                  'top-node': (1,
         3)}},
         'tree-style': 'deep'}}),
@@ -58,7 +57,7 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                                {})],
                  'primary_view_state': {'area': 'wide',
         'constraint': None,
-        'current_pages': [4,
+        'current_pages': [1,
                           1],
         'notebook_display': 'normal',
         'notebook_percent': 0.5,
@@ -105,7 +104,8 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         (2,),
         (2,
          0)],
-                                      'selected-nodes': [],
+                                      'selected-nodes': [(0,
+        1)],
                                       'top-node': (0,)}}),
                      ('interactive-search',
                       'wide',
@@ -122,7 +122,7 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                                        'fRegexFlags': 46,
                                        'fReplaceText': u'weights',
                                        'fReverse': False,
-                                       'fSearchText': u'indice',
+                                       'fSearchText': u'date',
                                        'fStartPos': 0,
                                        'fStyle': 'text',
                                        'fWholeWords': False,
@@ -159,290 +159,14 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         -1,
         -1),
                        'attrib-starts': [],
-                       'first-line': 1216L,
+                       'first-line': 0L,
                        'folded-linenos': [],
-                       'history': {u'file:/Applications/WingIDE.app/Contents/Resources/src/testing/runners/run_pytest_xml.py': ['u'\
-        'tm\n',
-        'raster = rasterio.open(image_path)\n',
-        'rasterio_window = rwindow.Window.from_slices(cols=crop_index[lowest'\
-        '_index][0],rows=crop_index[lowest_index][0])\nout_profile = raster.'\
-        'profile.copy()    \ncrop_filename = os.path.join(save_dir,"{}_{}.ti'\
-        'f".format(image_name,lowest_index)) \nRP1_block = raster.read(windo'\
-        'w=rasterio_window, masked=True)  \ndst.write(RP1_block, window=rast'\
-        'erio_window)\ndst.close()\n\n',
-        'rasterio_window = rwindow.Window.from_slices(cols=crop_index[lowest'\
-        '_index][0],rows=crop_index[lowest_index][0])\nout_profile = raster.'\
-        'profile.copy()    \ncrop_filename = os.path.join(save_dir,"{}_{}.ti'\
-        'f".format(image_name,lowest_index)) \nRP1_block = raster.read(windo'\
-        'w=rasterio_window, masked=True)  \ndst.write(RP1_block, window=rast'\
-        'erio_window)\n\n',
-        'rasterio_window = rwindow.Window.from_slices(cols=crop_index[lowest'\
-        '_index][0],rows=crop_index[lowest_index][0])\n',
-        'out_profile = raster.profile.copy()\n',
-        'RP1_block = raster.read(window=rasterio_window, masked=True)\n',
-        'dst.write(RP1_block, window=rasterio_window)\n',
-        'crop_index[lowest_index]\n',
-        "#save RGB windows to file\nrasterio_window = rwindow.Window.from_sl"\
-        "ices(cols=crop_index[lowest_index][0][0],rows=crop_index[lowest_ind"\
-        "ex][0][1])\nout_profile = raster.profile.copy()    \ncrop_filename "\
-        "= os.path.join(save_dir,\"{}_{}.tif\".format(image_name,lowest_inde"\
-        "x)) \nwith  rasterio.open(crop_filename, 'w', **out_profile) as dst"\
-        ":\n    RP1_block = raster.read(window=rasterio_window, masked=True)"\
-        "  \n    dst.write(RP1_block, window=rasterio_window)\n\n",
-        'crop_index[lowest_index][0]\n',
-        'crop_index[lowest_index][1]\n',
-        "#save RGB windows to file\nrasterio_window = rwindow.Window.from_sl"\
-        "ices(cols=crop_index[lowest_index][0],rows=crop_index[lowest_index]"\
-        "[1])\nout_profile = raster.profile.copy()    \ncrop_filename = os.p"\
-        "ath.join(save_dir,\"{}_{}.tif\".format(image_name,lowest_index)) \n"\
-        "with  rasterio.open(crop_filename, 'w', **out_profile) as dst:\n   "\
-        " RP1_block = raster.read(window=rasterio_window, masked=True)  \n  "\
-        "  dst.write(RP1_block, window=rasterio_window)\n\n",
-        'crop_index\n',
-        'rwindow.Window\n',
-        'windows[499]\n',
-        'windows\n',
-        'scores\n',
-        'scores[0]\n',
-        'scores[19]\n',
-        'scores[10]\n',
-        'score_df.head()\n',
-        'crop_index[index]\n',
-        'index\n',
-        'data[index] = filtered_boxes\n',
-        'lowest_index    \n',
-        'score_df.index\n',
-        'score_df = pd.Series(scores)\n',
-        'lowest = score_df.min()\n',
-        'lowest_index = score_df[score_df == lowest].index[0]\n',
-        'lowest_index\n',
-        'worst_window = data[lowest_index]\n',
-        'worst_window\n',
-        'window = crop_index[lowest_index]\n',
-        'window.indices()\n',
-        'lowest\n',
-        'print(index)\n#transform    \nxmin = (window_xmin * cell_size) + ut'\
-        'm_xmin\nxmax = (window_xmin + width) * cell_size  + utm_xmin\nymin '\
-        '= (window_ymin) * cell_size  + utm_ymin\nymax = (window_ymin + heig'\
-        'ht) * cell_size  + utm_ymin\n\n',
-        '#Spatial clip to window using spatial index for faster querying\npo'\
-        'ssible_matches_index = list(spatial_index.intersection([xmin,ymin,x'\
-        'max,ymax]))\npossible_matches = shp.iloc[possible_matches_index]\n'\
-        '\n',
-        'filtered_boxes = possible_matches.cx[xmin:xmax,ymin:ymax]\n',
-        'filtered_boxes\n',
-        'filtered_boxes.score\n',
-        'from PIL import Image\n',
-        'pil_image = Image.open(image_path)\n',
-        'numpy_image = np.array(pil_image)\n',
-        'crop = numpy_image[window.indices()]\n',
-        'crop\n',
-        'crop_filename = os.path.join(save_dir,"{}_{}.tif".format(image_name'\
-        ',lowest_index))\n',
-        'cv2.imwrite(crop_filename, crop)\n',
-        "rasterio_window = rwindow.Window.from_slices(rows=crop_index[lowest"\
-        "_index][0],cols=crop_index[lowest_index][1])\nout_profile = raster."\
-        "profile.copy()    \ncrop_filename = os.path.join(save_dir,\"{}_{}.t"\
-        "if\".format(image_name,lowest_index)) \nwith  rasterio.open(crop_fi"\
-        "lename, 'w', **out_profile) as dst:\n    RP1_block = raster.read(wi"\
-        "ndow=rasterio_window, masked=True)  \n    dst.write(RP1_block, wind"\
-        "ow=rasterio_window)\n\n",
-        'rasterio_window = rwindow.Window.from_slices(rows=crop_index[lowest'\
-        '_index][0],cols=crop_index[lowest_index][1])\n',
-        "#save RGB windows to file\nrasterio_window = rwindow.Window.from_sl"\
-        "ices(rows=crop_index[lowest_index].indices()[0],cols=crop_index[low"\
-        "est_index].indices()[1])\nout_profile = raster.profile.copy()    \n"\
-        "crop_filename = os.path.join(save_dir,\"{}_{}.tif\".format(image_na"\
-        "me,lowest_index)) \nwith  rasterio.open(crop_filename, 'w', **out_p"\
-        "rofile) as dst:\n    RP1_block = raster.read(window=rasterio_window"\
-        ", masked=True)  \n    dst.write(RP1_block, window=rasterio_window)"\
-        "\n\n",
-        "rasterio_window = rwindow.Window.from_slices(rows=-crop_index[lowes"\
-        "t_index].indices()[0],cols=-crop_index[lowest_index].indices()[1])"\
-        "\nout_profile = raster.profile.copy()    \ncrop_filename = os.path."\
-        "join(save_dir,\"{}_{}.tif\".format(image_name,lowest_index)) \nwith"\
-        "  rasterio.open(crop_filename, 'w', **out_profile) as dst:\n    RP1"\
-        "_block = raster.read(window=rasterio_window, masked=True)  \n    ds"\
-        "t.write(RP1_block, window=rasterio_window)\n\n",
-        'crop_index[lowest_index].indices()[0]\n',
-        '-crop_index[lowest_index].indices()[0]\n',
-        'crop_index[lowest_index].indices()\n',
-        "rows = slice(-6460, -6860, None)\ncols = slice(-5440, -5840, None)"\
-        "\nrasterio_window = rwindow.Window.from_slices(rows=rows,cols=cols)"\
-        "\nout_profile = raster.profile.copy()    \ncrop_filename = os.path."\
-        "join(save_dir,\"{}_{}.tif\".format(image_name,lowest_index)) \nwith"\
-        "  rasterio.open(crop_filename, 'w', **out_profile) as dst:\n    RP1"\
-        "_block = raster.read(window=rasterio_window, masked=True)  \n    ds"\
-        "t.write(RP1_block, window=rasterio_window)\n\n",
-        "rows = slice(-6460, -6860, None)\ncols = slice(-5440, -5840, None)"\
-        "\nrasterio_window = rwindow.Window.from_slices(rows=rows,cols=cols,"\
-        "height=400)\nout_profile = raster.profile.copy()    \ncrop_filename"\
-        " = os.path.join(save_dir,\"{}_{}.tif\".format(image_name,lowest_ind"\
-        "ex)) \nwith  rasterio.open(crop_filename, 'w', **out_profile) as ds"\
-        "t:\n    RP1_block = raster.read(window=rasterio_window, masked=True"\
-        ")  \n    dst.write(RP1_block, window=rasterio_window)\n\n",
-        "#save RGB windows to file\nrows = slice(-6460, -6860, None)\ncols ="\
-        " slice(-5440, -5840, None)\nrasterio_window = rwindow.Window.from_s"\
-        "lices(rows=rows,cols=cols,height=400,width=400)\nout_profile = rast"\
-        "er.profile.copy()    \ncrop_filename = os.path.join(save_dir,\"{}_{"\
-        "}.tif\".format(image_name,lowest_index)) \nwith  rasterio.open(crop"\
-        "_filename, 'w', **out_profile) as dst:\n    RP1_block = raster.read"\
-        "(window=rasterio_window, masked=True)  \n    dst.write(RP1_block, w"\
-        "indow=rasterio_window)\n\n",
-        'rows = slice(6460, 6860, None)\ncols = slice(-5440, -5840, None)\n'\
-        'rasterio_window = rwindow.Window.from_slices(rows=rows,cols=cols,he'\
-        'ight=400,width=400)\n\n',
-        "out_profile = raster.profile.copy()    \ncrop_filename = os.path.jo"\
-        "in(save_dir,\"{}_{}.tif\".format(image_name,lowest_index)) \nwith  "\
-        "rasterio.open(crop_filename, 'w', **out_profile) as dst:\n    RP1_b"\
-        "lock = raster.read(window=rasterio_window, masked=True)  \n    dst."\
-        "write(RP1_block, window=rasterio_window)\n    \n#Format annotations"\
-        " frame\nshp_filename = os.path.join(save_dir,\"{}_{}.shp\".format(i"\
-        "mage_name,lowest_index))    \nworst_window.to_file(shp_filename, dr"\
-        "iver='ESRI Shapefile')\n\n",
-        "rows = slice(6460, 6860, None)\ncols = slice(5440, 5840, None)\nras"\
-        "terio_window = rwindow.Window.from_slices(rows=rows,cols=cols,heigh"\
-        "t=400,width=400)\nout_profile = raster.profile.copy()    \ncrop_fil"\
-        "ename = os.path.join(save_dir,\"{}_{}.tif\".format(image_name,lowes"\
-        "t_index)) \nwith  rasterio.open(crop_filename, 'w', **out_profile) "\
-        "as dst:\n    RP1_block = raster.read(window=rasterio_window, masked"\
-        "=True)  \n    dst.write(RP1_block, window=rasterio_window)\n    \n"\
-        "#Format annotations frame\nshp_filename = os.path.join(save_dir,\""\
-        "{}_{}.shp\".format(image_name,lowest_index))    \nworst_window.to_f"\
-        "ile(shp_filename, driver='ESRI Shapefile')\n\n",
-        'window_xmin, window_ymin, width, height = window.getRect()\n',
-        'window_xmin\n',
-        'xmin = (window_xmin * cell_size) + utm_xmin\nxmax = (window_xmin + '\
-        'width) * cell_size  + utm_xmin\nymin = (window_ymin) * cell_size  +'\
-        ' utm_ymin\nymax = (window_ymin + height) * cell_size  + utm_ymin\n'\
-        '\n',
-        'utm_xmin\n',
-        'utm_ymin\n',
-        'raster.bounds\n',
-        'xmin\n',
-        'xmax\n',
-        'ymin\n',
-        'ymax\n',
-        'window_ymin\n',
-        'height\n',
-        "worst_window = data[lowest_index]\n\n#save RGB windows to file\nras"\
-        "terio_window = rwindow.Window.from_slices(rows=crop_index[lowest_in"\
-        "dex].indices()[0],cols=crop_index[lowest_index].indices()[1])\nout_"\
-        "profile = raster.profile.copy()    \ncrop_filename = os.path.join(s"\
-        "ave_dir,\"{}_{}.tif\".format(image_name,lowest_index)) \nwith  rast"\
-        "erio.open(crop_filename, 'w', **out_profile) as dst:\n    RP1_block"\
-        " = raster.read(window=rasterio_window, masked=False)  \n    dst.wri"\
-        "te(RP1_block)\n\n",
-        "#save RGB windows to file\nrasterio_window = rwindow.Window.from_sl"\
-        "ices(rows=crop_index[lowest_index].indices()[0],cols=crop_index[low"\
-        "est_index].indices()[1])\nout_profile = raster.profile.copy()    \n"\
-        "crop_filename = os.path.join(save_dir,\"{}_{}.tif\".format(image_na"\
-        "me,lowest_index)) \nwith  rasterio.open(crop_filename, 'w') as dst:"\
-        "\n    RP1_block = raster.read(window=rasterio_window, masked=True) "\
-        " \n    dst.write(RP1_block)\n\n",
-        'raster.crs\n',
-        "#save RGB windows to file\nrasterio_window = rwindow.Window.from_sl"\
-        "ices(rows=crop_index[lowest_index].indices()[0],cols=crop_index[low"\
-        "est_index].indices()[1])\nout_profile = raster.profile.copy()    \n"\
-        "crop_filename = os.path.join(save_dir,\"{}_{}.tif\".format(image_na"\
-        "me,lowest_index)) \nwith  rasterio.open(crop_filename, 'w',driver="\
-        "\"GTiff\",crs=raster.crs) as dst:\n    RP1_block = raster.read(wind"\
-        "ow=rasterio_window, masked=True)  \n    dst.write(RP1_block)\n\n",
-        'RP1_block\n',
-        'RP1_block.shape\n',
-        "with  rasterio.open(crop_filename, 'w',driver=\"GTiff\",crs=raster."\
-        "crs) as dst:\n    RP1_block = raster.read(window=rasterio_window, m"\
-        "asked=True)  \n    dst.write(RP1_block)\n\n",
-        'rasterio_window\n',
-        'rasterio_window.width\n',
-        "#save RGB windows to file\nrasterio_window = rwindow.Window.from_sl"\
-        "ices(rows=crop_index[lowest_index].indices()[0],cols=crop_index[low"\
-        "est_index].indices()[1])\nout_profile = raster.profile.copy()    \n"\
-        "crop_filename = os.path.join(save_dir,\"{}_{}.tif\".format(image_na"\
-        "me,lowest_index)) \nwith  rasterio.open(crop_filename, 'w',driver="\
-        "\"GTiff\",crs=raster.crs,width=rasterio_window.width,height=rasteri"\
-        "o_window.height) as dst:\n    RP1_block = raster.read(window=raster"\
-        "io_window, masked=True)  \n    dst.write(RP1_block)\n\n",
-        "#save RGB windows to file\nrasterio_window = rwindow.Window.from_sl"\
-        "ices(rows=crop_index[lowest_index].indices()[0],cols=crop_index[low"\
-        "est_index].indices()[1])\nout_profile = raster.profile.copy()    \n"\
-        "crop_filename = os.path.join(save_dir,\"{}_{}.tif\".format(image_na"\
-        "me,lowest_index)) \nwith  rasterio.open(crop_filename, 'w',driver="\
-        "\"GTiff\",count=3,crs=raster.crs,width=rasterio_window.width,height"\
-        "=rasterio_window.height) as dst:\n    RP1_block = raster.read(windo"\
-        "w=rasterio_window, masked=True)  \n    dst.write(RP1_block)\n\n",
-        'out_profile.dtype\n',
-        'out_profile[dtype]\n',
-        'out_profile["dtype"]\n',
-        "#save RGB windows to file\nrasterio_window = rwindow.Window.from_sl"\
-        "ices(rows=crop_index[lowest_index].indices()[0],cols=crop_index[low"\
-        "est_index].indices()[1])\nout_profile = raster.profile.copy()    \n"\
-        "crop_filename = os.path.join(save_dir,\"{}_{}.tif\".format(image_na"\
-        "me,lowest_index)) \nwith  rasterio.open(crop_filename, 'w',dtype=ou"\
-        "t_profile[\"dtype\"],\n                    driver=\"GTiff\",\n     "\
-        "               count=3,\n                    crs=raster.crs,\n     "\
-        "               width=rasterio_window.width,height=rasterio_window.h"\
-        "eight) as dst:\n    RP1_block = raster.read(window=rasterio_window,"\
-        " masked=True)  \n    dst.write(RP1_block)\n\n",
-        'out_profile\n',
-        "#save RGB windows to file\nrasterio_window = rwindow.Window.from_sl"\
-        "ices(rows=crop_index[lowest_index].indices()[0],cols=crop_index[low"\
-        "est_index].indices()[1])\nout_profile = raster.profile.copy()    \n"\
-        "crop_filename = os.path.join(save_dir,\"{}_{}.tif\".format(image_na"\
-        "me,lowest_index)) \nwith  rasterio.open(crop_filename, 'w',dtype=ou"\
-        "t_profile[\"dtype\"],\n                    driver=\"GTiff\",\n     "\
-        "               count=3,\n                    crs=raster.crs,\n     "\
-        "               width=rasterio_window.width,\n                    tr"\
-        "ansform=out_profile[\"transform\"],\n                    height=ras"\
-        "terio_window.height) as dst:\n    RP1_block = raster.read(window=ra"\
-        "sterio_window, masked=True)  \n    dst.write(RP1_block)\n\n",
-        'rasterio_window = rwindow.Window.from_slices(rows=crop_index[lowest'\
-        '_index].indices()[0],cols=crop_index[lowest_index].indices()[1])\n',
-        'out_image, out_transform = rasterio.mask.mask(raster, rasterio_wind'\
-        'ow, crop=True)\n',
-        'from rasterio import mas\n',
-        'from rasterio import mask\n',
-        'out_image, out_transform = mask.mask(raster, rasterio_window, crop='\
-        'True)\n',
-        "#save RGB windows to file\nrasterio_window = rwindow.Window.from_sl"\
-        "ices(rows=crop_index[lowest_index].indices()[0],cols=crop_index[low"\
-        "est_index].indices()[1])    \ncrop_filename = os.path.join(save_dir"\
-        ",\"{}_{}.tif\".format(image_name,lowest_index)) \nwith  rasterio.op"\
-        "en(crop_filename, 'w',dtype=out_profile[\"dtype\"],\n              "\
-        "      driver=\"GTiff\",\n                    count=3,\n            "\
-        "        crs=raster.crs,\n                    width=rasterio_window."\
-        "width,\n                    transform=rasterio_window.window_transf"\
-        "orm,\n                    height=rasterio_window.height) as dst:\n"\
-        "    RP1_block = raster.read(window=rasterio_window, masked=True)  "\
-        "\n    dst.write(RP1_block)\n\n",
-        'rwindow.transform(rasterio_window)\n',
-        'rwindow.transform(rasterio_window,raster.window_transform)\n',
-        'raster.window_transform(rasterio_window)\n',
-        "with  rasterio.open(crop_filename, 'w',dtype=out_profile[\"dtype\""\
-        "],\n                    driver=\"GTiff\",\n                    coun"\
-        "t=3,\n                    crs=raster.crs,\n                    widt"\
-        "h=rasterio_window.width,\n                    transform=raster.wind"\
-        "ow_transform(rasterio_window),\n                    height=rasterio"\
-        "_window.height) as dst:\n    RP1_block = raster.read(window=rasteri"\
-        "o_window, masked=True)  \n    dst.write(RP1_block)\n\n"],
-                                   u'file:/Users/ben/Desktop/test.py': ['imp'\
-        'ort geopandas\n',
-        'shp= geopandas.read_file("/Users/ben/Dropbox/Weecology/DeepForest/O'\
-        'regon/train.shp")\n',
-        'shp\n',
-        'shp.is_valid\n',
-        'sum(~shp.is_valid)\n',
-        'shp.xmin\n',
-        'shp.left\n',
-        'shp.columns\n',
-        'shp.geometry.area\n',
-        'shp.geometry.area ==0\n',
-        'sum(shp.geometry.area ==0)\n']},
+                       'history': {},
                        'launch-id': None,
-                       'sel-line': 1223L,
-                       'sel-line-start': 57446L,
-                       'selection_end': 57459L,
-                       'selection_start': 57459L,
+                       'sel-line': 0L,
+                       'sel-line-start': 0L,
+                       'selection_end': 0L,
+                       'selection_start': 0L,
                        'zoom': 0L}),
                      ('debug-watch',
                       'wide',
@@ -462,227 +186,14 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
         -1,
         -1),
                        'attrib-starts': [],
-                       'first-line': 94L,
+                       'first-line': 0L,
                        'folded-linenos': [],
-                       'history': {None: ['-1000 - 100\n',
-        'assert [1,2,3] == [1,2,3]\n',
-        'a="2018_NIWO_2_447000_4431000_image"\n',
-        'import re\n',
-        're.search(a)\n',
-        're.search(a,"\\w+_image").group(0)\n',
-        're.search(a,"\\w+_image").groups(0)\n',
-        're.search(a,"\\w+_image")\n',
-        're.search(a,"image")\n',
-        'print(re.search(a,"image"))\n',
-        'print(re.search(a,"*"))\n',
-        'print(re.search(a,"*+"))\n',
-        'print(re.search("*",a))\n',
-        'print(re.search("+",a))\n',
-        'print(re.search("image",a))\n',
-        'print(re.search("image",a).group(0))\n',
-        'print(re.search("*_image",a).group(0))\n',
-        'print(re.search("_image",a).group(0))\n',
-        'print(re.search("\\d+_image",a).group(0))\n',
-        'print(re.search("\\d+_\\d+_image",a).group(0))\n',
-        'print(re.search("{\\d+_\\d+}_image",a).group(0))\n',
-        'print(re.search("(\\d+_\\d+)_image",a).group(0))\n',
-        'print(re.search("(\\d+_\\d+)_image",a).group(1))\n',
-        'b = re.search("(\\d+_\\d+)_image",a).group(1)\n',
-        'b in a\n',
-        'b in [a,a]\n',
-        '[a,a]\n',
-        '[b] in [a,a]\n',
-        'b\n',
-        'a = "2018_NIWO_2_447000_4431000_image"\n',
-        'print(re.search(a))\n',
-        'print(re.search("\\\\d+",))\n',
-        'print(re.search(a,"\\\\d+"))\n',
-        'print(re.search(a,"OSBS"))\n',
-        'print(re.search(a,"NIWO))\n',
-        'print(re.search(a,"NIWO"))\n',
-        'print(bool(re.search(a,"NIWO")))\n',
-        'a\n',
-        'print(bool(re.search(a,"image")))\n',
-        'print(bool(re.search(a,"_image")))\n',
-        'print(bool(re.search(a,"*_image")))\n',
-        'print(bool(re.search("*_image",a)))\n',
-        'print(bool(re.search("image",a)))\n',
-        'print(bool(re.search("NIWO",a)))\n',
-        'bool(re.search("NIWO",a))\n',
-        'bool(re.search("NIWO|OSBS",a))\n',
-        'import deepforest\n',
-        'os\n',
-        '# Utility script to crop a sample image to upload to zooniverse. Fi'\
-        'les need to be under 1MB.\nimport glob\nfrom deepforest import prep'\
-        'rocess\nimport cv2\n\n#Find images\nimages = glob.glob("/Users/ben/'\
-        'Dropbox/Everglades/Zooniverse/data/*.JPG")\n\nfor image_path in ima'\
-        'ges:\n    numpy_image = cv2.imread(image_path)    \n    \n    #Crea'\
-        'te windows\n    windows = preprocess.compute_windows(numpy_image, 4'\
-        '00, patch_overlap=0)\n    \n    for index, window in enumerate(wind'\
-        'ows):\n        #Crop and save\n        crop = numpy_image[window.ge'\
-        'tIndices()]\n        filename = "{}_{}.jpg".format(os.path.splitext'\
-        '(image_path,index))\n        cv2.imsave(filename, crop)\n\n',
-        'window\n',
-        'window.get\n',
-        'for index, window in enumerate(windows):\n    #Crop and save\n    c'\
-        'rop = numpy_image[window.indices()]\n    filename = "{}_{}.jpg".for'\
-        'mat(os.path.splitext(image_path,index))\n    cv2.imsave(filename, c'\
-        'rop)\n\n',
-        'import os\n',
-        '# Utility script to crop a sample image to upload to zooniverse. Fi'\
-        'les need to be under 1MB.\nimport glob\nimport os\nimport cv2\nfrom'\
-        ' deepforest import preprocess\n\n#Find images\nimages = glob.glob("'\
-        '/Users/ben/Dropbox/Everglades/Zooniverse/data/*.JPG")\n\nfor image_'\
-        'path in images:\n    numpy_image = cv2.imread(image_path)    \n    '\
-        '\n    #Create windows\n    windows = preprocess.compute_windows(num'\
-        'py_image, 400, patch_overlap=0)\n    \n    for index, window in enu'\
-        'merate(windows):\n        #Crop and save\n        crop = numpy_imag'\
-        'e[window.indices()]\n        filename = "{}_{}.jpg".format(os.path.'\
-        'splitext(image_path,index))\n        cv2.imsave(filename, crop)\n\n',
-        '# Utility script to crop a sample image to upload to zooniverse. Fi'\
-        'les need to be under 1MB.\nimport glob\nimport os\nimport cv2\nfrom'\
-        ' deepforest import preprocess\n\n#Find images\nimages = glob.glob("'\
-        '/Users/ben/Dropbox/Everglades/Zooniverse/data/*.JPG")\n\nfor image_'\
-        'path in images:\n    numpy_image = cv2.imread(image_path)    \n    '\
-        '\n    #Create windows\n    windows = preprocess.compute_windows(num'\
-        'py_image, 400, patch_overlap=0)\n    \n    for index, window in enu'\
-        'merate(windows):\n        #Crop and save\n        crop = numpy_imag'\
-        'e[window.indices()]\n        filename = "{}_{}.jpg".format(os.path.'\
-        'splitext(image_path)[0],index)\n        cv2.imsave(filename, crop)'\
-        '\n\n',
-        '# Utility script to crop a sample image to upload to zooniverse. Fi'\
-        'les need to be under 1MB.\nimport glob\nimport os\nimport cv2\nfrom'\
-        ' deepforest import preprocess\n\n#Find images\nimages = glob.glob("'\
-        '/Users/ben/Dropbox/Everglades/Zooniverse/data/*.JPG")\n\nfor image_'\
-        'path in images:\n    numpy_image = cv2.imread(image_path)    \n    '\
-        '\n    #Create windows\n    windows = preprocess.compute_windows(num'\
-        'py_image, 400, patch_overlap=0)\n    \n    for index, window in enu'\
-        'merate(windows):\n        #Crop and save\n        crop = numpy_imag'\
-        'e[window.indices()]\n        filename = "{}_{}.jpg".format(os.path.'\
-        'splitext(image_path)[0],index)\n        cv2.imwrite(filename, crop)'\
-        '\n\n',
-        '# Utility script to crop a sample image to upload to zooniverse. Fi'\
-        'les need to be under 1MB.\nimport glob\nimport os\nimport cv2\nfrom'\
-        ' deepforest import preprocess\n\n#Find images\nimages = glob.glob("'\
-        '/Users/ben/Dropbox/Everglades/Zooniverse/data/*.JPG")\n\nfor image_'\
-        'path in images:\n    numpy_image = cv2.imread(image_path)    \n    '\
-        '\n    #Create windows\n    windows = preprocess.compute_windows(num'\
-        'py_image, 2000, patch_overlap=0.1)\n    \n    for index, window in '\
-        'enumerate(windows):\n        #Crop and save\n        crop = numpy_i'\
-        'mage[window.indices()]\n        filename = "{}_{}.jpg".format(os.pa'\
-        'th.splitext(image_path)[0],index)\n        cv2.imwrite(filename, cr'\
-        'op)\n\n',
-        "# Utility script to crop a sample image to upload to zooniverse. Fi"\
-        "les need to be under 1MB.\n\"\"\"\nI've played around with the patc"\
-        "h size argument, we want to make the image small, but give enough c"\
-        "ontext for the viewer, so not too small.\n\"\"\"\nimport glob\nimpo"\
-        "rt os\nimport cv2\nfrom deepforest import preprocess\n\n#Find image"\
-        "s\nimages = glob.glob(\"/Users/ben/Dropbox/Everglades/Zooniverse/da"\
-        "ta/*.JPG\")\n\nfor image_path in images:\n    numpy_image = cv2.imr"\
-        "ead(image_path)    \n    \n    #Create windows\n    \n    windows ="\
-        " preprocess.compute_windows(numpy_image, 1000, patch_overlap=0.1)\n"\
-        "    \n    for index, window in enumerate(windows):\n        #Crop a"\
-        "nd save\n        crop = numpy_image[window.indices()]\n        file"\
-        "name = \"{}_{}.jpg\".format(os.path.splitext(image_path)[0],index)"\
-        "\n        cv2.imwrite(filename, crop)\n\n",
-        '#convert hand annotations from shp into DeepForest format\ntrain_rg'\
-        'b = "/Users/ben/Dropbox/Weecology/DeepForest/Oregon/street_trees_tr'\
-        'ain.tif"\nannotation = shapefile_to_annotations(shapefile="/Users/b'\
-        'en/Dropbox/Weecology/DeepForest/Oregon/train_projected.shp",\n     '\
-        '                                 rgb=train_rgb)\n\n#Write converted'\
-        ' dataframe to file. Saved alongside the images\ncrop_dir = "/Users/'\
-        'ben/Dropbox/Weecology/DeepForest/Oregon/"\nannotation.to_csv(crop_d'\
-        'ir + "train_example.csv", index=False)\n\n#Find data on path\ntrain'\
-        '_annotations= preprocess.split_raster(path_to_raster=train_rgb,\n  '\
-        '                               annotations_file= crop_dir + "train_'\
-        'example.csv",\n                                 base_dir=crop_dir,'\
-        '\n                                 patch_size=400,\n               '\
-        '                  patch_overlap=0.05)\n\n',
-        '#Write converted dataframe to file. Saved alongside the images\ncro'\
-        'p_dir = "/Users/ben/Dropbox/Weecology/DeepForest/Oregon/"\nannotati'\
-        'on.to_csv(crop_dir + "train_example.csv", index=False)\n\n#Find dat'\
-        'a on path\ntrain_annotations= preprocess.split_raster(path_to_raste'\
-        'r=train_rgb,\n                                 annotations_file= cr'\
-        'op_dir + "train_example.csv",\n                                 bas'\
-        'e_dir=crop_dir,\n                                 patch_size=400,\n'\
-        '                                 patch_overlap=0.05)\n\n',
-        "## Define geospatial function from https://gist.github.com/bw4sz/e2"\
-        "fff9c9df0ae26bd2bfa8953ec4a24c\n#\"project\" into layer CRS to over"\
-        "lap with street trees. This isn't really a projection but a transla"\
-        "tion of the coordinate system\n#Here is a simple utility function f"\
-        "or reading in annotation files from .shp. This is not pre-installed"\
-        " in DeepForest since it relies on GDAL python packages, which can b"\
-        "e tricky to prebuild for multiple operating systems and are only ne"\
-        "eded for this task. See http://geopandas.org/install.html.\ndef pro"\
-        "ject(raster_path, boxes):\n    \"\"\"\n    Convert image coordinate"\
-        "s into a geospatial object to overlap with input image\n    raster_"\
-        "path: path to the raster .tif on disk. Assumed to have a valid spat"\
-        "ial projection\n    boxes: a prediction pandas dataframe from deepf"\
-        "orest.predict_tile()\n    \"\"\"\n    with rasterio.open(raster_pat"\
-        "h) as dataset:\n        bounds = dataset.bounds\n        pixelSizeX"\
-        ", pixelSizeY  = dataset.res\n\n    #subtract origin. Recall that nu"\
-        "mpy origin is top left! Not bottom left.\n    boxes[\"left\"] = (bo"\
-        "xes[\"xmin\"] *pixelSizeX) + bounds.left\n    boxes[\"right\"] = (b"\
-        "oxes[\"xmax\"] * pixelSizeX) + bounds.left\n    boxes[\"top\"] = bo"\
-        "unds.top - (boxes[\"ymin\"] * pixelSizeY) \n    boxes[\"bottom\"] ="\
-        " bounds.top - (boxes[\"ymax\"] * pixelSizeY)\n    \n    # combine c"\
-        "olumn to a shapely Box() object, save shapefile\n    boxes['geometr"\
-        "y'] = boxes.apply(lambda x: shapely.geometry.box(x.left,x.bottom,x."\
-        "right,x.top), axis=1)\n    boxes = geopandas.GeoDataFrame(boxes, ge"\
-        "ometry='geometry')\n    \n    boxes.crs = \"+proj=lcc +lat_1=43 +la"\
-        "t_2=45.5 +lat_0=41.75 +lon_0=-120.5 +x_0=399999.9999999999 +y_0=0 +"\
-        "ellps=GRS80 +units=ft +no_defs\"\n\n    return boxes\n\ndef shapefi"\
-        "le_to_annotations(shapefile, rgb, savedir=\".\"):\n    \"\"\"\n    "\
-        "Convert a shapefile of annotations into annotations csv file for De"\
-        "epForest training and evaluation\n    Args:\n        shapefile: Pat"\
-        "h to a shapefile on disk. If a label column is present, it will be "\
-        "used, else all labels are assumed to be \"Tree\"\n        rgb: Path"\
-        " to the RGB image on disk\n        savedir: Directory to save csv f"\
-        "iles\n    Returns:\n        None: a csv file is written\n    \"\"\""\
-        "\n    #Read shapefile\n    \n\n    gdf = geopandas.read_file(shapef"\
-        "ile)\n\n    #get coordinates\n    df = gdf.geometry.bounds\n\n    #"\
-        "raster bounds\n    with rasterio.open(rgb) as src:\n        left, b"\
-        "ottom, right, top = src.bounds\n\n    #Transform project coordinate"\
-        "s to image coordinates\n    df[\"tile_xmin\"] = df.minx - left\n   "\
-        " df[\"tile_xmin\"] = df[\"tile_xmin\"].astype(int)\n\n    df[\"tile"\
-        "_xmax\"] = df.maxx - left\n    df[\"tile_xmax\"] = df[\"tile_xmax\""\
-        "].astype(int)\n\n    #UTM is given from the top, but origin of an i"\
-        "mage is top left\n\n    df[\"tile_ymax\"] = top - df.miny \n    df["\
-        "\"tile_ymax\"] = df[\"tile_ymax\"].astype(int)\n\n    df[\"tile_ymi"\
-        "n\"] = top - df.maxy\n    df[\"tile_ymin\"] = df[\"tile_ymin\"].ast"\
-        "ype(int)    \n\n    #Add labels is they exist\n    if \"label\" in "\
-        "gdf.columns:\n        df[\"label\"] = gdf[\"label\"]\n    else:\n  "\
-        "      df[\"label\"] = \"Tree\"\n\n    #add filename\n    df[\"image"\
-        "_path\"] = rgb\n\n    #select columns\n    result = df[[\"image_pat"\
-        "h\",\"tile_xmin\",\"tile_ymin\",\"tile_xmax\",\"tile_ymax\",\"label"\
-        "\"]]\n    result = result.rename(columns={\"tile_xmin\":\"xmin\",\""\
-        "tile_ymin\":\"ymin\",\"tile_xmax\":\"xmax\",\"tile_ymax\":\"ymax\""\
-        "})\n\n    return result\n\n\n",
-        'import geopandas\n',
-        'import rasterio\n',
-        'from deepforest import preprocess\n',
-        '#convert hand annotations from shp into DeepForest format\ntrain_rg'\
-        'b = "/Users/ben/Dropbox/Weecology/DeepForest/Oregon/street_trees_tr'\
-        'ain.tif"\nannotation = shapefile_to_annotations(shapefile="/Users/b'\
-        'en/Dropbox/Weecology/DeepForest/Oregon/train_projected.shp",\n     '\
-        '                                 rgb=train_rgb)\n\n#Write converted'\
-        ' dataframe to file. Saved alongside the images\ncrop_dir = "/Users/'\
-        'ben/Dropbox/Weecology/DeepForest/Oregon/"\nannotation.to_csv(crop_d'\
-        'ir + "train_example.csv", index=False)\n\n#Find data on path\ntrain'\
-        '_annotations= preprocess.split_raster(path_to_raster=train_rgb,\n  '\
-        '                               annotations_file= crop_dir + "train_'\
-        'example.csv",\n                                 base_dir=crop_dir,'\
-        '\n                                 patch_size=400,\n               '\
-        '                  patch_overlap=0.05)\n#View output\ntrain_annotati'\
-        'ons.head()\n\n#Write window annotations file without a header row, '\
-        'same location as the "base_dir" above.\nannotations_file= os.path.j'\
-        'oin(crop_dir, "train_example.csv")\ntrain_annotations.to_csv(annota'\
-        'tions_file,index=False, header=None)\n\n']},
+                       'history': {},
                        'launch-id': None,
-                       'sel-line': 116L,
-                       'sel-line-start': 5818L,
-                       'selection_end': 5818L,
-                       'selection_start': 5818L,
+                       'sel-line': 5L,
+                       'sel-line-start': 363L,
+                       'selection_end': 363L,
+                       'selection_start': 363L,
                        'zoom': 0L}),
                      ('bookmarks',
                       'wide',
@@ -696,131 +207,17 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                       'wide',
                       1,
                       {})],
-        'primary_view_state': {'editor_states': ({'bookmarks': ([[loc('start_cluster.py'),
-        {'attrib-starts': [('start',
-                            30)],
-         'first-line': 38L,
+        'primary_view_state': {'editor_states': ({'bookmarks': ([[loc('generate.py'),
+        {'attrib-starts': [('find_files',
+                            7)],
+         'first-line': 0L,
          'folded-linenos': [],
-         'sel-line': 43L,
-         'sel-line-start': 1327L,
-         'selection_end': 1739L,
-         'selection_start': 1327L,
+         'sel-line': 7L,
+         'sel-line-start': 141L,
+         'selection_end': 675L,
+         'selection_start': 141L,
          'zoom': 0L},
-        1581204051.339281],
-        [loc('unknown:<untitled> #44'),
-         {'attrib-starts': [],
-          'first-line': 0L,
-          'folded-linenos': [],
-          'sel-line': 17L,
-          'sel-line-start': 455L,
-          'selection_end': 474L,
-          'selection_start': 474L,
-          'zoom': 0L},
-         1581204054.643015],
-        [loc('start_cluster.py'),
-         {'attrib-starts': [],
-          'first-line': 0L,
-          'folded-linenos': [],
-          'sel-line': 6L,
-          'sel-line-start': 119L,
-          'selection_end': 199L,
-          'selection_start': 119L,
-          'zoom': 0L},
-         1581204059.57736],
-        [loc('unknown:<untitled> #45'),
-         {'attrib-starts': [],
-          'first-line': 4L,
-          'folded-linenos': [],
-          'sel-line': 10L,
-          'sel-line-start': 260L,
-          'selection_end': 276L,
-          'selection_start': 276L,
-          'zoom': 0L},
-         1581204189.000369],
-        [loc('start_cluster.py'),
-         {'attrib-starts': [('start',
-                             30)],
-          'first-line': 50L,
-          'folded-linenos': [],
-          'sel-line': 57L,
-          'sel-line-start': 1762L,
-          'selection_end': 2386L,
-          'selection_start': 1762L,
-          'zoom': 0L},
-         1581204220.682518],
-        [loc('unknown:<untitled> #46'),
-         {'attrib-starts': [],
-          'first-line': 25L,
-          'folded-linenos': [],
-          'sel-line': 35L,
-          'sel-line-start': 831L,
-          'selection_end': 855L,
-          'selection_start': 855L,
-          'zoom': 0L},
-         1581204528.464312],
-        [loc('start_cluster.py'),
-         {'attrib-starts': [('start',
-                             30)],
-          'first-line': 50L,
-          'folded-linenos': [],
-          'sel-line': 57L,
-          'sel-line-start': 1762L,
-          'selection_end': 2386L,
-          'selection_start': 1762L,
-          'zoom': 0L},
-         1581204529.714811],
-        [loc('unknown:<untitled> #47'),
-         {'attrib-starts': [],
-          'first-line': 31L,
-          'folded-linenos': [],
-          'sel-line': 22L,
-          'sel-line-start': 553L,
-          'selection_end': 1032L,
-          'selection_start': 553L,
-          'zoom': 0L},
-         1581204603.60246],
-        [loc('start_cluster.py'),
-         {'attrib-starts': [('start',
-                             30)],
-          'first-line': 74L,
-          'folded-linenos': [],
-          'sel-line': 85L,
-          'sel-line-start': 2531L,
-          'selection_end': 2531L,
-          'selection_start': 2531L,
-          'zoom': 0L},
-         1581205056.832349],
-        [loc('unknown:<untitled> #48'),
-         {'attrib-starts': [],
-          'first-line': 0L,
-          'folded-linenos': [],
-          'sel-line': 13L,
-          'sel-line-start': 317L,
-          'selection_end': 336L,
-          'selection_start': 336L,
-          'zoom': 0L},
-         1581289984.578944],
-        [loc('../EvergladesWadingBird/DataCleaningScripts/crop_image.py'),
-         {'attrib-starts': [],
-          'first-line': 0L,
-          'folded-linenos': [],
-          'sel-line': 5L,
-          'sel-line-start': 151L,
-          'selection_end': 163L,
-          'selection_start': 163L,
-          'zoom': 0L},
-         1581290688.081244],
-        [loc('generate.py'),
-         {'attrib-starts': [('find_files',
-                             7)],
-          'first-line': 0L,
-          'folded-linenos': [],
-          'sel-line': 7L,
-          'sel-line-start': 141L,
-          'selection_end': 675L,
-          'selection_start': 141L,
-          'zoom': 0L},
-         1581290692.558157],
+        1581290692.558157],
         [loc('generate.py'),
          {'attrib-starts': [('find_files',
                              7)],
@@ -885,7 +282,7 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
           'selection_start': 67L,
           'zoom': 0L},
          1581370871.956725],
-        [loc('unknown:<untitled> #49'),
+        [loc('unknown:<untitled> #2'),
          {'attrib-starts': [],
           'first-line': 0L,
           'folded-linenos': [],
@@ -905,28 +302,140 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
           'selection_end': 6469L,
           'selection_start': 6469L,
           'zoom': 0L},
-         1581371701.423849]],
+         1581371701.423849],
+        [loc('main.py'),
+         {'attrib-starts': [],
+          'first-line': 95L,
+          'folded-linenos': [],
+          'sel-line': 102L,
+          'sel-line-start': 3140L,
+          'selection_end': 3169L,
+          'selection_start': 3169L,
+          'zoom': 0L},
+         1581475777.106434],
+        [loc('start_cluster.py'),
+         {'attrib-starts': [('start',
+                             30)],
+          'first-line': 64L,
+          'folded-linenos': [],
+          'sel-line': 85L,
+          'sel-line-start': 2531L,
+          'selection_end': 2531L,
+          'selection_start': 2531L,
+          'zoom': 0L},
+         1581475786.581353],
+        [loc('main.py'),
+         {'attrib-starts': [],
+          'first-line': 95L,
+          'folded-linenos': [],
+          'sel-line': 100L,
+          'sel-line-start': 3093L,
+          'selection_end': 3117L,
+          'selection_start': 3117L,
+          'zoom': 0L},
+         1581475796.597546],
+        [loc('start_cluster.py'),
+         {'attrib-starts': [('start',
+                             30)],
+          'first-line': 30L,
+          'folded-linenos': [],
+          'sel-line': 85L,
+          'sel-line-start': 2531L,
+          'selection_end': 2531L,
+          'selection_start': 2531L,
+          'zoom': 0L},
+         1581475801.011398],
+        [loc('main.py'),
+         {'attrib-starts': [],
+          'first-line': 88L,
+          'folded-linenos': [],
+          'sel-line': 102L,
+          'sel-line-start': 3132L,
+          'selection_end': 3161L,
+          'selection_start': 3161L,
+          'zoom': 0L},
+         1581475896.868078],
+        [loc('../../Dropbox/Weecology/Benchmark/ForStephanie/annotation_sergio/CLBJ_044.xml'),
+         {'attrib-starts': [],
+          'first-line': 0L,
+          'folded-linenos': [],
+          'sel-line': 9L,
+          'sel-line-start': 209L,
+          'selection_end': 222L,
+          'selection_start': 222L,
+          'zoom': 0L},
+         1581483513.413782],
+        [loc('../../Dropbox/Everglades/imagery/q__delivery_2015_1Metadata_FGDC_2015_Collier.xml'),
+         {'attrib-starts': [],
+          'first-line': 0L,
+          'folded-linenos': [],
+          'sel-line': 7L,
+          'sel-line-start': 237L,
+          'selection_end': 249L,
+          'selection_start': 245L,
+          'zoom': 0L},
+         1581483546.227979],
+        [loc('../../Dropbox/Everglades/imagery/q__delivery_2015_1Metadata_FGDC_2015_Collier.xml'),
+         {'attrib-starts': [],
+          'first-line': 13L,
+          'folded-linenos': [],
+          'sel-line': 7L,
+          'sel-line-start': 237L,
+          'selection_end': 263L,
+          'selection_start': 259L,
+          'zoom': 0L},
+         1581528809.795233],
+        [loc('../../Dropbox/Weecology/Benchmark/ForStephanie/annotation_sergio/CLBJ_044.xml'),
+         {'attrib-starts': [],
+          'first-line': 0L,
+          'folded-linenos': [],
+          'sel-line': 8L,
+          'sel-line-start': 180L,
+          'selection_end': 202L,
+          'selection_start': 202L,
+          'zoom': 0L},
+         1581540015.748775],
+        [loc('../EvergladesWadingBird/DataCleaningScripts/crop_image.py'),
+         {'attrib-starts': [],
+          'first-line': 0L,
+          'folded-linenos': [],
+          'sel-line': 23L,
+          'sel-line-start': 772L,
+          'selection_end': 807L,
+          'selection_start': 807L,
+          'zoom': 0L},
+         1581540022.242005],
+        [loc('generate.py'),
+         {'attrib-starts': [('find_files',
+                             7)],
+          'first-line': 18L,
+          'folded-linenos': [],
+          'sel-line': 7L,
+          'sel-line-start': 141L,
+          'selection_end': 149L,
+          'selection_start': 146L,
+          'zoom': 0L},
+         1581540023.302312]],
         20),
-        'current-loc': loc('../../miniconda3/envs/test/lib/python3.7/site-packages/deepforest/preprocess.py'),
+        'current-loc': loc('start_cluster.py'),
         'editor-state-list': [(loc('main.py'),
-                               {'attrib-starts': [('run_lidar',
-        69)],
-                                'first-line': 86L,
+                               {'attrib-starts': [],
+                                'first-line': 88L,
                                 'folded-linenos': [],
-                                'sel-line': 93L,
-                                'sel-line-start': 2925L,
-                                'selection_end': 2950L,
-                                'selection_start': 2950L,
+                                'sel-line': 102L,
+                                'sel-line-start': 3132L,
+                                'selection_end': 3161L,
+                                'selection_start': 3161L,
                                 'zoom': 0L}),
                               (loc('start_cluster.py'),
                                {'attrib-starts': [('start',
         30)],
-                                'first-line': 74L,
+                                'first-line': 30L,
                                 'folded-linenos': [],
-                                'sel-line': 85L,
-                                'sel-line-start': 2531L,
-                                'selection_end': 2531L,
-                                'selection_start': 2531L,
+                                'sel-line': 39L,
+                                'sel-line-start': 1215L,
+                                'selection_end': 1246L,
+                                'selection_start': 1246L,
                                 'zoom': 0L}),
                               (loc('generate.py'),
                                {'attrib-starts': [('find_files',
@@ -967,15 +476,6 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                                 'selection_end': 6469L,
                                 'selection_start': 6469L,
                                 'zoom': 0L}),
-                              (loc('../../Desktop/test.py'),
-                               {'attrib-starts': [],
-                                'first-line': 0L,
-                                'folded-linenos': [],
-                                'sel-line': 3L,
-                                'sel-line-start': 67L,
-                                'selection_end': 67L,
-                                'selection_start': 67L,
-                                'zoom': 0L}),
                               (loc('../../miniconda3/envs/test/lib/python3.7/site-packages/pandas/core/generic.py'),
                                {'attrib-starts': [('NDFrame',
         150),
@@ -987,6 +487,24 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                                 'sel-line-start': 176020L,
                                 'selection_end': 176050L,
                                 'selection_start': 176050L,
+                                'zoom': 0L}),
+                              (loc('../../Dropbox/Weecology/Benchmark/ForStephanie/annotation_sergio/CLBJ_044.xml'),
+                               {'attrib-starts': [],
+                                'first-line': 0L,
+                                'folded-linenos': [],
+                                'sel-line': 8L,
+                                'sel-line-start': 180L,
+                                'selection_end': 202L,
+                                'selection_start': 202L,
+                                'zoom': 0L}),
+                              (loc('../../Desktop/test.py'),
+                               {'attrib-starts': [],
+                                'first-line': 0L,
+                                'folded-linenos': [],
+                                'sel-line': 3L,
+                                'sel-line-start': 67L,
+                                'selection_end': 67L,
+                                'selection_start': 67L,
                                 'zoom': 0L})],
         'has-focus': True,
         'locked': False},
@@ -996,15 +514,18 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
          loc('../EvergladesWadingBird/DataCleaningScripts/crop_image.py'),
          loc('utils/tfrecords.py'),
          loc('../../miniconda3/envs/test/lib/python3.7/site-packages/deepforest/preprocess.py'),
-         loc('../../Desktop/test.py'),
-         loc('../../miniconda3/envs/test/lib/python3.7/site-packages/pandas/core/generic.py')]),
+         loc('../../miniconda3/envs/test/lib/python3.7/site-packages/pandas/core/generic.py'),
+         loc('../../Dropbox/Weecology/Benchmark/ForStephanie/annotation_sergio/CLBJ_044.xml'),
+         loc('../../Desktop/test.py')]),
                                'open_files': [u'../../Desktop/test.py',
+        u'main.py',
+        u'utils/tfrecords.py',
+        u'../../miniconda3/envs/test/lib/python3.7/site-packages/deepforest/preprocess.py',
+        u'../../miniconda3/envs/test/lib/python3.7/site-packages/pandas/core/generic.py',
+        u'../../Dropbox/Weecology/Benchmark/ForStephanie/annotation_sergio/CLBJ_044.xml',
         u'../EvergladesWadingBird/DataCleaningScripts/crop_image.py',
         u'generate.py',
-        u'main.py',
-        u'start_cluster.py',
-        u'utils/tfrecords.py',
-        u'../../miniconda3/envs/test/lib/python3.7/site-packages/deepforest/preprocess.py']},
+        u'start_cluster.py']},
         'saved_notebook_display': None,
         'split_percents': {0: 0.44682752457551383},
         'splits': 2,
@@ -1019,7 +540,12 @@ guimgr.overall-gui-state = {'windowing-policy': 'combined-window',
                          0,
                          1920,
                          1080)}]}
-guimgr.recent-documents = [loc('../../miniconda3/envs/test/lib/python3.7/site-packages/pandas/core/generic.py'),
+guimgr.recent-documents = [loc('start_cluster.py'),
+                           loc('generate.py'),
+                           loc('../EvergladesWadingBird/DataCleaningScripts/crop_image.py'),
+                           loc('../../Dropbox/Weecology/Benchmark/ForStephanie/annotation_sergio/CLBJ_044.xml'),
+                           loc('../../miniconda3/envs/test/lib/python3.7/site-packages/pandas/core/generic.py'),
+                           loc('main.py'),
                            loc('../../miniconda3/envs/test/lib/python3.7/site-packages/deepforest/preprocess.py')]
 guimgr.visual-state = {loc('../DeepForest/.travis.yml'): {'attrib-starts': [],
         'first-line': 3L,
@@ -1390,6 +916,15 @@ guimgr.visual-state = {loc('../DeepForest/.travis.yml'): {'attrib-starts': [],
         'selection_end': 1860L,
         'selection_start': 1860L,
         'zoom': 0L},
+                       loc('../../Dropbox/Everglades/imagery/q__delivery_2015_1Metadata_FGDC_2015_Collier.xml'): {'a'\
+        'ttrib-starts': [],
+        'first-line': 13L,
+        'folded-linenos': [],
+        'sel-line': 7L,
+        'sel-line-start': 237L,
+        'selection_end': 263L,
+        'selection_start': 259L,
+        'zoom': 0L},
                        loc('../../Dropbox/Weecology/Drone/RP_2015_P1.xml'): {'a'\
         'ttrib-starts': [],
         'first-line': 0L,
@@ -1575,7 +1110,8 @@ proj.vcs-system-config = ('prefs',
                                    'versioncontrol.svn.executable': u'svn',
                                    'versioncontrol.svn.extra-global-args': '',
                                    'versioncontrol.svn.svnadmin-executable': u'svnadmin'}})
-search.search-history = [u'indice',
+search.search-history = [u'date',
+                         u'indice',
                          u'index',
                          u'cpus',
                          u'cluster',
@@ -1593,8 +1129,7 @@ search.search-history = [u'indice',
                          u'Image',
                          u'cv2',
                          u'Image.open',
-                         u'project',
-                         u'gpus']
+                         u'project']
 testing.stored-results = (1,
                           [(u'/Users/ben/Documents/NEON_crown_maps/tests/test_predict.py',
                             [('test_predict_tilelist',
@@ -1611,29 +1146,6 @@ testing.stored-results = (1,
                               None,
                               1580257663,
                               38)]),
-                           (u'/Users/ben/Documents/NEON_crown_maps/tests/test_LIDAR.py',
-                            [('test_load_lidar',
-                              0,
-                              None,
-                              None,
-                              None,
-                              1581106024,
-                              35),
-                             ('test_postprocess',
-                              0,
-                              None,
-                              None,
-                              None,
-                              1581106024,
-                              41)]),
-                           (u'/Users/ben/Documents/NEON_crown_maps/tests/test_hard_mining.py',
-                            [('test_run',
-                              0,
-                              None,
-                              None,
-                              None,
-                              1580681251,
-                              3)]),
                            (u'/Users/ben/Documents/NEON_crown_maps/tests/test_dask.py',
                             [('test_dask',
                               0,
@@ -1642,6 +1154,14 @@ testing.stored-results = (1,
                               None,
                               1580170653,
                               25)]),
+                           (u'/Users/ben/Documents/NEON_crown_maps/tests/test_hard_mining.py',
+                            [('test_run',
+                              0,
+                              None,
+                              None,
+                              None,
+                              1580681251,
+                              3)]),
                            (u'/Users/ben/Documents/NEON_crown_maps/tests/test_tfrecords.py',
                             [('test_create_dataset',
                               0,
@@ -1656,6 +1176,21 @@ testing.stored-results = (1,
                               None,
                               None,
                               1580223548,
-                              19)])],
+                              19)]),
+                           (u'/Users/ben/Documents/NEON_crown_maps/tests/test_LIDAR.py',
+                            [('test_load_lidar',
+                              0,
+                              None,
+                              None,
+                              None,
+                              1581106024,
+                              35),
+                             ('test_postprocess',
+                              0,
+                              None,
+                              None,
+                              None,
+                              1581106024,
+                              41)])],
                           {u'/Users/ben/Documents/NEON_crown_maps/test_dask.py': (u'Test process aborted: some tests were not run',
         1579123742)})
