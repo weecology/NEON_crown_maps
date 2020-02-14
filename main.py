@@ -118,6 +118,8 @@ if __name__ == "__main__":
     #As records are created, predict.
     for future, result in as_completed(generated_records, with_results=True):
         
+        print("Running prediction for completed tfrecord".format(result))
+        
         #Lookup rgb path to create tfrecord
         rgb_path = lookup_rgb_path(tfrecord = result, rgb_list = rgb_list)
         
