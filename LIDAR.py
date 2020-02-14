@@ -164,7 +164,7 @@ def postprocess(shapefile, pc, bounds=None):
     df = gp.read_file(shapefile)
     
     #Convert data types
-    boxes[["left","bottom","right","top"]] = boxes[["left","bottom","right","top"]].astype(float)
+    df[["left","bottom","right","top"]] = df[["left","bottom","right","top"]].astype(float)
     
     #Drape boxes
     boxes = drape_boxes(boxes=df, pc = pc, min_height=3)     
