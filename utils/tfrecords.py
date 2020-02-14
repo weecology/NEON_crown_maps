@@ -36,7 +36,12 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.15, savedir=".")
         written_files: A list of path names of written tfrecords
     """
     #Load image    
-    raster = Image.open(tile_path)
+    try:
+        raster = Image.open(tile_path)
+    except:
+        print("Image {} is corrupt".format(tile_path))
+        return None
+        
     numpy_image = np.array(raster)
     image_name = os.path.splitext(os.path.basename(tile_path))[0]
     
