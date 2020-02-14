@@ -138,9 +138,6 @@ if __name__ == "__main__":
     for future, result in as_completed(predictions, with_results=True):
         postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
         print("Postprocessed: {}".format(postprocessed_filename))
-        
-    #Wait until all futures are complete
-    wait(results)
     
     
     
