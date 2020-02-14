@@ -36,7 +36,7 @@ def generate_tfrecord(tile_list, client, n=None,site_regex=None):
     site_regex: regular expression to search tile paths (e.g "OSBS|HARV")
     """
     
-    from deepforest import tfrecords
+    from utils import tfrecords
     
     #Find files
     tile_list = find_files(site_regex)
