@@ -13,7 +13,7 @@ def lookup_rgb_path(tfrecord,rgb_list):
     
     #Find raster directory for each rgb file
     index = rgb_names.index(tfrecord_name)
-    rgb_path = rgb_list[x]
+    rgb_path = rgb_list[index]
     
     return rgb_path
     
