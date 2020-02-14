@@ -45,7 +45,7 @@ def generate_tfrecord(tile_list, client, n=None,site_regex=None):
         random.shuffle(tile_list)
         tile_list = tile_list[:n]
     
-    print("Running {} tiles: \n {}".format(len(tile_list),tile_list))    
+    print("Running {} tiles: \n {} ...".format(len(tile_list),tile_list[:3]))    
     
     written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, savedir="/orange/ewhite/b.weinstein/NEON/crops/")
     
@@ -68,7 +68,7 @@ def run_rgb(records, raster_dir):
     #comet_experiment.log_parameters(model.config)
     shp = predict.predict_tiles(model, [records], patch_size=400, raster_dir=[raster_dir], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
     
-    return shp
+    return shp[0]
 
 def run_lidar(shp,lidar_list, save_dir=""):
     """
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     #As records are created, predict.
     for future, result in as_completed(generated_records, with_results=True):
         
-        print("Running prediction for completed future {} with tfrecord {}".format(future, result))
+        print("Running prediction for completed future with tfrecord {}".format(result))
         #Lookup rgb path to create tfrecord. If it was a blank tile, result will be Nonetype
         if result:
             rgb_path = lookup_rgb_path(tfrecord = result, rgb_list = rgb_list)
@@ -137,7 +137,10 @@ if __name__ == "__main__":
     draped_files = [ ]
     for future, result in as_completed(predictions, with_results=True):
         print("Postprocessing: {}".format(result))        
-        postprocessed_filename = cpu_client.submit(run_lidar, result[0], lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+        try:
+            postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+        except:
+            result.traceback()
         draped_files.append(postprocessed_filename)
     
     wait(draped_files)
