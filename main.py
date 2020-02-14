@@ -102,9 +102,9 @@ def run_lidar(shp,lidar_list, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 10)
+    cpu_client = start(cpus = 20)
     
-    gpu_client = start(gpus=3)
+    gpu_client = start(gpus=4)
     
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
@@ -119,7 +119,6 @@ if __name__ == "__main__":
     for future, result in as_completed(generated_records, with_results=True):
         
         print("Running prediction for completed future {} with tfrecord {}".format(future, result))
-        
         #Lookup rgb path to create tfrecord. If it was a blank tile, result will be Nonetype
         if result:
             rgb_path = lookup_rgb_path(tfrecord = result, rgb_list = rgb_list)
@@ -135,9 +134,13 @@ if __name__ == "__main__":
         predictions.append(result)
     
     #As predictions complete, run postprocess to drape LiDAR and extract height
+    draped_files = [ ]
     for future, result in as_completed(predictions, with_results=True):
+        print("Postprocessing: {}".format(result))        
         postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
-        print("Postprocessed: {}".format(postprocessed_filename))
+        draped_files.append(postprocessed_filename)
+    
+    wait(draped_files)
     
     
     
