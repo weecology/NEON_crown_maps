@@ -161,7 +161,7 @@ def postprocess(shapefile, pc, bounds=None):
     Drape a shapefile of bounding box predictions over LiDAR cloud
     """
     #Read shapefile
-    df = geopandas.read(shapefile)
+    df = gp.read(shapefile)
     
     #Convert data types
     boxes[["left","bottom","right","top"]] = boxes[["left","bottom","right","top"]].astype(float)
