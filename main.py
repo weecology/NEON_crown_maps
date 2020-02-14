@@ -120,9 +120,11 @@ if __name__ == "__main__":
         
         print("Running prediction for completed future {} with tfrecord {}".format(future, result))
         
-        #Lookup rgb path to create tfrecord
-        wait(future)
-        rgb_path = lookup_rgb_path(tfrecord = result, rgb_list = rgb_list)
+        #Lookup rgb path to create tfrecord. If it was a blank tile, result will be Nonetype
+        if result:
+            rgb_path = lookup_rgb_path(tfrecord = result, rgb_list = rgb_list)
+        else:
+            continue
         
         #Split into basename and dir
         rgb_name = os.path.splitext(os.path.basename(rgb_path))[0]
