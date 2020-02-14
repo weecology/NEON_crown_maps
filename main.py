@@ -91,7 +91,8 @@ def run_lidar(shp,lidar_list, save_dir=""):
     boxes = LIDAR.postprocess(shp, pc)
     
     #Save shapefile
-    postprocessed_filename = os.path.join(save_dir, )
+    bname = os.path.basename(shp)
+    postprocessed_filename = os.path.join(save_dir, bname)
     boxes.to_file(postprocessed_filename, driver='ESRI Shapefile')
     
     return postprocessed_filename
@@ -123,12 +124,12 @@ if __name__ == "__main__":
         raster_dir = os.path.dirname(rgb_path)
         
         #Predict record
-        result = gpu_client.submit(run_rgb, result, raster_dir, resource={"gpu":1})
+        result = gpu_client.submit(run_rgb, result, raster_dir)
         predictions.append(result)
     
     #As predictions complete, run postprocess to drape LiDAR and extract height
     for future, result in as_completed(results, with_results=True):
-        postprocessed_filename = cpu_client.submit(lidar, result, lidar_list, resource={"cpu":1})
+        postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
         print("Postprocessed: {}".format(postprocessed_filename))
         
     #Wait until all futures are complete
