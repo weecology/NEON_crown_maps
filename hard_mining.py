@@ -115,7 +115,7 @@ if __name__ == "__main__":
     image_paths = [rgb_list[x] for x in indices]
     
     #Create cluster
-    client = start_dask_cluster(number_of_workers=10)
+    client = start(cpus=10)
     
     #Strategy 1 - all windows
     futures = client.map(run,image_paths,predictions,save_dir="/orange/ewhite/b.weinstein/NEON/mining/", min_tree = 1)
