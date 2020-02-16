@@ -98,7 +98,7 @@ def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0
 
 if __name__ == "__main__":
     
-    from start_cluster import start_dask_cluster
+    from start_cluster import start
     from distributed import wait
     
     #Find files

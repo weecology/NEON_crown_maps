@@ -28,6 +28,16 @@ def find_files(site_regex = None):
     
     return tile_list
 
+def year_filter(tile_list, year=None):
+    
+    if year:
+        year=str(year)
+        #Find available tiles
+        selected_index = np.where([bool(re.search(year,x)) for x in tile_list])
+        tile_list = tile_list[selected_index]
+    
+    return tile_list
+
 def generate_tfrecord(tile_list, client, n=None,site_regex=None):
     """Create tfrecords
     tile_list: list of rgb tiles to generate tfrecord
@@ -38,8 +48,11 @@ def generate_tfrecord(tile_list, client, n=None,site_regex=None):
     
     from utils import tfrecords
     
-    #Find files
-    tile_list = find_files(site_regex)
+    #Find site files
+    tile_list = find_files()
+    
+    #Select year
+    tile_list = year_filter(tile_list, year=2019)
     
     if n:
         random.shuffle(tile_list)
