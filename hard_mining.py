@@ -70,7 +70,7 @@ def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0
     
     if score_df.empty:
         print("No windows with more than {} trees".format(min_tree))
-        break
+        return None
     
     lowest = score_df.min()
     lowest_index = score_df[score_df == lowest].index[0]
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
     
     #tfrecord files
-    predictions = glob.glob("/orange/ewhite/b.weinstein/NEON/predictions/*.shp")
+    predictions = glob.glob("/orange/ewhite/b.weinstein/NEON/draped/*.shp")
     
     #match rgb list to tfrecords
     rgb_names = [os.path.splitext(os.path.basename(x))[0] for x in rgb_list]

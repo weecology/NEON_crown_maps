@@ -167,10 +167,10 @@ def postprocess(shapefile, pc, bounds=None):
     df[["left","bottom","right","top"]] = df[["left","bottom","right","top"]].astype(float)
     
     #Drape boxes
-    boxes = drape_boxes(boxes=df, pc = pc, min_height=3)     
+    boxes = drape_boxes(boxes=df, pc = pc, min_height=2)     
     
     #Calculate crown area
-    boxes["area"] = (boxes["top"] - boxes["bottom"]) * (boxes["left"] - boxes["right"])
+    boxes["area"] = (boxes["top"] - boxes["bottom"]) * (boxes["right"] - boxes["left"])
     
     return boxes
     
