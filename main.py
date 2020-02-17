@@ -17,10 +17,16 @@ def lookup_rgb_path(tfrecord,rgb_list):
     
     return rgb_path
     
-def find_files(site_regex = None):
+def find_files(site_regex = None, target_list=None):
     #Find available tiles
     tile_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
     
+    if target_list: 
+        selected_index = []
+        for target in target_list:
+            i = np.where([bool(re.search(target,x)) for x in tile_list])[0][0]
+            selected_index.append(i)
+        
     #select by sites 
     if site_regex:
         selected_index = np.where([bool(re.search(site_regex,x)) for x in tile_list])
@@ -31,28 +37,29 @@ def find_files(site_regex = None):
 def year_filter(tile_list, year=None):
     
     if year:
-        year=str(year)
+        year="{}_".format(year)
         #Find available tiles
-        selected_index = np.where([bool(re.search(year,x)) for x in tile_list])
-        tile_list = tile_list[selected_index]
+        selected_index = np.where([bool(re.search(year,x)) for x in tile_list])[0]
+        tile_list = [tile_list[x] for x in selected_index]
     
     return tile_list
 
-def generate_tfrecord(tile_list, client, n=None,site_regex=None):
+def generate_tfrecord(tile_list, client, n=None,site_regex=None, year=None, target_list=None):
     """Create tfrecords
     tile_list: list of rgb tiles to generate tfrecord
     client: dask client
+    year: year filter
     n: number of tiles to limit for testing
     site_regex: regular expression to search tile paths (e.g "OSBS|HARV")
+    target_list: an optional list of files to run
     """
-    
     from utils import tfrecords
-    
+            
     #Find site files
     tile_list = find_files()
     
     #Select year
-    tile_list = year_filter(tile_list, year=2019)
+    tile_list = year_filter(tile_list, year=year)
     
     if n:
         random.shuffle(tile_list)
@@ -83,10 +90,11 @@ def run_rgb(records, raster_dir):
     
     return shp[0]
 
-def run_lidar(shp,lidar_list, save_dir=""):
+def run_lidar(shp,lidar_list, min_height =2, save_dir=""):
     """
     shp: path to a DeepForest prediction shapefile
     lidar_list: list of a lidar files to look up corresponding laz file
+    min_height: minimum height of a tree to consider
     This function is written to function as results are completled, so the laz file cannot be anticipated
     """
     import LIDAR
@@ -109,7 +117,7 @@ def run_lidar(shp,lidar_list, save_dir=""):
     pc = LIDAR.load_lidar(laz_path)
     
     #Drape and collect height information
-    boxes = LIDAR.postprocess(shp, pc)
+    boxes = LIDAR.postprocess(shp, pc, min_height=min_height)
     
     #Save shapefile
     bname = os.path.basename(shp)
@@ -129,8 +137,24 @@ if __name__ == "__main__":
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
     lidar_list = glob.glob("/orange/ewhite/NeonData/**/ClassifiedPointCloud/*.laz",recursive=True)
     
-    #Create tfrecords
-    generated_records = generate_tfrecord(rgb_list, cpu_client, site_regex=None, n= 50)
+    #Create tfrecords, either specify a set of tiles or sample random
+    
+    target_list =[
+    "2019_WREF_3_582000_5073000_image.tif",
+    "2018_ABBY_2_557000_5065000_image.tif",
+    "2018_CLBJ_3_627000_3694000_image.tif",
+    "2018_GRSM_4_273000_3954000_image.tif",
+    "2018_OSBS_4_400000_3285000_image.tif",
+    "2018_SOAP_3_303000_4099000_image.tif",
+    "2018_SRER_2_503000_3520000_image.tif",
+    "2019_DSNY_5_462000_3100000_image.tif",
+    "2019_NOGP_3_353000_5187000_image.tif",
+    "2019_SERC_4_364000_4308000_image.tif",
+    "2019_TALL_5_465000_3646000_image.tif",
+   "2019_TEAK_4_315000_4104000_image.tif"
+    ]
+    
+    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= 50, target_list = map_box, site_regex=None)
     
     predictions = []    
     

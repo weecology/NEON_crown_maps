@@ -156,7 +156,7 @@ def drape_boxes(boxes, pc, min_height=3):
     
     return boxes    
     
-def postprocess(shapefile, pc, bounds=None):
+def postprocess(shapefile, pc, min_height=2, bounds=None):
     """
     Drape a shapefile of bounding box predictions over LiDAR cloud
     """
@@ -167,7 +167,7 @@ def postprocess(shapefile, pc, bounds=None):
     df[["left","bottom","right","top"]] = df[["left","bottom","right","top"]].astype(float)
     
     #Drape boxes
-    boxes = drape_boxes(boxes=df, pc = pc, min_height=2)     
+    boxes = drape_boxes(boxes=df, pc = pc, min_height=min_height)     
     
     #Calculate crown area
     boxes["area"] = (boxes["top"] - boxes["bottom"]) * (boxes["right"] - boxes["left"])
