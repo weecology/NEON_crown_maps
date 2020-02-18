@@ -39,18 +39,15 @@ def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, 
     client: dask client
     year: year filter
     n: number of tiles to limit for testing
-    site_regex: list to search tile paths (e.g ["OSBS","HARV"])
+    site_list: list to search tile paths (e.g ["OSBS","HARV"])
     year_list: list to search tile paths (e.g. ["2019","2018"])
     target_list: an optional list of files to run, just the relative path names
     """
     from utils import tfrecords
             
     #Find site files
-    tile_list = find_files(site_regex=site_regex, target_list=target_list)
-    
-    #Select year
-    tile_list = year_filter(tile_list, year=year)
-    
+    tile_list = find_files(site_list=site_list, year_list=year_list, target_list=target_list)
+        
     if n:
         random.shuffle(tile_list)
         tile_list = tile_list[:n]
