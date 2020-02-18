@@ -154,7 +154,7 @@ if __name__ == "__main__":
    "2019_TEAK_4_315000_4104000_image.tif"
     ]
     
-    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= 50, target_list = map_box, site_regex=None)
+    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= 50, target_list = target_list, site_regex=None)
     
     predictions = []    
     
