@@ -24,7 +24,7 @@ def find_files(site_list = None, target_list=None, year_list=None):
         tile_list = [x for x in tile_list for y in target_list if y in x]
         
     #select by sites 
-    if site_regex:
+    if site_list:
         tile_list = [x for x in tile_list for y in site_list if y in x]
     
     if year_list:
