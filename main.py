@@ -30,7 +30,8 @@ def find_files(site_regex = None, target_list=None):
     #select by sites 
     if site_regex:
         selected_index = np.where([bool(re.search(site_regex,x)) for x in tile_list])
-        tile_list = tile_list[selected_index]
+    
+    tile_list = tile_list[selected_index]
     
     return tile_list
 
@@ -67,7 +68,7 @@ def generate_tfrecord(tile_list, client, n=None,site_regex=None, year=None, targ
     
     print("Running {} tiles: \n {} ...".format(len(tile_list),tile_list[:3]))    
     
-    written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, savedir="/orange/ewhite/b.weinstein/NEON/crops/")
+    written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/")
     
     return written_records
     
@@ -155,7 +156,7 @@ if __name__ == "__main__":
    "2019_KONZ_5_704000_4335000_image.tif"
     ]
     
-    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= 50, target_list = target_list, site_regex=None)
+    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= 1, target_list = target_list, site_regex=None)
     
     predictions = []    
     
