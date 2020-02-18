@@ -4,7 +4,6 @@ from start_cluster import start
 from distributed import wait, as_completed
 import numpy as np
 import random
-import re
 
 def lookup_rgb_path(tfrecord,rgb_list):
     #match rgb list to tfrecords
@@ -17,42 +16,32 @@ def lookup_rgb_path(tfrecord,rgb_list):
     
     return rgb_path
     
-def find_files(site_regex = None, target_list=None):
+def find_files(site_list = None, target_list=None, year_list=None):
     #Find available tiles
     tile_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
     
     if target_list: 
-        selected_index = []
-        for target in target_list:
-            i = np.where([bool(re.search(target,x)) for x in tile_list])[0][0]
-            selected_index.append(i)
+        tile_list = [x for x in tile_list for y in target_list if y in x]
         
     #select by sites 
     if site_regex:
-        selected_index = np.where([bool(re.search(site_regex,x)) for x in tile_list])
+        tile_list = [x for x in tile_list for y in site_list if y in x]
     
-    tile_list = tile_list[selected_index]
-    
+    if year_list:
+        year_list = ["{}_".format(x) for x in year_list]
+        tile_list = [x for x in tile_list for y in year_list if y in x]        
+        
     return tile_list
 
-def year_filter(tile_list, year=None):
-    
-    if year:
-        year="{}_".format(year)
-        #Find available tiles
-        selected_index = np.where([bool(re.search(year,x)) for x in tile_list])[0]
-        tile_list = [tile_list[x] for x in selected_index]
-    
-    return tile_list
-
-def generate_tfrecord(tile_list, client, n=None,site_regex=None, year=None, target_list=None):
+def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, target_list=None):
     """Create tfrecords
     tile_list: list of rgb tiles to generate tfrecord
     client: dask client
     year: year filter
     n: number of tiles to limit for testing
-    site_regex: regular expression to search tile paths (e.g "OSBS|HARV")
-    target_list: an optional list of files to run
+    site_regex: list to search tile paths (e.g ["OSBS","HARV"])
+    year_list: list to search tile paths (e.g. ["2019","2018"])
+    target_list: an optional list of files to run, just the relative path names
     """
     from utils import tfrecords
             
@@ -156,7 +145,7 @@ if __name__ == "__main__":
    "2019_KONZ_5_704000_4335000_image.tif"
     ]
     
-    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= 1, target_list = target_list, site_regex=None)
+    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = target_list, site_list=None, year_list=None)
     
     predictions = []    
     
@@ -178,17 +167,19 @@ if __name__ == "__main__":
         result = gpu_client.submit(run_rgb, result, raster_dir)
         predictions.append(result)
     
-    #As predictions complete, run postprocess to drape LiDAR and extract height
-    draped_files = [ ]
-    for future, result in as_completed(predictions, with_results=True):
-        try:
-            print("Postprocessing: {}".format(result))                    
-            postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
-        except:
-            result.traceback()
-        draped_files.append(postprocessed_filename)
+    wait(predictions)
     
-    wait(draped_files)
+    ##As predictions complete, run postprocess to drape LiDAR and extract height
+    #draped_files = [ ]
+    #for future, result in as_completed(predictions, with_results=True):
+        #try:
+            #print("Postprocessing: {}".format(result))                    
+            #postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+        #except:
+            #result.traceback()
+        #draped_files.append(postprocessed_filename)
+    
+    #wait(draped_files)
     
     
     
