@@ -56,7 +56,7 @@ def generate_tfrecord(tile_list, client, n=None,site_regex=None, year=None, targ
     from utils import tfrecords
             
     #Find site files
-    tile_list = find_files()
+    tile_list = find_files(site_regex=site_regex, target_list=target_list)
     
     #Select year
     tile_list = year_filter(tile_list, year=year)
@@ -129,9 +129,9 @@ def run_lidar(shp,lidar_list, min_height =2, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 20)
+    cpu_client = start(cpus = 1)
     
-    gpu_client = start(gpus=4)
+    gpu_client = start(gpus=1)
     
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
@@ -140,18 +140,19 @@ if __name__ == "__main__":
     #Create tfrecords, either specify a set of tiles or sample random
     
     target_list =[
-    "2019_WREF_3_582000_5073000_image.tif",
-    "2018_ABBY_2_557000_5065000_image.tif",
-    "2018_CLBJ_3_627000_3694000_image.tif",
-    "2018_GRSM_4_273000_3954000_image.tif",
-    "2018_OSBS_4_400000_3285000_image.tif",
-    "2018_SOAP_3_303000_4099000_image.tif",
-    "2018_SRER_2_503000_3520000_image.tif",
-    "2019_DSNY_5_462000_3100000_image.tif",
-    "2019_NOGP_3_353000_5187000_image.tif",
-    "2019_SERC_4_364000_4308000_image.tif",
-    "2019_TALL_5_465000_3646000_image.tif",
-   "2019_TEAK_4_315000_4104000_image.tif"
+    #"2019_WREF_3_582000_5073000_image.tif",
+    #"2018_ABBY_2_557000_5065000_image.tif",
+    #"2018_CLBJ_3_627000_3694000_image.tif",
+    #"2018_GRSM_4_273000_3954000_image.tif",
+    #"2018_OSBS_4_400000_3285000_image.tif",
+    #"2018_SOAP_3_303000_4099000_image.tif",
+    #"2018_SRER_2_503000_3520000_image.tif",
+    #"2019_DSNY_5_462000_3100000_image.tif",
+    #"2019_NOGP_3_353000_5187000_image.tif",
+    #"2019_SERC_4_364000_4308000_image.tif",
+    #"2019_TALL_5_465000_3646000_image.tif",
+   #"2019_TEAK_4_315000_4104000_image.tif",
+   "2019_KONZ_5_704000_4335000_image.tif"
     ]
     
     generated_records = generate_tfrecord(rgb_list, cpu_client,  n= 50, target_list = target_list, site_regex=None)
