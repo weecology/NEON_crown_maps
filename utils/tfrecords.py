@@ -125,7 +125,7 @@ def create_dataset(filepath, batch_size=1, patch_size=400):
     dataset = tf.data.TFRecordDataset(filepath)
         
     # Maps the parser on every filepath in the array. You can set the number of parallel loaders here
-    dataset = dataset.map(_parse_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.map(_parse_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE, patch_size=patch_size)
       
     ## Set the batchsize
     dataset = dataset.batch(batch_size=batch_size, drop_remainder=True)
