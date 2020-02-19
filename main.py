@@ -129,18 +129,18 @@ if __name__ == "__main__":
     #Create tfrecords, either specify a set of tiles or sample random
     
     target_list =[
-    #"2019_WREF_3_582000_5073000_image.tif",
-    #"2018_ABBY_2_557000_5065000_image.tif",
-    #"2018_CLBJ_3_627000_3694000_image.tif",
-    #"2018_GRSM_4_273000_3954000_image.tif",
-    #"2018_OSBS_4_400000_3285000_image.tif",
-    #"2018_SOAP_3_303000_4099000_image.tif",
-    #"2018_SRER_2_503000_3520000_image.tif",
-    #"2019_DSNY_5_462000_3100000_image.tif",
-    #"2019_NOGP_3_353000_5187000_image.tif",
-    #"2019_SERC_4_364000_4308000_image.tif",
-    #"2019_TALL_5_465000_3646000_image.tif",
-   #"2019_TEAK_4_315000_4104000_image.tif",
+    "2019_WREF_3_582000_5073000_image.tif",
+    "2018_ABBY_2_557000_5065000_image.tif",
+    "2018_CLBJ_3_627000_3694000_image.tif",
+    "2018_GRSM_4_273000_3954000_image.tif",
+    "2018_OSBS_4_400000_3285000_image.tif",
+    "2018_SOAP_3_303000_4099000_image.tif",
+    "2018_SRER_2_503000_3520000_image.tif",
+    "2019_DSNY_5_462000_3100000_image.tif",
+    "2019_NOGP_3_353000_5187000_image.tif",
+    "2019_SERC_4_364000_4308000_image.tif",
+    "2019_TALL_5_465000_3646000_image.tif",
+   "2019_TEAK_4_315000_4104000_image.tif",
    "2019_KONZ_5_704000_4335000_image.tif"
     ]
     
@@ -170,14 +170,12 @@ if __name__ == "__main__":
     ##As predictions complete, run postprocess to drape LiDAR and extract height
     draped_files = [ ]
     for future, result in as_completed(predictions, with_results=True):
-        print(result)
-        draped_files.append(result)
-        #try:
-            #print("Postprocessing: {}".format(result))                    
-            #postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
-        #except:
-            #result.traceback()
-        #draped_files.append(postprocessed_filename)
+        try:
+            print("Postprocessing: {}".format(result))                    
+            postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+        except:
+            result.traceback()
+        draped_files.append(postprocessed_filename)
     
     wait(draped_files)
     print(draped_files)
