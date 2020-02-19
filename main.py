@@ -164,20 +164,19 @@ if __name__ == "__main__":
         result = gpu_client.submit(run_rgb, result, raster_dir)
         print(result)
         predictions.append(result)
-    
-    wait(predictions)
-    
+        
     ##As predictions complete, run postprocess to drape LiDAR and extract height
-    #draped_files = [ ]
-    #for future, result in as_completed(predictions, with_results=True):
+    draped_files = [ ]
+    for future, result in as_completed(predictions, with_results=True):
         #try:
             #print("Postprocessing: {}".format(result))                    
             #postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
         #except:
             #result.traceback()
-        #draped_files.append(postprocessed_filename)
+        draped_files.append(postprocessed_filename)
     
-    #wait(draped_files)
+    wait(draped_files)
+    print(draped_files)
     
     
     
