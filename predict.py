@@ -135,7 +135,7 @@ def predict_tile(model, tfrecord, patch_size=400, patch_overlap=0.05, image_size
             record_boxes.append(box_array)        
             record_scores.append(score_array)
             record_labels.append(label_array)
-            counter+=1
+            counter+=1            
         except tf.errors.OutOfRangeError: 
             print("{} batches in {}".format(counter,tfrecord))
             break

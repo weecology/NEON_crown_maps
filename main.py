@@ -66,7 +66,9 @@ def run_rgb(records, raster_dir):
     #Create model and set config
     model = deepforest.deepforest()
     model.use_release()
-    model.config["batch_size"] = 32
+    
+    #A 1km tile has 729 windows, evenly divisible batches is 27 * 27 = 729
+    model.config["batch_size"] = 27
     
     #Report config
     print(model.config)
