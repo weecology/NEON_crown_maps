@@ -54,7 +54,7 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir=".")
         return None
     
     #Create window crop index
-    windows = preprocess.compute_windows(numpy_image, patch_size,patch_overlap)
+    windows = preprocess.compute_windows(numpy_image, patch_size, patch_overlap)
     written_files = []
     
     #Tensorflow writer
@@ -67,6 +67,9 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir=".")
         #crop image
         crop = numpy_image[windows[index].indices()] 
     
+        #PIL reads RGB images, but retinanet follows cv2 image
+        crop = crop[:,:,::-1]
+        
         #Crop and preprocess, resize
         crop        = keras_retinanet_image.preprocess_image(crop)
         crop, scale = keras_retinanet_image.resize_image(crop)    
@@ -95,7 +98,7 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir=".")
     return tfrecord_filename
         
 #Reading
-def _parse_fn(example, patch_size):
+def _parse_fn(example):
     #Define features
     features = {
         'image/filename': tf.io.FixedLenFeature([], tf.string)
@@ -108,11 +111,11 @@ def _parse_fn(example, patch_size):
     filename = tf.cast(example["image/filename"],tf.string)    
     loaded_image = tf.read_file(filename)
     loaded_image = tf.image.decode_image(loaded_image, 3)
-    loaded_image = tf.reshape(loaded_image, tf.stack([patch_size, patch_size, 3]), name="cast_loaded_image")            
+    loaded_image = tf.reshape(loaded_image, tf.stack([800, 800, 3]), name="cast_loaded_image")            
     
     return loaded_image
 
-def create_dataset(filepath, batch_size=1, patch_size=400):
+def create_dataset(filepath, batch_size=1):
     """
     Args:
         filepath: list of tfrecord files
@@ -125,7 +128,7 @@ def create_dataset(filepath, batch_size=1, patch_size=400):
     dataset = tf.data.TFRecordDataset(filepath)
         
     # Maps the parser on every filepath in the array. You can set the number of parallel loaders here
-    dataset = dataset.map(_parse_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE, patch_size=patch_size)
+    dataset = dataset.map(_parse_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE)
       
     ## Set the batchsize
     dataset = dataset.batch(batch_size=batch_size, drop_remainder=True)
@@ -135,7 +138,7 @@ def create_dataset(filepath, batch_size=1, patch_size=400):
 
     return dataset
 
-def create_tensors(list_of_tfrecords,batch_size,patch_size):
+def create_tensors(list_of_tfrecords, batch_size):
     """Create a wired tensor target from a list of tfrecords
     
     Args:
@@ -146,7 +149,7 @@ def create_tensors(list_of_tfrecords,batch_size,patch_size):
         targets: target tensors of bounding boxes and classes
         """
     #Create tensorflow iterator
-    dataset = create_dataset(list_of_tfrecords, batch_size=batch_size, patch_size=patch_size)
+    dataset = create_dataset(list_of_tfrecords, batch_size=batch_size)
     iterator = dataset.make_one_shot_iterator()        
     next_element = iterator.get_next()
     

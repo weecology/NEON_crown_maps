@@ -113,7 +113,7 @@ def predict_tile(model, tfrecord, patch_size=400, patch_overlap=0.05, image_size
             max_detections: max number of detections per window
             classes: dictionary to turn integers into string labels
             """
-    iterator = tfrecords.create_tensors(tfrecord, batch_size=batch_size, patch_size=patch_size)        
+    iterator = tfrecords.create_tensors(tfrecord, batch_size=batch_size)        
     record_results = [ ]        
     
     #read window metadata
@@ -140,7 +140,7 @@ def predict_tile(model, tfrecord, patch_size=400, patch_overlap=0.05, image_size
             print("{} batches in {}".format(counter,tfrecord))
             break
     
-    #Number of batches produced, TODO combine into one array?
+    #Number of batches produced
     record_boxes = np.concatenate(record_boxes)
     record_scores = np.concatenate(record_scores)
     record_labels = np.concatenate(record_labels)

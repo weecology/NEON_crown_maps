@@ -3,10 +3,12 @@ import sys
 import tensorflow as tf
 import pytest
 from ..utils import tfrecords
+import matplotlib
+matplotlib.use("MacOSX")
 
 @pytest.fixture()
 def patch_size():
-    return 200
+    return 300
     
 @pytest.fixture()
 def batch_size():
