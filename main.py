@@ -1,5 +1,6 @@
 import glob
 import os
+import re
 from start_cluster import start
 from distributed import wait, as_completed
 import numpy as np
