@@ -101,7 +101,7 @@ def parse_prediction(boxes, scores, labels, image_size, patch_size, score_thresh
     
     return df
 
-def predict_tile(model, tfrecord, patch_size, patch_overlap=0.15, image_size=800, batch_size=1,score_threshold=0.05, max_detections=300, classes={0:"Tree"}):
+def predict_tile(model, tfrecord, patch_size=400, patch_overlap=0.05, image_size=800, batch_size=1,score_threshold=0.05, max_detections=300, classes={0:"Tree"}):
     """Predict a tile of a tfrecords windows
         Args:
             model: a deepforest model object
@@ -113,7 +113,7 @@ def predict_tile(model, tfrecord, patch_size, patch_overlap=0.15, image_size=800
             max_detections: max number of detections per window
             classes: dictionary to turn integers into string labels
             """
-    iterator = tfrecords.create_tensors(tfrecord, batch_size=batch_size)        
+    iterator = tfrecords.create_tensors(tfrecord, batch_size=batch_size, patch_size=patch_size)        
     record_results = [ ]        
     
     #read window metadata

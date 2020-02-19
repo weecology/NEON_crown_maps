@@ -95,7 +95,7 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir=".")
     return tfrecord_filename
         
 #Reading
-def _parse_fn(example):
+def _parse_fn(example, patch_size):
     #Define features
     features = {
         'image/filename': tf.io.FixedLenFeature([], tf.string)
@@ -112,7 +112,7 @@ def _parse_fn(example):
     
     return loaded_image
 
-def create_dataset(filepath, batch_size=1):
+def create_dataset(filepath, batch_size=1, patch_size=400):
     """
     Args:
         filepath: list of tfrecord files
@@ -135,7 +135,7 @@ def create_dataset(filepath, batch_size=1):
 
     return dataset
 
-def create_tensors(list_of_tfrecords,batch_size):
+def create_tensors(list_of_tfrecords,batch_size,patch_size):
     """Create a wired tensor target from a list of tfrecords
     
     Args:
@@ -146,7 +146,7 @@ def create_tensors(list_of_tfrecords,batch_size):
         targets: target tensors of bounding boxes and classes
         """
     #Create tensorflow iterator
-    dataset = create_dataset(list_of_tfrecords, batch_size=batch_size)
+    dataset = create_dataset(list_of_tfrecords, batch_size=batch_size, patch_size=patch_size)
     iterator = dataset.make_one_shot_iterator()        
     next_element = iterator.get_next()
     
