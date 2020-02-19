@@ -24,7 +24,7 @@ def create_tf_example(fname):
     
     return example
 
-def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.15, savedir="."):
+def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir="."):
     """
     Write crops to file and write a tfrecord file to use for tf dataset API
     Args:
@@ -108,7 +108,7 @@ def _parse_fn(example):
     filename = tf.cast(example["image/filename"],tf.string)    
     loaded_image = tf.read_file(filename)
     loaded_image = tf.image.decode_image(loaded_image, 3)
-    loaded_image = tf.reshape(loaded_image, tf.stack([800, 800, 3]), name="cast_loaded_image")            
+    loaded_image = tf.reshape(loaded_image, tf.stack([patch_size, patch_size, 3]), name="cast_loaded_image")            
     
     return loaded_image
 
