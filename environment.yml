@@ -6,6 +6,9 @@ dependencies:
   - python=3.7.6
   - geopandas
   - pyfor
+  - numpy==1.16.4
+  - rtree
+  - pip
   - pip:
     - dask
     - rasterio
