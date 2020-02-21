@@ -119,7 +119,7 @@ def run_lidar(shp,lidar_list, min_height =3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 3)
+    cpu_client = start(cpus = 2)
     
     gpu_client = start(gpus=1)
     
@@ -129,21 +129,23 @@ if __name__ == "__main__":
     
     #Create tfrecords, either specify a set of tiles or sample random
     
-    target_list =[
-    "2019_WREF_3_582000_5073000_image.tif",
-    "2018_ABBY_2_557000_5065000_image.tif",
-    "2018_CLBJ_3_627000_3694000_image.tif",
-    "2018_OSBS_4_400000_3285000_image.tif",
-    "2018_SRER_2_503000_3520000_image.tif",
-    "2019_DSNY_5_462000_3100000_image.tif",
-    "2019_NOGP_3_353000_5187000_image.tif",
-    "2019_SERC_4_364000_4308000_image.tif",
-    "2019_TALL_5_465000_3646000_image.tif",
-   "2019_TEAK_4_315000_4104000_image.tif",
-   "2019_KONZ_5_704000_4335000_image.tif",
-   "2018_BONA_2_474000_7225000_image.tif",
-   "2018_BART_4_317000_4874000_image.tif"
-   "2019_DELA_5_421000_3606000_image.tif"]
+    #target_list =[
+    #"2019_WREF_3_582000_5073000_image.tif",
+    #"2018_ABBY_2_557000_5065000_image.tif",
+    #"2018_CLBJ_3_627000_3694000_image.tif",
+    #"2018_OSBS_4_400000_3285000_image.tif",
+    #"2018_SRER_2_503000_3520000_image.tif",
+    #"2019_DSNY_5_462000_3100000_image.tif",
+    #"2019_NOGP_3_353000_5187000_image.tif",
+    #"2019_SERC_4_364000_4308000_image.tif",
+    #"2019_TALL_5_465000_3646000_image.tif",
+   #"2019_TEAK_4_315000_4104000_image.tif",
+   #"2019_KONZ_5_704000_4335000_image.tif",
+   #"2018_BONA_2_474000_7225000_image.tif",
+   #"2018_BART_4_317000_4874000_image.tif"
+   #"2019_DELA_5_421000_3606000_image.tif"]
+   
+    target_list = ["2019_KONZ_5_704000_4335000_image.tif"]
        
     generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = target_list, site_list=None, year_list=None)
     
