@@ -141,9 +141,9 @@ if __name__ == "__main__":
     "2019_TALL_5_465000_3646000_image.tif",
    "2019_TEAK_4_315000_4104000_image.tif",
    "2019_KONZ_5_704000_4335000_image.tif",
-   "2018_BONA_2_474000_7225000_image.tif",
    "2018_BART_4_317000_4874000_image.tif"
-   "2019_DELA_5_421000_3606000_image.tif"]
+   "2019_DELA_5_421000_3606000_image.tif",
+    "2019_BONA_3_476000_7233000_image.tif"]
    
     #target_list = ["2019_KONZ_5_704000_4335000_image.tif"]
        
@@ -154,7 +154,6 @@ if __name__ == "__main__":
     #As records are created, predict.
     for future, result in as_completed(generated_records, with_results=True):
         
-        print("Running prediction for completed future with tfrecord {}".format(result))
         #Lookup rgb path to create tfrecord. If it was a blank tile, result will be Nonetype
         if result:
             rgb_path = lookup_rgb_path(tfrecord = result, rgb_list = rgb_list)
@@ -166,9 +165,9 @@ if __name__ == "__main__":
         raster_dir = os.path.dirname(rgb_path)
         
         #Predict record
-        result = gpu_client.submit(run_rgb, result, raster_dir)
-        print(result)
-        predictions.append(result)
+        gpu_result = gpu_client.submit(run_rgb, result, raster_dir)
+        print("Running prediction for tfrecord {}, future index is {}".format(result, gpu_result))        
+        predictions.append(gpu_result)
         
     ##As predictions complete, run postprocess to drape LiDAR and extract height
     draped_files = [ ]
@@ -177,11 +176,10 @@ if __name__ == "__main__":
             result = future.result()
             print("Postprocessing: {}".format(result))                    
             postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
-        except:
-            print("Future: {} failed".format(future))   
+            draped_files.append(postprocessed_filename)            
+        except Exception as e:
+            print("Future: {} failed with".format(future, e))   
             print(result.traceback())            
-            
-        draped_files.append(postprocessed_filename)
     
     wait(draped_files)
     print(draped_files)
