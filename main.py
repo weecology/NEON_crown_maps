@@ -19,7 +19,7 @@ def lookup_rgb_path(tfrecord,rgb_list):
     
 def find_files(site_list = None, target_list=None, year_list=None):
     #Find available tiles
-    tile_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
+    tile_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
     
     if target_list: 
         tile_list = [x for x in tile_list for y in target_list if y in x]
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     #Create tfrecords, either specify a set of tiles or sample random
     
     target_list =[
-   "2018_BART_4_317000_4874000_image.tif"
+   "2018_BART_4_317000_4874000_image.tif",
    "2019_DELA_5_421000_3606000_image.tif",
    "2019_BONA_3_476000_7233000_image.tif"]
     
@@ -184,8 +184,7 @@ if __name__ == "__main__":
             postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
             draped_files.append(postprocessed_filename)            
         except Exception as e:
-            print("Future: {} failed with".format(future, e))   
-            print(result.traceback())            
+            print("Future: {} failed with {}".format(future, e))   
     
     wait(draped_files)    
     
