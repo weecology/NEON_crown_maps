@@ -53,7 +53,7 @@ def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, 
         random.shuffle(tile_list)
         tile_list = tile_list[:n]
     
-    print("Running {} tiles: \n {} ...".format(len(tile_list),tile_list[:3]))    
+    print("Running {} tiles: \n {} ...".format(len(tile_list),tile_list))    
     
     written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/")
     
@@ -119,9 +119,9 @@ def run_lidar(shp,lidar_list, min_height =3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 2)
+    cpu_client = start(cpus = 5)
     
-    gpu_client = start(gpus=1)
+    gpu_client = start(gpus=2)
     
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
@@ -130,20 +130,25 @@ if __name__ == "__main__":
     #Create tfrecords, either specify a set of tiles or sample random
     
     target_list =[
-    "2019_WREF_3_582000_5073000_image.tif",
-    "2018_ABBY_2_557000_5065000_image.tif",
-    "2018_CLBJ_3_627000_3694000_image.tif",
-    "2018_OSBS_4_400000_3285000_image.tif",
-    "2018_SRER_2_503000_3520000_image.tif",
-    "2019_DSNY_5_462000_3100000_image.tif",
-    "2019_NOGP_3_353000_5187000_image.tif",
-    "2019_SERC_4_364000_4308000_image.tif",
-    "2019_TALL_5_465000_3646000_image.tif",
-   "2019_TEAK_4_315000_4104000_image.tif",
-   "2019_KONZ_5_704000_4335000_image.tif",
    "2018_BART_4_317000_4874000_image.tif"
    "2019_DELA_5_421000_3606000_image.tif",
-    "2019_BONA_3_476000_7233000_image.tif"]
+   "2019_BONA_3_476000_7233000_image.tif"]
+    
+    #target_list =[
+    #"2019_WREF_3_582000_5073000_image.tif",
+    #"2018_ABBY_2_557000_5065000_image.tif",
+    #"2018_CLBJ_3_627000_3694000_image.tif",
+    #"2018_OSBS_4_400000_3285000_image.tif",
+    #"2018_SRER_2_503000_3520000_image.tif",
+    #"2019_DSNY_5_462000_3100000_image.tif",
+    #"2019_NOGP_3_353000_5187000_image.tif",
+    #"2019_SERC_4_364000_4308000_image.tif",
+    #"2019_TALL_5_465000_3646000_image.tif",
+   #"2019_TEAK_4_315000_4104000_image.tif",
+   #"2019_KONZ_5_704000_4335000_image.tif",
+   #"2018_BART_4_317000_4874000_image.tif"
+   #"2019_DELA_5_421000_3606000_image.tif",
+    #"2019_BONA_3_476000_7233000_image.tif"]
    
     #target_list = ["2019_KONZ_5_704000_4335000_image.tif"]
        
@@ -158,6 +163,7 @@ if __name__ == "__main__":
         if result:
             rgb_path = lookup_rgb_path(tfrecord = result, rgb_list = rgb_list)
         else:
+            print("future {} had no tfrecord generated".format(future))
             continue
         
         #Split into basename and dir
@@ -181,8 +187,6 @@ if __name__ == "__main__":
             print("Future: {} failed with".format(future, e))   
             print(result.traceback())            
     
-    wait(draped_files)
-    print(draped_files)
-    
+    wait(draped_files)    
     
     
