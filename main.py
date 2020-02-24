@@ -28,6 +28,7 @@ def find_files(site_list = None, target_list=None, year_list=None):
     if site_list:
         tile_list = [x for x in tile_list for y in site_list if y in x]
     
+    #select by years
     if year_list:
         year_list = ["{}_".format(x) for x in year_list]
         tile_list = [x for x in tile_list for y in year_list if y in x]        
@@ -119,20 +120,15 @@ def run_lidar(shp,lidar_list, min_height =3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 5)
+    cpu_client = start(cpus = 40, mem_size ="9GB")
     
-    gpu_client = start(gpus=2)
+    gpu_client = start(gpus=8)
     
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
     lidar_list = glob.glob("/orange/ewhite/NeonData/**/ClassifiedPointCloud/*.laz",recursive=True)
     
     #Create tfrecords, either specify a set of tiles or sample random
-    
-    target_list =[
-   "2018_BART_4_317000_4874000_image.tif",
-   "2019_DELA_5_421000_3606000_image.tif",
-   "2019_BONA_3_476000_7233000_image.tif"]
     
     #target_list =[
     #"2019_WREF_3_582000_5073000_image.tif",
@@ -149,10 +145,8 @@ if __name__ == "__main__":
    #"2018_BART_4_317000_4874000_image.tif"
    #"2019_DELA_5_421000_3606000_image.tif",
     #"2019_BONA_3_476000_7233000_image.tif"]
-   
-    #target_list = ["2019_KONZ_5_704000_4335000_image.tif"]
-       
-    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = target_list, site_list=None, year_list=None)
+          
+    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = target_list, site_list="BART", year_list="2019")
     
     predictions = []    
     
@@ -175,17 +169,20 @@ if __name__ == "__main__":
         print("Running prediction for tfrecord {}, future index is {}".format(result, gpu_result))        
         predictions.append(gpu_result)
         
-    ##As predictions complete, run postprocess to drape LiDAR and extract height
-    draped_files = [ ]
-    for future in as_completed(predictions):
-        try:
-            result = future.result()
-            print("Postprocessing: {}".format(result))                    
-            postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
-            draped_files.append(postprocessed_filename)            
-        except Exception as e:
-            print("Future: {} failed with {}".format(future, e))   
+    wait(predictions)
+    print(predictions)
     
-    wait(draped_files)    
+    ###As predictions complete, run postprocess to drape LiDAR and extract height
+    #draped_files = [ ]
+    #for future in as_completed(predictions):
+        #try:
+            #result = future.result()
+            #print("Postprocessing: {}".format(result))                    
+            #postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+            #draped_files.append(postprocessed_filename)            
+        #except Exception as e:
+            #print("Future: {} failed with {}".format(future, e))   
+    
+    #wait(draped_files)    
     
     
