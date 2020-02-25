@@ -120,7 +120,7 @@ def run_lidar(shp,lidar_list, min_height =3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 40, mem_size ="9GB")
+    cpu_client = start(cpus = 30, mem_size ="9GB")
     
     gpu_client = start(gpus=8)
     
@@ -146,7 +146,7 @@ if __name__ == "__main__":
    #"2019_DELA_5_421000_3606000_image.tif",
     #"2019_BONA_3_476000_7233000_image.tif"]
           
-    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = None, site_list=["BART"], year_list="2019")
+    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = None, site_list=["BART"], year_list=["2019"])
     
     predictions = []    
     
