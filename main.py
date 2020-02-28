@@ -17,9 +17,9 @@ def lookup_rgb_path(tfrecord,rgb_list):
     
     return rgb_path
     
-def find_files(site_list = None, target_list=None, year_list=None):
+def find_files(tile_list, site_list = None, target_list=None, year_list=None):
+    """Filter tiles to run based on filtered paths"""
     #Find available tiles
-    tile_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
     
     if target_list: 
         tile_list = [x for x in tile_list for y in target_list if y in x]
@@ -48,7 +48,7 @@ def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, 
     from utils import tfrecords
             
     #Find site files
-    tile_list = find_files(site_list=site_list, year_list=year_list, target_list=target_list)
+    tile_list = find_files(tile_list, site_list=site_list, year_list=year_list, target_list=target_list)
         
     if n:
         random.shuffle(tile_list)
@@ -84,31 +84,30 @@ def run_rgb(records, raster_dir):
 def run_lidar(shp,lidar_list, min_height =3, save_dir=""):
     """
     shp: path to a DeepForest prediction shapefile
-    lidar_list: list of a lidar files to look up corresponding laz file
+    lidar_list: list of a lidar CHM files to look up corresponding .tif file
     min_height: minimum height of a tree to consider
     This function is written to function as results are completled, so the laz file cannot be anticipated
     """
     import LIDAR
     
-    #Get geoindex
+    #Get geoindex from shapefile and match it to inventory of CHM rifles
     lidar_name = [os.path.splitext(os.path.basename(x))[0] for x in lidar_list]
     geo_index = re.search("(\d+_\d+)_image",shp).group(1)
     index = np.where([geo_index in x for x in lidar_name])
     
+    if len(index) == 0:
+        raise ValueError("SHP file {} has no CHM matching file".format(shp))
     if len(index) > 1:
-        raise ValueError("SHP file {} matches more than one .laz file".format(shp))
+        raise ValueError("SHP file {} matches more than one .tif CHM file".format(shp))
     else:
         #Tuple to numeric
         index = list(index)[0][0]
         
-    # lookup Lidar path
-    laz_path = lidar_list[index]
-    
-    #Load point cloud
-    pc = LIDAR.load_lidar(laz_path)
+    # lookup Lidar CHM path
+    CHM = lidar_list[index]
     
     #Drape and collect height information
-    boxes = LIDAR.postprocess(shp, pc, min_height=min_height)
+    boxes = LIDAR.postprocess_CHM(shp, CHM, min_height=min_height)
     
     #Save shapefile
     bname = os.path.basename(shp)
@@ -125,28 +124,28 @@ if __name__ == "__main__":
     gpu_client = start(gpus=8)
     
     #File lists
-    rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
-    lidar_list = glob.glob("/orange/ewhite/NeonData/**/ClassifiedPointCloud/*.laz",recursive=True)
+    rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
+    lidar_list = glob.glob("/orange/ewhite/NeonData/**/CanopyHeightModelGtif/*.tif",recursive=True)
     
     #Create tfrecords, either specify a set of tiles or sample random
     
-    #target_list =[
-    #"2019_WREF_3_582000_5073000_image.tif",
-    #"2018_ABBY_2_557000_5065000_image.tif",
-    #"2018_CLBJ_3_627000_3694000_image.tif",
-    #"2018_OSBS_4_400000_3285000_image.tif",
-    #"2018_SRER_2_503000_3520000_image.tif",
-    #"2019_DSNY_5_462000_3100000_image.tif",
-    #"2019_NOGP_3_353000_5187000_image.tif",
-    #"2019_SERC_4_364000_4308000_image.tif",
-    #"2019_TALL_5_465000_3646000_image.tif",
-   #"2019_TEAK_4_315000_4104000_image.tif",
-   #"2019_KONZ_5_704000_4335000_image.tif",
-   #"2018_BART_4_317000_4874000_image.tif"
-   #"2019_DELA_5_421000_3606000_image.tif",
-    #"2019_BONA_3_476000_7233000_image.tif"]
+    target_list =[
+    "2019_WREF_3_582000_5073000_image.tif",
+    "2018_ABBY_2_557000_5065000_image.tif",
+    "2018_CLBJ_3_627000_3694000_image.tif",
+    "2018_OSBS_4_400000_3285000_image.tif",
+    "2018_SRER_2_503000_3520000_image.tif",
+    "2019_DSNY_5_462000_3100000_image.tif",
+    "2019_NOGP_3_353000_5187000_image.tif",
+    "2019_SERC_4_364000_4308000_image.tif",
+    "2019_TALL_5_465000_3646000_image.tif",
+   "2019_TEAK_4_315000_4104000_image.tif",
+   "2019_KONZ_5_704000_4335000_image.tif",
+   "2018_BART_4_317000_4874000_image.tif"
+   "2019_DELA_5_421000_3606000_image.tif",
+    "2019_BONA_3_476000_7233000_image.tif"]
           
-    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = None, site_list=["BART"], year_list=["2019"])
+    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = None, site_list=None, year_list=None)
     
     predictions = []    
     

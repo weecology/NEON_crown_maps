@@ -16,6 +16,7 @@ import pytest
 def laz_path():
     return "data/OSBS_029.laz"
 
+
 @pytest.fixture()
 def record():
     written_records = tfrecords.create_tfrecords(tile_path="data/OSBS_029.tif",patch_size=400, savedir="output")
@@ -33,24 +34,6 @@ def shapefile(record):
     
     return shapefile[0]
 
-def test_load_lidar(laz_path):
-    pc = LIDAR.load_lidar(laz_path)
-    
-    #Has points
-    assert not pc.data.points.empty
-
-def test_postprocess(laz_path, shapefile):
-    #Load Lidar and Read Shapefile
-    pc = LIDAR.load_lidar(laz_path)
-    boxes = geopandas.read_file(shapefile)
-    
-    #Ensure numberic type
-    boxes[["left","bottom","right","top"]] = boxes[["left","bottom","right","top"]].astype(float)    
-    boxes = LIDAR.drape_boxes(boxes, pc)
-    
-    #assert there are remaining points l
-    assert not boxes.empty
-    
-    #Generate new boxes
-    assert all(boxes.columns.values == ["left","bottom","right","top","score","label","geometry","height"])
-    
+def test_postprocess_CHM(shapefile):
+    draped_boxes = LIDAR.postprocess_CHM(shapefile, CHM="data/OSBS_029_CHM.tif", min_height=2)
+    assert all(draped_boxes.columns.values == ["left","bottom","right","top","score","label","geometry","height","area"])

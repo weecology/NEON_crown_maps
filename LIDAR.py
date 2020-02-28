@@ -5,6 +5,7 @@ Drape shapefile predictions on to point cloud and extract height
 import geopandas as gp
 import pandas as pd
 import pyfor
+import pdal
 from shapely import geometry
 from matplotlib import pyplot
 import re
@@ -13,6 +14,8 @@ import numpy as np
 import os
 import cv2
 import random
+import rasterstats
+
 
 r = lambda: random.randint(0,255)
 
@@ -66,111 +69,23 @@ def fetch_lidar_filename(row, dirname):
         
     return laz_path
 
-def load_lidar(laz_path, normalize=True):
-    """
-    Load lidar tile from file based on path name
-    laz_path: A string of the file path of the lidar tile
-    normalize: Perform ground normalization (slow)
-    return: A pyfor point cloud
-    """
-    
-    try:
-        pc = pyfor.cloud.Cloud(laz_path)
-        pc.extension = ".las"
-        
-    except FileNotFoundError:
-        print("Failed loading path: %s" %(laz_path))
-        return None
-        
-    #normalize and filter
-    if normalize:
-        try: 
-            pc.normalize(0.33)
-        except:
-            print("No vertical objects in image, skipping normalization")
-            #TODO use NEON classification for normalization
-            return None
-    
-    #Quick filter for unreasonable points.
-    pc.filter(min = -1, max = 100 , dim = "z")    
-    
-    #Check dim
-    assert (not pc.data.points.shape[0] == 0), "Lidar tile is empty!"
-    
-    return pc
-         
-def check_density(pc, bounds=[]):
-    ''''
-    Check the point density of a pyfor point cloud
-    bounds: a utm array [xmin, xmax, ymin, ymax] to limit density search
-    returns: density in points/m^2
-    '''
-    if len(bounds) > 0:
-        #Filter by utm bounds, find points in crop
-        xmin, xmax, ymin, ymax = bounds
-        filtered_points = pc.data.points[(pc.data.points.x > xmin) & (pc.data.points.x < xmax)  & (pc.data.points.y > ymin) & (pc.data.points.y < ymax)]
-        n_points = filtered_points.shape[0]
-        assert n_points > 0, "No points remain after bounds filter"
-        
-    else:
-        #number of points
-        n_points =  pc.data.points.shape[0]
-        
-        #area
-        xmin = pc.data.x.min()
-        xmax = pc.data.x.max()
 
-        ymin = pc.data.y.min()
-        ymax = pc.data.y.max()
-    
-    area = (xmax - xmin) * (ymax - ymin)
-    
-    density = n_points / area
-    
-    return density
 
-def lookup_height(left, right, bottom, top,pc):
-    """Find max return height for each predicted tree
-    row: a geopandas dataframe row of bounding boxes
-    pc: a pyfor point cloud
-    """
-    box_points  = pc.data.points.loc[(pc.data.points.x > left) &
-                                         (pc.data.points.x < right)  &
-                                         (pc.data.points.y >bottom)   &
-                                         (pc.data.points.y < top)]
-
-    max_height = box_points.z.max()     
-    return max_height
-
-def drape_boxes(boxes, pc, min_height=3):
-    '''
-    boxes: geopandas dataframe of predictions from DeepForest
-    pc: Optional point cloud from memory, on the fly generation
-    bounds: optional utm bounds to restrict utm box
-    '''
-    #Get max height of tree box    
-    boxes["height"] = boxes.apply(lambda row: lookup_height(row["left"], row["right"],row["bottom"],row["top"], pc),axis=1)
-        
-    #remove boxes too small
-    boxes = boxes[boxes["height"]>min_height]
+def postprocess_CHM(shapefile, CHM, min_height):
     
-    return boxes    
+    #Extract zonal stats
+    boxes = gp.read_file(shapefile)    
+    boxes[["left","bottom","right","top"]] = boxes[["left","bottom","right","top"]].astype(float)
     
-def postprocess(shapefile, pc, min_height=2, bounds=None):
-    """
-    Drape a shapefile of bounding box predictions over LiDAR cloud
-    """
-    #Read shapefile
-    df = gp.read_file(shapefile)
+    draped_boxes = rasterstats.zonal_stats(shapefile, CHM, stats="percentile_99")
+    boxes["height"]  = [x["percentile_99"] for x in draped_boxes]
     
-    #Convert data types
-    df[["left","bottom","right","top"]] = df[["left","bottom","right","top"]].astype(float)
-    
-    #Drape boxes
-    boxes = drape_boxes(boxes=df, pc = pc, min_height=min_height)     
+    #extract 
+    #Rename column
+    boxes = boxes[boxes.height > min_height]
     
     #Calculate crown area
-    boxes["area"] = (boxes["top"] - boxes["bottom"]) * (boxes["right"] - boxes["left"])
+    boxes["area"] = (boxes["top"] - boxes["bottom"]) * (boxes["right"] - boxes["left"])   
     
     return boxes
-    
+

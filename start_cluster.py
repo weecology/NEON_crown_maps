@@ -37,7 +37,7 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
         #job args
         extra_args=[
             "--error=/home/b.weinstein/logs/dask-worker-%j.err",
-            "--account=ewhite",
+            "--account=ewhite-b",
             "--output=/home/b.weinstein/logs/dask-worker-%j.out"
         ]
     
