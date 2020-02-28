@@ -172,16 +172,16 @@ if __name__ == "__main__":
     print(predictions)
     
     ###As predictions complete, run postprocess to drape LiDAR and extract height
-    #draped_files = [ ]
-    #for future in as_completed(predictions):
-        #try:
-            #result = future.result()
-            #print("Postprocessing: {}".format(result))                    
-            #postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
-            #draped_files.append(postprocessed_filename)            
-        #except Exception as e:
-            #print("Future: {} failed with {}".format(future, e))   
+    draped_files = [ ]
+    for future in as_completed(predictions):
+        try:
+            result = future.result()
+            print("Postprocessing: {}".format(result))                    
+            postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+            draped_files.append(postprocessed_filename)            
+        except Exception as e:
+            print("Future: {} failed with {}".format(future, e))   
     
-    #wait(draped_files)    
+    wait(draped_files)    
     
     
