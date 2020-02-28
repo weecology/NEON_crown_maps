@@ -23,7 +23,8 @@ def start_tunnel():
     """
     host = socket.gethostname()        
     print("To tunnel into dask dashboard:")
-    print("ssh -N -L 8787:%s:8787 -l b.weinstein hpg2.rc.ufl.edu" % (host))
+    print("For GPU dashboard: ssh -N -L 8787:%s:8787 -l b.weinstein hpg2.rc.ufl.edu" % (host))
+    print("For CPU dashboard: ssh -N -L 8781:%s:8781 -l b.weinstein hpg2.rc.ufl.edu" % (host))
     
     #flush system
     sys.stdout.flush()
@@ -49,6 +50,7 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
             walltime='24:00:00',
             job_extra=extra_args,
             extra=['--resources cpu=1'],
+            dashboard_address="8781",
             local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)
     
         print(cluster.job_script())
@@ -70,7 +72,8 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
             memory=mem_size, 
             walltime='24:00:00',
             job_extra=extra_args,
-            extra=['--resources gpu=1'],            
+            extra=['--resources gpu=1'],     
+            dashboard_address="8787",            
             local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)    
         cluster.scale(gpus)
         

@@ -145,7 +145,7 @@ if __name__ == "__main__":
    "2019_DELA_5_421000_3606000_image.tif",
     "2019_BONA_3_476000_7233000_image.tif"]
           
-    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = None, site_list=None, year_list=None)
+    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = target_list, site_list=None, year_list=None)
     
     predictions = []    
     
