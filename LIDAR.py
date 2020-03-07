@@ -4,7 +4,6 @@ Drape shapefile predictions on to point cloud and extract height
 '''
 import geopandas as gp
 import pandas as pd
-import pyfor
 from shapely import geometry
 from matplotlib import pyplot
 import re

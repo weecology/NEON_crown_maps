@@ -3,20 +3,15 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - python=3.7.6
+  - python=3.7
   - geopandas
-  - pyfor
   - numpy==1.16.4
-  - rtree
-  - libspatialindex
+  - rasterio
+  - dask
+  - dask-jobqueue
+  - distributed
+  - pytest
   - pip
   - pip:
-    - dask
-    - rasterio
     - comet_ml
-    - shapely
-    - dask-jobqueue
     - deepforest
-    - distributed
-    - pytest
-    - bokeh
