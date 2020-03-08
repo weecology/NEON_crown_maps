@@ -118,9 +118,9 @@ def run_lidar(shp,lidar_list, min_height=3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 40, mem_size ="11GB")
+    cpu_client = start(cpus = 20, mem_size ="11GB")
     
-    gpu_client = start(gpus=11,mem_size ="15GB")
+    gpu_client = start(gpus=5,mem_size ="15GB")
     
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     #"2019_BONA_3_476000_7233000_image.tif"]
     
     target_list = None
-    site_list = ["OSBS","BART","TEAK"]
+    site_list = ["BART","TEAK"]
     year_list = ["2019","2018","2017"]
     generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = target_list, site_list=site_list, year_list=year_list)
     
