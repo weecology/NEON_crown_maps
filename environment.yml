@@ -13,5 +13,6 @@ dependencies:
   - pytest
   - pip
   - pip:
+    - rasterstats
     - comet_ml
     - deepforest

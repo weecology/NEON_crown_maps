@@ -119,7 +119,7 @@ def run_lidar(shp,lidar_list, min_height =3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 30, mem_size ="9GB")
+    cpu_client = start(cpus = 30, mem_size ="14GB")
     
     gpu_client = start(gpus=8)
     
