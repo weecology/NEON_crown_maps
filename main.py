@@ -1,6 +1,7 @@
 import glob
 import os
 import re
+import gc
 from start_cluster import start
 from distributed import wait, as_completed
 import numpy as np
@@ -63,7 +64,6 @@ def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, 
 def run_rgb(records, raster_dir):
     from deepforest import deepforest
     import predict
-    import LIDAR
 
     #Create model and set config
     model = deepforest.deepforest()
@@ -72,16 +72,15 @@ def run_rgb(records, raster_dir):
     #A 1km tile has 729 windows, evenly divisible batches is 27 * 27 = 729
     model.config["batch_size"] = 27
     
-    #Report config
-    print(model.config)
-    
     #Predict
     #comet_experiment.log_parameters(model.config)
     shp = predict.predict_tiles(model, [records], patch_size=400, raster_dir=[raster_dir], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
     
+    gc.collect()
+    
     return shp[0]
 
-def run_lidar(shp,lidar_list, min_height =3, save_dir=""):
+def run_lidar(shp,lidar_list, min_height=3, save_dir=""):
     """
     shp: path to a DeepForest prediction shapefile
     lidar_list: list of a lidar CHM files to look up corresponding .tif file
@@ -171,7 +170,6 @@ if __name__ == "__main__":
         print("Running prediction for tfrecord {}, future index is {}".format(result, gpu_result))        
         predictions.append(gpu_result)
         
-    wait(predictions)
     print(predictions)
     
     ###As predictions complete, run postprocess to drape LiDAR and extract height

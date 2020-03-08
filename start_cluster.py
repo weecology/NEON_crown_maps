@@ -6,7 +6,11 @@ import sys
 import socket
 from dask_jobqueue import SLURMCluster
 from dask.distributed import Client, wait
+import gc
 
+def collect():
+    gc.collect()
+    
 def args():
     parser     = argparse.ArgumentParser(description='Simple training script for training a RetinaNet network.')
     parser.add_argument('--debug', help='Run local version without GPU', action='store_true')
