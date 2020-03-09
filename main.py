@@ -61,23 +61,19 @@ def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, 
     
     return written_records
 
-def load_model():
+def run_rgb(records, raster_dir):
     from deepforest import deepforest
+    from keras import backend as K            
+    import predict
 
     #Create model and set config
     model = deepforest.deepforest()
     model.use_release()
     
     #A 1km tile has 729 windows, evenly divisible batches is 9 * 81 = 729
-    model.config["batch_size"] = 3
-    
-def run_rgb(records, raster_dir):
-    #from deepforest import deepforest
-    import predict
-    from keras import backend as K        
+    model.config["batch_size"] = 3    
     
     #Predict
-    #comet_experiment.log_parameters(model.config)
     shp = predict.predict_tiles(model, [records], patch_size=400, raster_dir=[raster_dir], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
     
     gc.collect()
@@ -153,9 +149,6 @@ if __name__ == "__main__":
     site_list = ["BART","TEAK"]
     year_list = ["2019","2018","2017"]
     generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = target_list, site_list=site_list, year_list=year_list)
-    
-    #load deepforest model
-    gpu_client.persist(load_model)
     
     predictions = []    
     
