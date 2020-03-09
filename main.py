@@ -74,7 +74,7 @@ def run_rgb(records, rgb_paths):
     model.config["batch_size"] = 3    
     
     #Predict
-    shp = predict.predict_tiles(model, [records], patch_size=400, raster_dir=[rgb_paths], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
+    shp = predict.predict_tiles(model, [records], patch_size=400, rgb_paths=[rgb_paths], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
     
     gc.collect()
     K.clear_session()
