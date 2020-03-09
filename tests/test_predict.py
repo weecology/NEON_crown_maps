@@ -30,6 +30,7 @@ def record(patch_size):
 @pytest.fixture()
 def record_list(patch_size):
     tifs = glob.glob("data/*.tif")
+    tifs = [x for x in tifs if not "CHM" in x]
     record_list = [ ]
     for tif in tifs:
         record = tfrecords.create_tfrecords(tile_path=tif,patch_size=patch_size, savedir="output")    
@@ -46,7 +47,7 @@ def test_predict_tilelist(model, record_list,patch_size):
     rgb_paths = [ ]
     rgb_list = glob.glob("data/*.tif")    
     for record in record_list:
-        rgb_path = lookup_rgb_path(tfrecord, rgb_list)
+        rgb_path = lookup_rgb_path(record, rgb_list)
         rgb_paths.append(rgb_path)
         
     boxes = predict.predict_tiles(model, records=record_list,patch_size=patch_size, batch_size=2,rgb_paths=rgb_paths, score_threshold=0.05,max_detections=300,classes={0:"Tree"},save_dir="output")    
