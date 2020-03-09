@@ -69,8 +69,8 @@ def run_rgb(records, raster_dir):
     model = deepforest.deepforest()
     model.use_release()
     
-    #A 1km tile has 729 windows, evenly divisible batches is 27 * 27 = 729
-    model.config["batch_size"] = 27
+    #A 1km tile has 729 windows, evenly divisible batches is 9 * 81 = 729
+    model.config["batch_size"] = 3
     
     #Predict
     #comet_experiment.log_parameters(model.config)
