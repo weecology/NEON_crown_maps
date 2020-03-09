@@ -163,8 +163,8 @@ if __name__ == "__main__":
             continue
                 
         #Predict record
-        print("Running prediction for tfrecord {}, future index is {}".format(result, gpu_result))        
         gpu_result = gpu_client.submit(run_rgb, result, rgb_path)
+        print("Completed prediction for tfrecord {}, future index is {}".format(result, gpu_result))        
         
         predictions.append(gpu_result)
         
@@ -179,7 +179,7 @@ if __name__ == "__main__":
             postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
             draped_files.append(postprocessed_filename)            
         except Exception as e:
-            print("Future: {} failed with {}".format(future, e))   
+            print("Lidar draping future: {} failed with {}".format(future, e))   
     
     wait(draped_files)    
     
