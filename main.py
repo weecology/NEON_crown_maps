@@ -60,10 +60,9 @@ def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, 
     written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/")
     
     return written_records
-    
-def run_rgb(records, raster_dir):
+
+def load_model():
     from deepforest import deepforest
-    import predict
 
     #Create model and set config
     model = deepforest.deepforest()
@@ -72,12 +71,18 @@ def run_rgb(records, raster_dir):
     #A 1km tile has 729 windows, evenly divisible batches is 9 * 81 = 729
     model.config["batch_size"] = 3
     
+def run_rgb(records, raster_dir):
+    #from deepforest import deepforest
+    import predict
+    from keras import backend as K        
+    
     #Predict
     #comet_experiment.log_parameters(model.config)
     shp = predict.predict_tiles(model, [records], patch_size=400, raster_dir=[raster_dir], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
     
     gc.collect()
-    
+    K.clear_session()
+        
     return shp[0]
 
 def run_lidar(shp,lidar_list, min_height=3, save_dir=""):
@@ -118,7 +123,7 @@ def run_lidar(shp,lidar_list, min_height=3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 20, mem_size ="11GB")
+    cpu_client = start(cpus = 15, mem_size ="11GB")
     
     gpu_client = start(gpus=5,mem_size ="15GB")
     
@@ -148,6 +153,9 @@ if __name__ == "__main__":
     site_list = ["BART","TEAK"]
     year_list = ["2019","2018","2017"]
     generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = target_list, site_list=site_list, year_list=year_list)
+    
+    #load deepforest model
+    gpu_client.persist(load_model)
     
     predictions = []    
     
