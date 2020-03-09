@@ -10,6 +10,7 @@ import glob
 from deepforest import deepforest
 from ..utils import tfrecords
 from .. import predict
+from .. main import lookup_rgb_path
 
 @pytest.fixture()
 def model():
@@ -41,6 +42,13 @@ def test_predict_tile(model, record, patch_size):
     assert (boxes.columns == ['xmin', 'ymin', 'xmax', 'ymax', 'score', 'label',"filename"]).all()
     
 def test_predict_tilelist(model, record_list,patch_size):
-    boxes = predict.predict_tiles(model, records=record_list,patch_size=patch_size, batch_size=2,raster_dir=["data","data"], score_threshold=0.05,max_detections=300,classes={0:"Tree"},save_dir="output")    
+    
+    rgb_paths = [ ]
+    rgb_list = glob.glob("data/*.tif")    
+    for record in record_list:
+        rgb_path = lookup_rgb_path(tfrecord, rgb_list)
+        rgb_paths.append(rgb_path)
+        
+    boxes = predict.predict_tiles(model, records=record_list,patch_size=patch_size, batch_size=2,rgb_paths=rgb_paths, score_threshold=0.05,max_detections=300,classes={0:"Tree"},save_dir="output")    
     assert len(boxes) == len(record_list)
     assert os.path.exists("output/OSBS_029.shp")

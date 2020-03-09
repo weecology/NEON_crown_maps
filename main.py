@@ -61,7 +61,7 @@ def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, 
     
     return written_records
 
-def run_rgb(records, raster_dir):
+def run_rgb(records, rgb_paths):
     from deepforest import deepforest
     from keras import backend as K            
     import predict
@@ -74,7 +74,7 @@ def run_rgb(records, raster_dir):
     model.config["batch_size"] = 3    
     
     #Predict
-    shp = predict.predict_tiles(model, [records], patch_size=400, raster_dir=[raster_dir], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
+    shp = predict.predict_tiles(model, [records], patch_size=400, raster_dir=[rgb_paths], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
     
     gc.collect()
     K.clear_session()
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     target_list = None
     site_list = ["BART","TEAK"]
     year_list = ["2019","2018","2017"]
-    generated_records = generate_tfrecord(rgb_list, cpu_client,  n= None, target_list = target_list, site_list=site_list, year_list=year_list)
+    generated_records = generate_tfrecord(rgb_list, cpu_client, n=5, target_list = target_list, site_list=site_list, year_list=year_list)
     
     predictions = []    
     
@@ -161,14 +161,11 @@ if __name__ == "__main__":
         else:
             print("future {} had no tfrecord generated".format(future))
             continue
-        
-        #Split into basename and dir
-        rgb_name = os.path.splitext(os.path.basename(rgb_path))[0]
-        raster_dir = os.path.dirname(rgb_path)
-        
+                
         #Predict record
-        gpu_result = gpu_client.submit(run_rgb, result, raster_dir)
         print("Running prediction for tfrecord {}, future index is {}".format(result, gpu_result))        
+        gpu_result = gpu_client.submit(run_rgb, result, rgb_path)
+        
         predictions.append(gpu_result)
         
     print(predictions)

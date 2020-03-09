@@ -41,19 +41,20 @@ def run_non_max_suppression(predicted_boxes, iou_threshold=0.15):
         return mosaic_df
     
 #predict a set of tiles
-def predict_tiles(model, records, patch_size=400, batch_size=1, raster_dir =["."], score_threshold=0.05,max_detections=300,classes={0:"Tree"},save_dir="."):
+def predict_tiles(model, records, rgb_paths, patch_size=400, batch_size=1, score_threshold=0.05,max_detections=300,classes={0:"Tree"},save_dir="."):
     """Parallel loop through tile list and predict tree crowns
     raster_dir: a list of directories to search for RGB image
     """ 
     #for each tfrecord create a tensor and step, might be more efficient to create a full set of tensors and 
     results = [ ]    
     for index, tfrecord in enumerate(records):
-        print("Running index {}, record {}".format(index, tfrecord))
         
-        #Refind raster path
-        raster_name = os.path.splitext(os.path.basename(tfrecord))[0]        
-        raster_path = os.path.join(raster_dir[index], "{}.tif".format(raster_name))
+        #Find correponding rgb record
+        raster_path = rgb_paths[index]
         
+        if not os.path.exists(raster_path):
+            raise IOError("{} does not exist".format(raster_path))        
+            
         #Run predictions
         boxes = predict_tile(model=model, tfrecord=tfrecord, patch_size=patch_size, batch_size=batch_size, score_threshold=score_threshold, max_detections=max_detections, classes=classes)
         
