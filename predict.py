@@ -66,6 +66,7 @@ def predict_tiles(model, records, rgb_paths, patch_size=400, batch_size=1, score
         projected_boxes = project(raster_path, boxes)
         
         #Shapefile file path
+        raster_name = os.path.splitext(os.path.basename(raster_path))[0]
         shp_path = os.path.join(save_dir,'{}.shp'.format(raster_name))
         
         #Write
