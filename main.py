@@ -7,6 +7,8 @@ from distributed import wait, as_completed
 import numpy as np
 import random
 import LIDAR
+import time
+
 
 def lookup_CHM_path(shp_path, lidar_list):
     """Find CHM file based on the shp filename"""
@@ -153,7 +155,7 @@ if __name__ == "__main__":
     target_list = None
     site_list = ["BART","TEAK"]
     year_list = ["2019","2018","2017"]
-    generated_records = generate_tfrecord(rgb_list, cpu_client, n=None, target_list = target_list, site_list=site_list, year_list=year_list)
+    generated_records = generate_tfrecord(rgb_list, cpu_client, n=10, target_list = target_list, site_list=site_list, year_list=year_list)
     
     predictions = []    
     
@@ -183,7 +185,8 @@ if __name__ == "__main__":
             draped_files.append(postprocessed_filename)            
         except Exception as e:
             print("Lidar draping future: {} failed with {}".format(future, e))   
+            e.with_traceback(result.traceback)
     
-    wait(draped_files)    
-    
-    
+    wait(draped_files)
+    #Give it some time to cleanup
+    time.sleep(20)
