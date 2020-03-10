@@ -153,7 +153,7 @@ if __name__ == "__main__":
     target_list = None
     site_list = ["BART","TEAK"]
     year_list = ["2019","2018","2017"]
-    generated_records = generate_tfrecord(rgb_list, cpu_client, n=5, target_list = target_list, site_list=site_list, year_list=year_list)
+    generated_records = generate_tfrecord(rgb_list, cpu_client, n=None, target_list = target_list, site_list=site_list, year_list=year_list)
     
     predictions = []    
     
