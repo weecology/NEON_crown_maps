@@ -67,8 +67,6 @@ def fetch_lidar_filename(row, dirname):
         
     return laz_path
 
-
-
 def postprocess_CHM(shapefile, CHM, min_height):
     
     #Extract zonal stats

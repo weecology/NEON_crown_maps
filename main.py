@@ -178,7 +178,7 @@ if __name__ == "__main__":
         try:
             result = future.result()
             CHM_path = lookup_CHM_path(result, lidar_list)
-            postprocessed_filename = cpu_client.submit(run_lidar, CHM_path, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+            postprocessed_filename = cpu_client.submit(run_lidar, result, CHM_path=CHM_path, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
             print("Postprocessing complete: {}".format(postprocessed_filename))                           
             draped_files.append(postprocessed_filename)            
         except Exception as e:
