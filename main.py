@@ -91,8 +91,7 @@ def run_rgb(records, rgb_paths):
     import predict
 
     #Create model and set config
-    model = deepforest.deepforest()
-    model.use_release()
+    model = deepforest.deepforest(weights= '/home/b.weinstein/miniconda3/envs/crowns/lib/python3.7/site-packages/deepforest/data/NEON.h5')
     
     #A 1km tile has 729 windows, evenly divisible batches is 9 * 81 = 729
     model.config["batch_size"] = 3    
@@ -184,10 +183,9 @@ if __name__ == "__main__":
             print("Postprocessing complete: {}".format(postprocessed_filename))                           
             draped_files.append(postprocessed_filename)            
         except Exception as e:
-            print("Lidar draping future: {} failed with {}".format(future, e))   
-            e.with_traceback(result.traceback)
+            print("Lidar draping future: {} failed with {}".format(future, e.with_traceback(future.traceback())))   
     
     wait(draped_files)    
     #Give it some time to cleanup
-    time.sleep(20)
+    time.sleep(10)
     
