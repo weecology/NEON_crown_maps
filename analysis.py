@@ -55,18 +55,23 @@ def match_years(geo_index, shps):
         joined_boxes.loc[(joined_boxes.index == target_index) & (joined_boxes.index_right == matched_index),"IoU"] = iou_list[max_overlap_index]
         
     #remove trees with less than threshold IoU
-    threshold_boxes = joined_boxes[joined_boxes.IoU > 0.9]
+    threshold_boxes = joined_boxes[joined_boxes.IoU > 0.5]
     
     #difference in height
     threshold_boxes["Height_difference"] = threshold_boxes["height_right"] - threshold_boxes["height_left"]
     
     #remove outliers
-    lower, upper = threshold_boxes.Height_difference.quantile([0.001,0.999]).values
+    lower, upper = threshold_boxes.Height_difference.quantile([0.01,0.99]).values
     threshold_boxes = threshold_boxes[(threshold_boxes.Height_difference > lower) & (threshold_boxes.Height_difference < upper)]
     threshold_boxes.Height_difference.hist(bins=20)
     
-    #ecdf
-    print("Median height difference is {}".format(threshold_boxes.Height_difference.median()))
+    #By Height
+    pyplot.style.use('seaborn-whitegrid')    
+    pyplot.scatter(threshold_boxes.height_left, threshold_boxes.height_right, alpha=0.5) 
+    pyplot.xlabel("Height 2018 (m)")
+    pyplot.ylabel("Height 2019 (m)")
+    
+    print("Mean height difference is {}".format(threshold_boxes.Height_difference.mean()))
     
     pyplot.savefig("tree_height.png")
     return threshold_boxes

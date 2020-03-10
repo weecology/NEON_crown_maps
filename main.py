@@ -7,6 +7,8 @@ from distributed import wait, as_completed
 import numpy as np
 import random
 import LIDAR
+import time
+
 
 def lookup_CHM_path(shp_path, lidar_list):
     """Find CHM file based on the shp filename"""
@@ -183,7 +185,9 @@ if __name__ == "__main__":
             draped_files.append(postprocessed_filename)            
         except Exception as e:
             print("Lidar draping future: {} failed with {}".format(future, e))   
+            e.with_traceback(result.traceback)
     
     wait(draped_files)    
-    
+    #Give it some time to cleanup
+    time.sleep(20)
     
