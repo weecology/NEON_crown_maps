@@ -19,12 +19,11 @@ def match_years(geo_index, shps):
     
     #Join features and create a blank IoU column
     joined_boxes = sjoin(shapefiles[0],shapefiles[1])
-    joined_boxes["IoU"] = 0
+    joined_boxes["IoU"] = None
     
-    index_counts = joined_boxes.index.value_counts()
-    index_counts.hist()
-    
-    multiple_matches = index_counts[index_counts>1]
+    #Find trees with more than one match
+    index_counts = joined_boxes.index.value_counts()    
+    multiple_matches = index_counts[index_counts>=1]
     
     for target_index in multiple_matches.index:
         
@@ -49,13 +48,20 @@ def match_years(geo_index, shps):
         joined_boxes.loc[(joined_boxes.index == target_index) & (joined_boxes.index_right == matched_index),"IoU"] = iou_list[max_overlap_index]
         
         
-    #remove trees with less than 0.3 IoU
-    joined_boxes = joined_boxes[joined_boxes.IoU > 0.4]
+    #remove trees with less than threshold IoU
+    threshold_boxes = joined_boxes[joined_boxes.IoU > 0.9]
     
     #difference in height
-    joined_boxes["Height_difference"] = joined_boxes["height_right"] - joined_boxes["height_left"]
+    threshold_boxes["Height_difference"] = threshold_boxes["height_right"] - threshold_boxes["height_left"]
     
-    joined_boxes.Height_difference.hist()
+    #remove outliers
+    
+    lower, upper = threshold_boxes.Height_difference.quantile([0.001,0.999]).values
+    threshold_boxes = threshold_boxes[(threshold_boxes.Height_difference > lower) & (threshold_boxes.Height_difference < upper)]
+    threshold_boxes.Height_difference.hist(bins=20)
+    
+    #ecdf
+    print("Median height difference is {}".format(threshold_boxes.Height_difference.median()))
     
     pyplot.savefig("tree_height.png")
         

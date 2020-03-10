@@ -6,6 +6,28 @@ from start_cluster import start
 from distributed import wait, as_completed
 import numpy as np
 import random
+import LIDAR
+
+def lookup_CHM_path(shp_path, lidar_list):
+    """Find CHM file based on the shp filename"""
+    
+    #Get geoindex from shapefile and match it to inventory of CHM rifles
+    lidar_name = [os.path.splitext(os.path.basename(x))[0] for x in lidar_list]
+    geo_index = re.search("(\d+_\d+)_image",shp_path).group(1)
+    index = np.where([geo_index in x for x in lidar_name])
+    
+    if len(index) == 0:
+        raise ValueError("SHP file {} has no CHM matching file".format(shp_path))
+    if len(index) > 1:
+        raise ValueError("SHP file {} matches more than one .tif CHM file".format(shp_path))
+    else:
+        #Tuple to numeric
+        index = list(index)[0][0]
+        
+    # lookup Lidar CHM path
+    CHM_path = lidar_list[index]
+    
+    return CHM_path
 
 def lookup_rgb_path(tfrecord,rgb_list):
     #match rgb list to tfrecords
@@ -55,7 +77,7 @@ def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, 
         random.shuffle(tile_list)
         tile_list = tile_list[:n]
     
-    print("Running {} tiles: \n {} ...".format(len(tile_list),tile_list))    
+    print("Running {} tiles: \n {} ...".format(len(tile_list),tile_list[:10]))    
     
     written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/")
     
@@ -81,33 +103,16 @@ def run_rgb(records, rgb_paths):
         
     return shp[0]
 
-def run_lidar(shp,lidar_list, min_height=3, save_dir=""):
+def run_lidar(shp, CHM_path, min_height=3, save_dir=""):
     """
     shp: path to a DeepForest prediction shapefile
-    lidar_list: list of a lidar CHM files to look up corresponding .tif file
+    CHM_Path: path to the .tif height model
     min_height: minimum height of a tree to consider
     This function is written to function as results are completled, so the laz file cannot be anticipated
     """
-    import LIDAR
-    
-    #Get geoindex from shapefile and match it to inventory of CHM rifles
-    lidar_name = [os.path.splitext(os.path.basename(x))[0] for x in lidar_list]
-    geo_index = re.search("(\d+_\d+)_image",shp).group(1)
-    index = np.where([geo_index in x for x in lidar_name])
-    
-    if len(index) == 0:
-        raise ValueError("SHP file {} has no CHM matching file".format(shp))
-    if len(index) > 1:
-        raise ValueError("SHP file {} matches more than one .tif CHM file".format(shp))
-    else:
-        #Tuple to numeric
-        index = list(index)[0][0]
-        
-    # lookup Lidar CHM path
-    CHM = lidar_list[index]
     
     #Drape and collect height information
-    boxes = LIDAR.postprocess_CHM(shp, CHM, min_height=min_height)
+    boxes = LIDAR.postprocess_CHM(shp, CHM_path, min_height=min_height)
     
     #Save shapefile
     bname = os.path.basename(shp)
@@ -165,18 +170,16 @@ if __name__ == "__main__":
         #Predict record
         gpu_result = gpu_client.submit(run_rgb, result, rgb_path)
         print("Completed prediction for tfrecord {}, future index is {}".format(result, gpu_result))        
-        
         predictions.append(gpu_result)
-        
-    print(predictions)
-    
+            
     ###As predictions complete, run postprocess to drape LiDAR and extract height
     draped_files = [ ]
     for future in as_completed(predictions):
         try:
             result = future.result()
-            print("Postprocessing: {}".format(result))                    
-            postprocessed_filename = cpu_client.submit(run_lidar, result, lidar_list=lidar_list, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+            CHM_path = lookup_CHM_path(result, lidar_list)
+            postprocessed_filename = cpu_client.submit(run_lidar, CHM_path, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+            print("Postprocessing complete: {}".format(postprocessed_filename))                           
             draped_files.append(postprocessed_filename)            
         except Exception as e:
             print("Lidar draping future: {} failed with {}".format(future, e))   
