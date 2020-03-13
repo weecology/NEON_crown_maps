@@ -9,7 +9,6 @@ import random
 import LIDAR
 import time
 
-
 def lookup_CHM_path(shp_path, lidar_list):
     """Find CHM file based on the shp filename"""
     
@@ -126,9 +125,8 @@ if __name__ == "__main__":
     
     #Create dask clusters
     cpu_client = start(cpus = 30, mem_size ="11GB")
-    
     gpu_client = start(gpus=8,mem_size ="15GB")
-    
+ 
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
     lidar_list = glob.glob("/orange/ewhite/NeonData/**/CanopyHeightModelGtif/*.tif",recursive=True)
@@ -180,7 +178,7 @@ if __name__ == "__main__":
             result = future.result()
             CHM_path = lookup_CHM_path(result, lidar_list)
             postprocessed_filename = cpu_client.submit(run_lidar, result, CHM_path=CHM_path, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
-            print("Postprocessing complete: {}".format(postprocessed_filename))                           
+            print("Postprocessing submitted: {}".format(result))                           
             draped_files.append(postprocessed_filename)            
         except Exception as e:
             print("Lidar draping future: {} failed with {}".format(future, e.with_traceback(future.traceback())))   

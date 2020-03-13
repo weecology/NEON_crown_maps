@@ -19,8 +19,11 @@ def geo_indexes():
 def test_match_years(geo_indexes):
     shps = glob.glob("data/*.shp")    
     for geo_index in geo_indexes:
-        matched_df = analysis.match_years(geo_index, shps)
+        matched_df = analysis.match_years(geo_index, shps,savedir="/Users/ben/Dropbox/Weecology/Crowns/growth/")
     
-    #assert not matched_df.empty
-        
+def test_tree_fall(geo_indexes):
+    shps = glob.glob("data/*.shp")    
+    CHMs = glob.glob("data/*_CHM.tif")    
+    for geo_index in geo_indexes:
+        matched_df = analysis.tree_falls(geo_index, shps, CHMs,savedir="/Users/ben/Dropbox/Weecology/Crowns/treefall/")
     
