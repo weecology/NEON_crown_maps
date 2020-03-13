@@ -10,7 +10,7 @@
 #SBATCH --output=/home/b.weinstein/logs/analysis_%j.out   # Standard output and error log
 #SBATCH --error=/home/b.weinstein/logs/analysis_%j.err
 
-conda activate crowns
+source activate crowns
 cd /home/b.weinstein/NEON_crown_maps/
 
 #comet debug
