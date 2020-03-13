@@ -30,7 +30,7 @@ def shapefile(record):
     
     #Predict
     #comet_experiment.log_parameters(model.config)
-    shapefile = predict.predict_tiles(model, [record], patch_size=400, raster_dir=["data"], save_dir="output", batch_size=model.config["batch_size"])
+    shapefile = predict.predict_tiles(model, [record], patch_size=400, rgb_paths=["data/OSBS_029.tif"], save_dir="output", batch_size=model.config["batch_size"])
     
     return shapefile[0]
 

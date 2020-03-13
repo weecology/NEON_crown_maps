@@ -14,7 +14,6 @@ import cv2
 import random
 import rasterstats
 
-
 r = lambda: random.randint(0,255)
 
 def find_lidar_file(image_path, dirname):
@@ -67,16 +66,20 @@ def fetch_lidar_filename(row, dirname):
         
     return laz_path
 
+def non_zero_99_quantile(x):
+    """Get height quantile of all cells that are no zero"""
+    x = x[np.nonzero(x)]
+    return(np.quantile(x, 0.99))
+    
 def postprocess_CHM(shapefile, CHM, min_height):
     
     #Extract zonal stats
     boxes = gp.read_file(shapefile)    
     boxes[["left","bottom","right","top"]] = boxes[["left","bottom","right","top"]].astype(float)
     
-    draped_boxes = rasterstats.zonal_stats(shapefile, CHM, stats="percentile_99")
-    boxes["height"]  = [x["percentile_99"] for x in draped_boxes]
-    
-    #extract 
+    draped_boxes = rasterstats.zonal_stats(shapefile, CHM, stats="mean", add_stats={'q99':non_zero_99_quantile})
+    boxes["height"]  = [x["q99"] for x in draped_boxes]
+
     #Rename column
     boxes = boxes[boxes.height > min_height]
     
