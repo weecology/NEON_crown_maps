@@ -1,0 +1,75 @@
+---
+title: "Height_Distributions"
+author: "Ben Weinstein"
+date: "3/10/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(sf)
+library(raster)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(stringr)
+```
+
+```{r}
+shps<-list.files("/Users/ben/Dropbox/Weecology/Crowns/examples/",pattern=".shp",full.names=T)
+shps<-lapply(shps,function(x){
+  r<-data.frame(read_sf(x))
+  r$Year<-str_match(x,"(\\d+)_\\w+_\\d_\\d+_\\d+_image.shp")[,2]
+  r$Site<-str_match(x,"\\d+_(\\w+)_\\d_\\d+_\\d+_image.shp")[,2]
+  
+  r$Tile<-x
+  
+  r$geo_index<-str_match(x,"\\d+_\\w+_\\d_(\\d+_\\d+)_image.shp")[,2]
+  
+  return(r)
+})
+
+df<-do.call(rbind,shps)
+```
+
+## Crown Height
+
+```{r}
+df %>% filter(Year=="2019") %>% ggplot(.,aes(x=height)) + geom_density(alpha=0.5,fill="black")  + labs(x="99th quantile Crown Height (m)")  + theme_bw() + facet_wrap(~Site) 
+ggave("Figures/Site_Height.svg")
+```
+
+## Crown Area
+
+```{r}
+df %>% filter(Year=="2019") %>% ggplot(.,aes(x=height,fill=Site)) + geom_density(alpha=0.9)  + labs(x="99th quantile Crown Height (m)")  + theme_bw()
+```
+
+## Biplot
+```{r}
+crown_area<-df %>% filter(Year=="2019") %>% group_by(Site) %>% dplyr::summarize(crown_area=mean(area),var_crown=var(area))
+
+site_density<-df %>% filter(Year=="2019") %>% group_by(Site,geo_index) %>% dplyr::summarize(n=n()) %>% group_by(Site) %>% dplyr::summarise(density = sum(n)/n()) 
+
+height<-df %>% filter(Year=="2019") %>% group_by(Site) %>% summarize(mean_height=mean(height),var_height=var(height,na.rm = T))
+
+site_df<-merge(merge(crown_area,site_density),height)
+rownames(site_df)<-site_df[,1]
+pc<-princomp(site_df[,c("mean_height","crown_area","density")])
+ggbiplot::ggbiplot(pc,labels = site_df[,1])
+ggsave("Figures/biplot.svg")
+```
+
+### Over time
+```{r}
+ggplot(df,aes(x=height,fill=Year)) + geom_density(alpha=0.9)  + labs(x="99th quantile Crown Height (m)") + facet_wrap(~Site,scales="free") + theme_bw()
+ggsave("TimeHeight_example.png",height=2.5,width=6)
+```
+
+## Counts over time
+
+```{r}
+ydf<-df %>% group_by(Site,geo_index,Year) %>% dplyr::summarize(n=n()) %>% spread(Year,n)
+ggplot(ydf,aes(x=`2019`,y=`2018`)) + geom_point() + geom_abline() + coord_fixed()
+```
