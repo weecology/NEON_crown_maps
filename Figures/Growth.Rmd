@@ -1,0 +1,46 @@
+---
+title: "Growth"
+author: "Ben Weinstein"
+date: "3/10/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+---
+title: "Height_Distributions"
+author: "Ben Weinstein"
+date: "3/10/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+```
+
+```{r setup, include=FALSE}
+library(sf)
+library(raster)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+```
+
+```{r}
+shps<-list.files("/Users/ben/Dropbox/Weecology/Crowns/growth/",pattern=".shp",full.names=T)
+
+shps<-lapply(shps,function(x){
+  r<-data.frame(read_sf(x))
+  return(r)
+})
+
+df<-do.call(rbind,shps)
+```
+
+```{r}
+ggplot(df,aes(x=Height_dif)) + geom_density(alpha=0.9)  + labs(x="Difference in 99th quantile Crown Height (m)") + facet_wrap(~Site_left,scales="free") + theme_bw()
+
+ggplot(df,aes(x=Height_dif*100)) + geom_density(fill="black")  + labs(x="Difference in 99th quantile Crown Height (cm)") + facet_wrap(~Site_left,scales="free") + theme_bw() + xlim(quantile(df$Height_dif*100,0.1),quantile(df$Height_dif*100,0.9))
+ggsave("Growth.png")
+```
+```
