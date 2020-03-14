@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from distributed import Client, as_completed, wait
 
-debug = True
+debug = False
 if debug:
     shps = glob.glob("/Users/ben/Dropbox/Weecology/Crowns/examples/*.shp")
     CHMs = glob.glob("/Users/ben/Dropbox/Weecology/Crowns/examples/*_CHM.tif")    
