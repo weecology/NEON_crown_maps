@@ -13,7 +13,7 @@ def start_client(debug=True):
     if debug:
         client = Client()
     else:
-        start(cpus=30)
+        start(cpus=30, mem_size="8GB")
 
 def load_shp(shp):
     df = geopandas.read_file(shp)
@@ -56,7 +56,7 @@ def averages(daskdf):
 if __name__ == "__main__":
     
     #Create dask client
-    client = start_client(debug=False,mem_size="8GB")
+    client = start_client(debug=False)
     
     #Create dataframe and compute summary statistics
     daskdf = load_predictions("/orange/ewhite/b.weinstein/NEON/draped/")

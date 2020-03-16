@@ -8,7 +8,6 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-library(sf)
 library(raster)
 library(dplyr)
 library(ggplot2)
@@ -17,53 +16,13 @@ library(stringr)
 ```
 
 ```{r}
-#shps<-list.files("/Users/ben/Dropbox/Weecology/Crowns/examples/",pattern=".shp",full.names=T)
-shps<-list.files("/orange/ewhite/b.weinstein/NEON/draped/",pattern=".shp",full.names=T)
-
-shps<-sample(shps,500)
-
-shps<-lapply(shps,function(x){
-  r<-data.frame(read_sf(x))
-  r$Year<-str_match(x,"(\\d+)_\\w+_\\d_\\d+_\\d+_image.shp")[,2]
-  r$Site<-str_match(x,"\\d+_(\\w+)_\\d_\\d+_\\d+_image.shp")[,2]
-  
-  r$Tile<-x
-  
-  r$geo_index<-str_match(x,"\\d+_\\w+_\\d_(\\d+_\\d+)_image.shp")[,2]
-  
-  return(r)
-})
-
-df<-do.call(rbind,shps)
+df<-read.csv("averages.csv",row.names =1)
 ```
 
-## Crown Height
-
 ```{r}
-df %>% filter(Year=="2019") %>% ggplot(.,aes(x=height)) + geom_density(alpha=0.5,fill="black")  + labs(x="99th quantile Crown Height (m)")  + theme_bw() + facet_wrap(~Site) 
-ggsave("/home/b.weinstein/NEON_crown_maps/Figures/Site_Height.svg",height=8,width=11)
-```
-
-## Crown Area
-
-```{r}
-df %>% filter(Year=="2019") %>% ggplot(.,aes(x=height,fill=Site)) + geom_density(alpha=0.9)  + labs(x="99th quantile Crown Height (m)")  + theme_bw()
-ggsave("/home/b.weinstein/NEON_crown_maps/Figures/Crown_Area.svg",height=8,width=11)
-```
-
-## Biplot
-```{r}
-crown_area<-df %>% filter(Year=="2019") %>% group_by(Site) %>% dplyr::summarize(crown_area=mean(area),var_crown=var(area))
-
-site_density<-df %>% filter(Year=="2019") %>% group_by(Site,geo_index) %>% dplyr::summarize(n=n()) %>% group_by(Site) %>% dplyr::summarise(density = sum(n)/n()) 
-
-height<-df %>% filter(Year=="2019") %>% group_by(Site) %>% summarize(mean_height=mean(height),var_height=var(height,na.rm = T))
-
-site_df<-merge(merge(crown_area,site_density),height)
-rownames(site_df)<-site_df[,1]
-pc<-prcomp(site_df[,c("mean_height","crown_area","density")],scale=T)
-ggbiplot::ggbiplot(pc,labels = site_df[,1])
-ggsave("/home/b.weinstein/NEON_crown_maps/Figures/biplot.svg", height=7,width = 10)
+ggplot(df,aes(x=height,y=area,size=n)) + geom_point(alpha=0.5) + labs(x="Crown Height (m)",y="Crown Area (m^2)",size="Trees/km^2") + geom_text(aes(label=Site),size=3,hjust=0.25,vjust=-0.5) + theme_bw()
+ggsave("Attributes.png",height=5,width=8)
+ggsave("Attributes.svg", height=5,width=8)
 ```
 
 ### Over time
