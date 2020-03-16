@@ -49,7 +49,7 @@ def averages(daskdf):
 if __name__ == "__main__":
     
     #Create dask client
-    client = start_client()
+    client = start_client(debug=False)
     
     #Create dataframe and compute summary statistics
     daskdf = load_predictions("/orange/ewhite/b.weinstein/NEON/draped/")
