@@ -37,16 +37,22 @@ def load_predictions(path):
     return daskdf
 
 def averages(daskdf):
-    #Calculate average attributes
-    average_height = daskdf.groupby(['Site']).height.mean().reset_index().compute()
-    average_area = daskdf.groupby(["Site"]).area.mean().reset_index().compute()
-    average_density = daskdf.groupby(["Site","geo_index","Year"]).count().groupby("Site").left.mean().reset_index().compute()
-    average_density = average_density.rename(columns = {"left":"n"})
+    #Heights and Areas
+    sumstats = {"height":["mean","count","std"], "area":["mean",upper,"count","std"]}    
+    average_height_area = daskdf.groupby(['Site']).agg(sumstats).compute().reset_index()
+    average_height_area.columns = average_height_area.columns.map('_'.join)
+    average_height_area = average_height_area.rename(columns={"Site_":"Site"})
+    average_height_area = average_height_area.reset_index()
     
-    results = average_height.merge(average_area)
-    results = results.merge(average_density)
+    #Number of trees
+    average_density = daskdf.groupby(["Site","geo_index","Year"]).count().groupby("Site").left.mean().compute().reset_index()
+    average_density = average_density.rename(columns = {"left":"n"})
+        
+    #Combine 
+    results = average_height_area.merge(average_density)
+    
     return results
-
+    
 if __name__ == "__main__":
     
     #Create dask client
@@ -55,9 +61,17 @@ if __name__ == "__main__":
     #Create dataframe and compute summary statistics
     daskdf = load_predictions("/orange/ewhite/b.weinstein/NEON/draped/")
     
-    results = averages(daskdf)
+    #How many records total?
+    total_trees = daskdf.shape[0].compute()
+    total_sites = daskdf.Site.nunique().compute()
     
+    print("There are {} tree predictions from {} sites".format(total_trees, total_sites))
+    results = averages(daskdf)
     results.to_csv("Figures/averages.csv")
+    
+    #Count totals
+    ntiles = daskdf.groupby(["Site","geo_index","Year"]).value_counts()
+    ntiles.to_csv("Figures/counts.csv")
     
     
     
