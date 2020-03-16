@@ -21,6 +21,7 @@ def load_shp(shp):
     df["geo_index"] = str(re.search("(\d+_\d+)_image",shp).group(1))
     df["Year"] = int(re.search("(\d+)_(\w+)_\d_\d+_\d+_image.shp",shp).group(1))
     df["Site"] = re.search("(\d+)_(\w+)_\d_\d+_\d+_image.shp",shp).group(2)
+    df = df.drop(columns="geometry")
     return df
     
 def load_predictions(path):
@@ -36,7 +37,6 @@ def load_predictions(path):
     return daskdf
 
 def averages(daskdf):
-    
     #Calculate average attributes
     average_height = daskdf.groupby(['Site']).height.mean().reset_index().compute()
     average_area = daskdf.groupby(["Site"]).area.mean().reset_index().compute()
