@@ -21,6 +21,7 @@ def daskdf(client):
 def test_load_shp():
  for shp in glob.glob("data/" + "*.shp"):
   df = figures.load_shp(shp)
+  df.groupby("Site").height.mean()
   assert not df.empty
  
 def test_load_predictions(client):
