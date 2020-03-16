@@ -19,8 +19,8 @@ def load_shp(shp):
     df = geopandas.read_file(shp)
     df["shp_path"] = shp
     df["geo_index"] = str(re.search("(\d+_\d+)_image",shp).group(1))
-    df["Year"] = int(re.search("(\d+)_(\w+)_\d_\d+_\d+_image.shp",shp).group(1))
-    df["Site"] = re.search("(\d+)_(\w+)_\d_\d+_\d+_image.shp",shp).group(2)
+    df["Year"] = int(re.search("(\d+)_(\w+)_\d_\d+_\d+_image",shp).group(1))
+    df["Site"] = re.search("(\d+)_(\w+)_\d_\d+_\d+_image",shp).group(2)
     df = df.drop(columns="geometry")
     return df
     
@@ -52,9 +52,27 @@ def averages(daskdf):
     results = average_height_area.merge(average_density)
     
     return results
+
+def treefalls(path):
+    
+    #Load shps
+    treedf = load_predictions(path)
+    
+    #mean and quantiles of number of tree falls per tile by Site
+    fall_mean= treedf.groupby(["Site","geo_index"]).size().reset_index().compute().groupby("Site").mean().reset_index()
+    fall_mean = fall_mean.rename(columns={0:"mean"})    
+    
+    #5th and 9th quantiles
+    fall_var = treedf.groupby(["Site","geo_index"]).size().to_frame("n").reset_index().compute().groupby("Site").n.quantile([0.05,0.95]).reset_index()
+    fall_var = fall_var.rename(columns={"level_1":"quantile"})
+    fall_var = fall_var.pivot_table(index="Site",columns="quantile",values="n",fill_value=None).reset_index()
+    fall_var = fall_var.rename(columns={0.05:"lower",0.95:"upper"})
+    result = fall_mean.merge(fall_var)
+    
+    return result
+    
     
 if __name__ == "__main__":
-    
     #Create dask client
     client = start_client(debug=False)
     
@@ -72,6 +90,10 @@ if __name__ == "__main__":
     #Count totals
     ntiles = daskdf.groupby(["Site","geo_index","Year"]).size().compute()
     ntiles.to_csv("Figures/counts.csv")
+    
+    #Count treefalls
+    treedf = treefalls("/orange/idtrees-collab/treefall/")
+    treedf.to_csv("Figures/treefall.csv")
     
     
     

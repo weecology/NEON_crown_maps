@@ -35,3 +35,8 @@ def test_averages(client,daskdf):
 def test_counts(client, daskdf):
   ntiles = daskdf.groupby(["Site","geo_index","Year"]).size().compute()
   assert not ntiles.empty
+
+def test_treefalls(client):
+  results = figures.treefalls("/Users/ben/Dropbox/Weecology/Crowns/treefall/")
+  print(results)
+  assert not results.empty

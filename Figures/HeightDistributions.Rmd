@@ -11,12 +11,15 @@ editor_options:
 library(raster)
 library(dplyr)
 library(ggplot2)
+
 library(tidyr)
 library(stringr)
 ```
 
 ```{r}
 df<-read.csv("averages.csv",row.names =1)
+counts<-read.csv("counts.csv")
+colnames(counts)<-c("Site","geo_index","Year","n")
 ```
 
 ```{r}
@@ -25,16 +28,16 @@ ggsave("Attributes.png",height=5,width=8)
 ggsave("Attributes.svg", height=5,width=8)
 ```
 
-### Over time
-```{r}
-ggplot(df,aes(x=height,fill=Year)) + geom_density(alpha=0.9)  + labs(x="99th quantile Crown Height (m)") + facet_wrap(~Site,scales="free") + theme_bw()
-ggsave("/home/b.weinstein/NEON_crown_maps/Figures/TimeHeight_example.png",height=6,width=9)
-```
-
-## Counts over time
+## Counts through time
 
 ```{r}
-ydf<-df %>% group_by(Site,geo_index,Year) %>% dplyr::summarize(n=n()) %>% spread(Year,n)
-ggplot(ydf,aes(x=`2019`,y=`2018`)) + geom_point() + geom_abline() + coord_fixed()
-ggsave("/home/b.weinstein/NEON_crown_maps/Figures/Counts.png",height=6,width=9)
+counts %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point(aes(col=Site),alpha=0.5) + geom_abline(linetype="dashed") + coord_equal()
 ```
+
+```{r}
+counts %>% group_by(Site,Year) %>% summarize(n=sum(n)) %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point() + geom_abline(linetype="dashed") + coord_equal() + geom_text(aes(label=Site))
+```
+
+
+
+
