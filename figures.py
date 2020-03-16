@@ -56,7 +56,7 @@ def averages(daskdf):
 if __name__ == "__main__":
     
     #Create dask client
-    client = start_client(debug=False)
+    client = start_client(debug=False,mem_size="8GB")
     
     #Create dataframe and compute summary statistics
     daskdf = load_predictions("/orange/ewhite/b.weinstein/NEON/draped/")
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     results.to_csv("Figures/averages.csv")
     
     #Count totals
-    ntiles = daskdf.groupby(["Site","geo_index","Year"]).value_counts()
+    ntiles = daskdf.groupby(["Site","geo_index","Year"]).size().compute()
     ntiles.to_csv("Figures/counts.csv")
     
     

@@ -30,4 +30,8 @@ def test_load_predictions(client):
     
 def test_averages(client,daskdf):
     results = figures.averages(daskdf)
-    assert results.shape == (1,4)
+    assert results.shape == (1,9)
+    
+def test_counts(client, daskdf):
+  ntiles = daskdf.groupby(["Site","geo_index","Year"]).size().compute()
+  assert not ntiles.empty
