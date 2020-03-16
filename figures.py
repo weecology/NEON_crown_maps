@@ -32,14 +32,15 @@ def load_predictions(path):
         lazy_dataframes.append(df)
     
     daskdf = dd.from_delayed(lazy_dataframes, meta=lazy_dataframes[0].compute())
+    daskdf = daskdf.persist()
     return daskdf
 
 def averages(daskdf):
     
     #Calculate average attributes
-    average_height = daskdf.compute().groupby(['Site']).height.mean().reset_index()
-    average_area = daskdf.compute().groupby(["Site"]).area.mean().reset_index()
-    average_density = daskdf.compute().groupby(["Site","geo_index","Year"]).count().groupby("Site").left.mean().reset_index()
+    average_height = daskdf.groupby(['Site']).height.mean().reset_index().compute()
+    average_area = daskdf.groupby(["Site"]).area.mean().reset_index().compute()
+    average_density = daskdf.groupby(["Site","geo_index","Year"]).count().groupby("Site").left.mean().reset_index().compute()
     average_density = average_density.rename(columns = {"left":"n"})
     
     results = average_height.merge(average_area)
