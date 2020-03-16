@@ -38,7 +38,7 @@ def load_predictions(path):
 
 def averages(daskdf):
     #Heights and Areas
-    sumstats = {"height":["mean","count","std"], "area":["mean",upper,"count","std"]}    
+    sumstats = {"height":["mean","count","std"], "area":["mean","count","std"]}    
     average_height_area = daskdf.groupby(['Site']).agg(sumstats).compute().reset_index()
     average_height_area.columns = average_height_area.columns.map('_'.join)
     average_height_area = average_height_area.rename(columns={"Site_":"Site"})
