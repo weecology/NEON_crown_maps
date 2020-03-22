@@ -31,7 +31,7 @@ falls_futures = client.map(analysis.tree_falls, geo_index, shps=shps, CHMs=CHMs,
 #for future in as_completed(year_futures):
     #try:
         #result = future.result()
-        #results.append(result)
+        #year_results.append(result)
     #except Exception as e:
         #print("Year futures: {} failed with {}".format(future, e))   
 
@@ -39,7 +39,7 @@ fall_results = []
 for future in as_completed(falls_futures):
     try:
         result = future.result()
-        results.append(result)
+        fall_results.append(result)
     except Exception as e:
         print("Year futures: {} failed with {}".format(future, e))   
 
