@@ -92,7 +92,7 @@ if __name__ == "__main__":
     ntiles.to_csv("Figures/counts.csv")
     
     #Count treefalls
-    treedf = treefalls("/orange/idtrees-collab/treefall/")
+    treedf = treefalls(path="/orange/idtrees-collab/treefall/")
     treedf.to_csv("Figures/treefall.csv")
     
     

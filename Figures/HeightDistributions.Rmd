@@ -38,6 +38,14 @@ counts %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point(aes(
 counts %>% group_by(Site,Year) %>% summarize(n=sum(n)) %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point() + geom_abline(linetype="dashed") + coord_equal() + geom_text(aes(label=Site))
 ```
 
+#Tree Falls
+```{r}
+treedf<-read.csv("treefall.csv",row.names= 1)
+ggplot(treedf,aes(x=Site,y=mean,ymin=lower,ymax=upper)) + geom_pointrange(size=1) + theme_bw() + labs(y="Tree Falls per 1km^2")
+
+treedf %>% inner_join(df[,c("Site","n")]) %>% ggplot(.,aes(x=n,y=mean,ymin=lower,ymax=upper)) + geom_pointrange() + geom_text(aes(label=Site),vjust=0.25,hjust=-0.25) + labs(x="Trees per 1km^2",y="Tree Falls per 1km^2")
+ggsave("TreeFalls.png",height=4,width=6)
+```
 
 
 

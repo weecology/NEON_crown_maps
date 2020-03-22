@@ -24,16 +24,16 @@ else:
 geo_index = [re.search("(\d+_\d+)_image",x).group(1) for x in shps]
 geo_index = np.unique(geo_index)
 
-year_futures = client.map(analysis.match_years, geo_index, shps=shps,savedir=savedir + "growth/")
+#year_futures = client.map(analysis.match_years, geo_index, shps=shps,savedir=savedir + "growth/")
 falls_futures = client.map(analysis.tree_falls, geo_index, shps=shps, CHMs=CHMs, savedir=savedir + "treefall/")
 
-year_results = []
-for future in as_completed(year_futures):
-    try:
-        result = future.result()
-        results.append(result)
-    except Exception as e:
-        print("Year futures: {} failed with {}".format(future, e))   
+#year_results = []
+#for future in as_completed(year_futures):
+    #try:
+        #result = future.result()
+        #results.append(result)
+    #except Exception as e:
+        #print("Year futures: {} failed with {}".format(future, e))   
 
 fall_results = []
 for future in as_completed(falls_futures):
@@ -43,5 +43,5 @@ for future in as_completed(falls_futures):
     except Exception as e:
         print("Year futures: {} failed with {}".format(future, e))   
 
-wait(year_futures)    
+#wait(year_futures)    
 wait(falls_futures)

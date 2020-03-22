@@ -133,6 +133,9 @@ def tree_falls(geo_index, shps, CHMs,savedir="."):
     no_matches["height_frac"] =  (no_matches["2019_height"] - no_matches["height"]) / no_matches["height"]
     fall_df = no_matches[no_matches["height_frac"] < -0.3]
     
+    #Keep predictions whose original height was greater than 5m
+    fall_df = fall_df[fall_df.height > 5]
+    
     #Write tree fall shapefile
     fname = os.path.basename(shapefiles["2019"]["shp_path"].unique()[0])
     fname = os.path.splitext(fname)[0]
