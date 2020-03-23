@@ -41,7 +41,7 @@ for future in as_completed(falls_futures):
         result = future.result()
         fall_results.append(result)
     except Exception as e:
-        print("Year futures: {} failed with {}".format(future, e))   
+        print("Tree futures: {} failed with {}".format(future, e))   
 
 #wait(year_futures)    
 wait(falls_futures)

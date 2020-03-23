@@ -48,6 +48,9 @@ def match_years(geo_index, shps, savedir = "."):
         df["Site"] = re.search("(\d+)_(\w+)_\d_\d+_\d+_image.shp",shp).group(2)
         shapefiles[df["Year"].unique()[0]] = df   
     
+    if not all([x in ["2018","2019"] for x in shapefiles.keys()]):
+        raise ValueError("{} does not have data from 2018 and 2019: {}".format(geo_index,shapefiles.keys()))
+    
     #Join features and create a blank IoU column
     joined_boxes = sjoin(shapefiles["2018"],shapefiles["2019"])
     joined_boxes["IoU"] = None
@@ -134,7 +137,7 @@ def tree_falls(geo_index, shps, CHMs,savedir="."):
     fall_df = no_matches[no_matches["height_frac"] < -0.3]
     
     #Keep predictions whose original height was greater than 5m
-    fall_df = fall_df[fall_df.height > 5]
+    fall_df = fall_df[fall_df.height > 6]
     
     #Write tree fall shapefile
     fname = os.path.basename(shapefiles["2019"]["shp_path"].unique()[0])
