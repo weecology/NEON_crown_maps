@@ -68,8 +68,8 @@ def fetch_lidar_filename(row, dirname):
 
 def non_zero_99_quantile(x):
     """Get height quantile of all cells that are no zero"""
-    x = x[np.nonzero(x)]
-    return(np.quantile(x, 0.99))
+    x = x[x>0.5]
+    return(np.nanpercentile(x, 0.99))
     
 def postprocess_CHM(shapefile, CHM, min_height):
     
