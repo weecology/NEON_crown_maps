@@ -29,7 +29,7 @@ def create_tf_example(fname, original_image):
     
     return example
 
-def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir="."):
+def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir=".",overwrite=True):
     """
     Write crops to file and write a tfrecord file to use for tf dataset API
     Args:
@@ -64,6 +64,12 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir=".")
     
     #Tensorflow writer
     tfrecord_filename = os.path.join(savedir, "{}.tfrecord".format(image_name))    
+    
+    #Check for overwrite
+    if not overwrite:
+        if os.path.exists(tfrecord_filename):
+            return tfrecord_filename
+        
     tfwriter = tf.io.TFRecordWriter(tfrecord_filename)
     
     print("There are {} windows".format(len(windows)))

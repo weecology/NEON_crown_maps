@@ -59,7 +59,7 @@ def find_files(tile_list, site_list = None, target_list=None, year_list=None):
         
     return tile_list
 
-def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, target_list=None):
+def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, target_list=None, overwrite=True):
     """Create tfrecords
     tile_list: list of rgb tiles to generate tfrecord
     client: dask client
@@ -80,11 +80,11 @@ def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, 
     
     print("Running {} tiles: \n {} ...".format(len(tile_list),tile_list[:10]))    
     
-    written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/")
+    written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/",overwrite=overwrite)
     
     return written_records
 
-def run_rgb(records, rgb_paths):
+def run_rgb(records, rgb_paths, overwrite=True, save_dir = "/orange/ewhite/b.weinstein/NEON/predictions/"):
     from deepforest import deepforest
     from keras import backend as K            
     import predict
@@ -93,10 +93,10 @@ def run_rgb(records, rgb_paths):
     model = deepforest.deepforest(weights= '/home/b.weinstein/miniconda3/envs/crowns/lib/python3.7/site-packages/deepforest/data/NEON.h5')
     
     #A 1km tile has 729 windows, evenly divisible batches is 9 * 81 = 729
-    model.config["batch_size"] = 3    
+    model.config["batch_size"] = 9    
     
     #Predict
-    shp = predict.predict_tiles(model, [records], patch_size=400, rgb_paths=[rgb_paths], save_dir="/orange/ewhite/b.weinstein/NEON/predictions/", batch_size=model.config["batch_size"])
+    shp = predict.predict_tiles(model, [records], patch_size=400, rgb_paths=[rgb_paths], save_dir=save_dir, batch_size=model.config["batch_size"],overwrite=overwrite)
     
     gc.collect()
     K.clear_session()
@@ -124,9 +124,12 @@ def run_lidar(shp, CHM_path, min_height=3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 40, mem_size ="11GB")
-    gpu_client = start(gpus=13,mem_size ="15GB")
+    cpu_client = start(cpus = 40, mem_size ="10GB")
+    gpu_client = start(gpus=13,mem_size ="13GB")
  
+    #Overwrite existing file?
+    overwrite=False
+    
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
     lidar_list = glob.glob("/orange/ewhite/NeonData/**/CanopyHeightModelGtif/*.tif",recursive=True)
@@ -152,7 +155,7 @@ if __name__ == "__main__":
     target_list = None
     site_list = ["OSBS","DELA","BART","TEAK","BONA","SOAP","WREF"]
     year_list = ["2019","2018"]
-    generated_records = generate_tfrecord(rgb_list, cpu_client, n=None, target_list = target_list, site_list=site_list, year_list=year_list)
+    generated_records = generate_tfrecord(rgb_list, cpu_client, n=None, target_list = target_list, site_list=site_list, year_list=year_list,overwrite=overwrite)
     
     predictions = []    
     
@@ -167,7 +170,7 @@ if __name__ == "__main__":
             continue
                 
         #Predict record
-        gpu_result = gpu_client.submit(run_rgb, result, rgb_path)
+        gpu_result = gpu_client.submit(run_rgb, result, rgb_path,overwrite=overwrite)
         print("Completed prediction for tfrecord {}, future index is {}".format(result, gpu_result))        
         predictions.append(gpu_result)
             

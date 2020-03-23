@@ -41,7 +41,7 @@ def run_non_max_suppression(predicted_boxes, iou_threshold=0.15):
         return mosaic_df
     
 #predict a set of tiles
-def predict_tiles(model, records, rgb_paths, patch_size=400, batch_size=1, score_threshold=0.05,max_detections=300,classes={0:"Tree"},save_dir="."):
+def predict_tiles(model, records, rgb_paths, patch_size=400, batch_size=1, score_threshold=0.05,max_detections=300,classes={0:"Tree"},save_dir=".",overwrite=True):
     """Parallel loop through tile list and predict tree crowns
     raster_dir: a list of directories to search for RGB image
     """ 
@@ -49,8 +49,17 @@ def predict_tiles(model, records, rgb_paths, patch_size=400, batch_size=1, score
     results = [ ]    
     for index, tfrecord in enumerate(records):
         
-        #Find correponding rgb record
+
+        #Find correponding rgb record and shp paths
         raster_path = rgb_paths[index]
+        raster_name = os.path.splitext(os.path.basename(raster_path))[0]
+        shp_path = os.path.join(save_dir,'{}.shp'.format(raster_name))        
+        
+        #Check for overwrite
+        if not overwrite:
+            if os.path.exists(shp_path):
+                results.append(shp_path)
+                continue
         
         if not os.path.exists(raster_path):
             raise IOError("{} does not exist".format(raster_path))        
@@ -64,11 +73,7 @@ def predict_tiles(model, records, rgb_paths, patch_size=400, batch_size=1, score
         
         #Project to utm
         projected_boxes = project(raster_path, boxes)
-        
-        #Shapefile file path
-        raster_name = os.path.splitext(os.path.basename(raster_path))[0]
-        shp_path = os.path.join(save_dir,'{}.shp'.format(raster_name))
-        
+                
         #Write
         projected_boxes.to_file(shp_path, driver='ESRI Shapefile')   
         print("{} written".format(shp_path))
