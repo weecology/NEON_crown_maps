@@ -28,10 +28,14 @@ def test_load_predictions(client):
     daskdf = figures.load_predictions("data/")
     assert len(daskdf.Site.unique().compute()) == 1
     
-def test_averages(client,daskdf):
-    results = figures.averages(daskdf)
+def test_site_averages(client,daskdf):
+    results = figures.site_averages(daskdf)
     assert results.shape == (1,9)
-    
+ 
+def test_tile_averages(client,daskdf):
+ results = figures.tile_averages(daskdf)
+ assert results.shape == (2,9)
+ 
 def test_counts(client, daskdf):
   ntiles = daskdf.groupby(["Site","geo_index","Year"]).size().compute()
   assert not ntiles.empty

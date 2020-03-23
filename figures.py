@@ -42,6 +42,8 @@ def tile_averages(daskdf):
     average_height_area = daskdf.groupby(['geo_index']).agg(sumstats).compute().reset_index()
     average_height_area.columns = average_height_area.columns.map('_'.join)
     average_height_area = average_height_area.rename(columns={"Site_":"Site"})
+    average_height_area = average_height_area.rename(columns={"geo_index_":"geo_index"})
+    
     average_height_area = average_height_area.reset_index()
     
     #Number of trees
