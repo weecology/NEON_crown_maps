@@ -125,7 +125,7 @@ if __name__ == "__main__":
     
     #Create dask clusters
     cpu_client = start(cpus = 40, mem_size ="11GB")
-    gpu_client = start(gpus=11,mem_size ="15GB")
+    gpu_client = start(gpus=13,mem_size ="15GB")
  
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
