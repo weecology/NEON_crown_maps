@@ -132,9 +132,9 @@ def tree_falls(geo_index, shps, CHMs,savedir="."):
     draped_2019 = rasterstats.zonal_stats(no_matches, CHM, stats="mean")
     no_matches["2019_height"]  = [x["mean"] for x in draped_2019]
     
-    #Keep predictions whose mean height dropped by more than 30%
+    #Keep predictions whose mean height dropped by more than 50%
     no_matches["height_frac"] =  (no_matches["2019_height"] - no_matches["height"]) / no_matches["height"]
-    fall_df = no_matches[no_matches["height_frac"] < -0.3]
+    fall_df = no_matches[no_matches["height_frac"] < -0.5]
     
     #Keep predictions whose original height was greater than 5m
     fall_df = fall_df[fall_df.height > 6]

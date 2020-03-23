@@ -47,5 +47,11 @@ treedf %>% inner_join(df[,c("Site","n")]) %>% ggplot(.,aes(x=n,y=mean,ymin=lower
 ggsave("TreeFalls.png",height=4,width=6)
 ```
 
+```{r}
+treedf %>% inner_join(df[,c("Site","n")]) %>% ggplot(.,aes(x=n,y=mean,ymin=lower,ymax=upper)) + geom_pointrange(alpha=0.7) + geom_text(aes(label=Site),vjust=-1,hjust=0,size=2) + labs(x="Trees per 1km^2",y="Tree Falls per 1km^2")
+ggsave("TreeFallRate.png",height=4,width=6)
+```
+
+
 
 
