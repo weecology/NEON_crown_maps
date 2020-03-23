@@ -36,7 +36,23 @@ def load_predictions(path):
     daskdf = daskdf.persist()
     return daskdf
 
-def averages(daskdf):
+def tile_averages(daskdf):    
+    #Heights and Areas
+    sumstats = {"height":["mean","std"], "area":["mean","std"]}    
+    average_height_area = daskdf.groupby(['geo_index']).agg(sumstats).compute().reset_index()
+    average_height_area.columns = average_height_area.columns.map('_'.join)
+    average_height_area = average_height_area.rename(columns={"Site_":"Site"})
+    average_height_area = average_height_area.reset_index()
+    
+    #Number of trees
+    ntrees = daskdf.groupby(["Site","geo_index","Year"]).size().compute().reset_index()
+        
+    #Combine 
+    results = average_height_area.merge(ntrees)
+    
+    return results
+
+def site_averages(daskdf):
     #Heights and Areas
     sumstats = {"height":["mean","count","std"], "area":["mean","count","std"]}    
     average_height_area = daskdf.groupby(['Site']).agg(sumstats).compute().reset_index()
@@ -86,6 +102,9 @@ if __name__ == "__main__":
     print("There are {} tree predictions from {} sites".format(total_trees, total_sites))
     results = averages(daskdf)
     results.to_csv("Figures/averages.csv")
+    
+    tile_results = tile_averages(daskdf)
+    tile_results.to_csv("Figures/tile_averages")
     
     #Count totals
     ntiles = daskdf.groupby(["Site","geo_index","Year"]).size().compute()
