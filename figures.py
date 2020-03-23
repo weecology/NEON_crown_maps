@@ -59,7 +59,7 @@ def site_averages(daskdf):
     average_height_area.columns = average_height_area.columns.map('_'.join)
     average_height_area = average_height_area.rename(columns={"Site_":"Site"})
     average_height_area = average_height_area.reset_index()
-    
+        
     #Number of trees
     average_density = daskdf.groupby(["Site","geo_index","Year"]).count().groupby("Site").left.mean().compute().reset_index()
     average_density = average_density.rename(columns = {"left":"n"})
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     total_sites = daskdf.Site.nunique().compute()
     
     print("There are {} tree predictions from {} sites".format(total_trees, total_sites))
-    results = averages(daskdf)
+    results = site_averages(daskdf)
     results.to_csv("Figures/averages.csv")
     
     tile_results = tile_averages(daskdf)
