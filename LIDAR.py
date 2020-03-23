@@ -70,7 +70,7 @@ def non_zero_99_quantile(x):
     """Get height quantile of all cells that are no zero"""
     x = x[~np.isnan(x)]
     veg_points = x[x>0.5]
-    return(np.nanpercentile(veg_points, 0.99))
+    return(np.percentile(veg_points, 0.99))
     
 def postprocess_CHM(shapefile, CHM, min_height):
     
