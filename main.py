@@ -77,7 +77,9 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     #Find corresponding CHM records
     futures = [ ]
     for path in rgb_list_verified:
+        print(path)
         lidar_path = lookup_CHM_path(path, lidar_pool)
+        print(lidar_path)
         future = client.submit(verify.check_CHM, lidar_path)
         futures.append(future)
     
@@ -194,10 +196,16 @@ if __name__ == "__main__":
     for future in as_completed(predictions):
         try:
             result = future.result()
+            
+            #Look up corresponding CHM path
             CHM_path = lookup_CHM_path(result, lidar_list)
+            
             if not CHM_path:
                 raise IOError("Image file: {} has no matching CHM".format(result))
+            
+            #Submit draping future
             postprocessed_filename = cpu_client.submit(run_lidar, result, CHM_path=CHM_path, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+            
             print("Postprocessing submitted: {}".format(result))                           
             draped_files.append(postprocessed_filename)            
         except Exception as e:
