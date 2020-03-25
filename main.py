@@ -204,8 +204,7 @@ if __name__ == "__main__":
         try:
             result = future.result()
             
-            if not result:
-                raise IOError("No prediction from future: {}".format(future))
+            print(result)
             
             #Look up corresponding CHM path
             CHM_path = lookup_CHM_path(result, lidar_list)
