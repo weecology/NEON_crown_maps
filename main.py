@@ -208,9 +208,7 @@ if __name__ == "__main__":
     for future in as_completed(predictions):
         try:
             result = future.result()
-            
-            print(result)
-            
+                       
             #Look up corresponding CHM path
             CHM_path = lookup_CHM_path(result, lidar_list)
             
