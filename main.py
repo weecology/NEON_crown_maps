@@ -144,8 +144,8 @@ def run_lidar(shp, CHM_path, min_height=3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 5, mem_size ="10GB")
-    gpu_client = start(gpus=1,mem_size ="13GB")
+    cpu_client = start(cpus = 40, mem_size ="10GB")
+    gpu_client = start(gpus=13,mem_size ="13GB")
  
     #Overwrite existing file?
     overwrite=True
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     generated_records = generate_tfrecord(tile_list=rgb_list,
                                           lidar_pool=lidar_list,
                                           client=cpu_client,
-                                          n=10,
+                                          n=None,
                                           target_list = target_list,
                                           site_list=site_list,
                                           year_list=year_list,
