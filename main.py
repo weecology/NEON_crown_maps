@@ -60,9 +60,10 @@ def find_files(tile_list, site_list = None, target_list=None, year_list=None):
         
     return tile_list
 
-def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, target_list=None, overwrite=True):
+def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year_list=None, target_list=None, overwrite=True):
     """Create tfrecords
     tile_list: list of rgb tiles to generate tfrecord
+    lidar_pool: a list of CHM files to search for corresponding record
     client: dask client
     year: year filter
     n: number of tiles to limit for testing
@@ -88,7 +89,7 @@ def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, 
     #Find Corresponding CHM records
     futures = [ ]
     for path in rgb_list_verified:
-        lidar_path = lookup_CHM_path(path, lidar_list)
+        lidar_path = lookup_CHM_path(path, lidar_pool)
         future = client.submit(verify.check_CHM, lidar_path)
         futures.append(future)
     
@@ -174,7 +175,14 @@ if __name__ == "__main__":
     target_list = None
     site_list = ["OSBS","DELA","BART","TEAK","BONA","SOAP","WREF"]
     year_list = ["2019","2018"]
-    generated_records = generate_tfrecord(rgb_list, cpu_client, n=10, target_list = target_list, site_list=site_list, year_list=year_list,overwrite=overwrite)
+    generated_records = generate_tfrecord(rgb_list=rgb_list,
+                                          lidar_pool=lidar_list,
+                                          client=cpu_client,
+                                          n=10,
+                                          target_list = target_list,
+                                          site_list=site_list,
+                                          year_list=year_list,
+                                          overwrite=overwrite)
     
     predictions = []    
     
