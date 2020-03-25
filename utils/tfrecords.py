@@ -50,14 +50,6 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir=".",
     numpy_image = np.array(raster)
     image_name = os.path.splitext(os.path.basename(tile_path))[0]
     
-    #Test if a large portion of the image is black
-    is_black =np.sum(np.all(numpy_image == [0,0,0], axis=-1))/numpy_image.size
-    
-    #If more than 10% black, remove edge tile
-    if is_black > 0.10:
-        print("{} is an edge tile, {number:.{digits}f}% black pixels".format(tile_path,number=is_black*100,digits=1))
-        return None
-    
     #Create window crop index
     windows = preprocess.compute_windows(numpy_image, patch_size, patch_overlap)
     written_files = []

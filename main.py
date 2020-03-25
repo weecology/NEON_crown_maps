@@ -7,6 +7,7 @@ from distributed import wait, as_completed
 import numpy as np
 import random
 import LIDAR
+from utils import verify
 import time
 
 def lookup_CHM_path(shp_path, lidar_list):
@@ -78,9 +79,27 @@ def generate_tfrecord(tile_list, client, n=None,site_list=None, year_list=None, 
         random.shuffle(tile_list)
         tile_list = tile_list[:n]
     
-    print("Running {} tiles: \n {} ...".format(len(tile_list),tile_list[:10]))    
     
-    written_records = client.map(tfrecords.create_tfrecords, tile_list, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/",overwrite=overwrite)
+    #Verify RGB records
+    RGB_verification = client.map(verify.check_RGB, tile_list)
+    rgb_list_verified = [x.result() for x in RGB_verification]
+    rgb_list_verified = [i for i in rgb_list_verified if i] 
+    
+    #Find Corresponding CHM records
+    futures = [ ]
+    for path in rgb_list_verified:
+        lidar_path = lookup_CHM_path(path, lidar_list)
+        future = client.submit(verify.check_CHM, lidar_path)
+        futures.append(future)
+    
+    chm_verfied = client.gather(futures)
+    
+    #Filter out RGB tiles that have no CHM    
+    rgb_list_verified = [rgb_list_verified[index] for index, x in enumerate(chm_verfied) if not x==None]
+    
+    print("Running {} verified tiles: \n {} ...".format(len(rgb_list_verified),rgb_list_verified[:10]))    
+    
+    written_records = client.map(tfrecords.create_tfrecords, rgb_list_verified, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/",overwrite=overwrite)
     
     return written_records
 
@@ -124,16 +143,16 @@ def run_lidar(shp, CHM_path, min_height=3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 40, mem_size ="10GB")
-    gpu_client = start(gpus=13,mem_size ="13GB")
+    cpu_client = start(cpus = 5, mem_size ="10GB")
+    gpu_client = start(gpus=1,mem_size ="13GB")
  
     #Overwrite existing file?
-    overwrite=False
+    overwrite=True
     
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
     lidar_list = glob.glob("/orange/ewhite/NeonData/**/CanopyHeightModelGtif/*.tif",recursive=True)
-    
+
     #Create tfrecords, either specify a set of tiles or sample random
     
     #target_list =[
@@ -155,7 +174,7 @@ if __name__ == "__main__":
     target_list = None
     site_list = ["OSBS","DELA","BART","TEAK","BONA","SOAP","WREF"]
     year_list = ["2019","2018"]
-    generated_records = generate_tfrecord(rgb_list, cpu_client, n=None, target_list = target_list, site_list=site_list, year_list=year_list,overwrite=overwrite)
+    generated_records = generate_tfrecord(rgb_list, cpu_client, n=10, target_list = target_list, site_list=site_list, year_list=year_list,overwrite=overwrite)
     
     predictions = []    
     
@@ -189,5 +208,5 @@ if __name__ == "__main__":
     wait(draped_files)
     
     #Give the scheduler some time to cleanup
-    time.sleep(10)
+    time.sleep(3)
 

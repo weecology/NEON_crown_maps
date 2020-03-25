@@ -106,7 +106,7 @@ if __name__ == "__main__":
     results.to_csv("Figures/averages.csv")
     
     tile_results = tile_averages(daskdf)
-    tile_results.to_csv("Figures/tile_averages")
+    tile_results.to_csv("Figures/tile_averages.csv")
     
     #Count totals
     ntiles = daskdf.groupby(["Site","geo_index","Year"]).size().compute()

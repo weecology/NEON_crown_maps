@@ -11,7 +11,7 @@ editor_options:
 library(raster)
 library(dplyr)
 library(ggplot2)
-
+library(scales)
 library(tidyr)
 library(stringr)
 ```
@@ -23,35 +23,41 @@ colnames(counts)<-c("Site","geo_index","Year","n")
 ```
 
 ```{r}
-ggplot(df,aes(x=height,y=area,size=n)) + geom_point(alpha=0.5) + labs(x="Crown Height (m)",y="Crown Area (m^2)",size="Trees/km^2") + geom_text(aes(label=Site),size=3,hjust=0.25,vjust=-0.5) + theme_bw()
-ggsave("Attributes.png",height=5,width=8)
-ggsave("Attributes.svg", height=5,width=8)
+ggplot(df,aes(x=height_mean,y=area_mean,size=n)) + geom_point(alpha=0.5) + labs(x="Crown Height (m)",y="Crown Area (m^2)",size="Trees/km^2") + geom_text(aes(label=Site),size=2,hjust=0.5,vjust=-0.5) + theme_bw()
+ggsave("Attributes.png",height=4,width=7)
+ggsave("Attributes.svg", height=4,width=7)
 ```
 
 ## Counts through time
 
 ```{r}
-counts %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point(aes(col=Site),alpha=0.5) + geom_abline(linetype="dashed") + coord_equal()
-```
-
-```{r}
-counts %>% group_by(Site,Year) %>% summarize(n=sum(n)) %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point() + geom_abline(linetype="dashed") + coord_equal() + geom_text(aes(label=Site))
+counts %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point(aes(col=Site),alpha=0.5) + geom_abline(linetype="dashed") + coord_equal() + stat_smooth(method="lm")
 ```
 
 #Tree Falls
 ```{r}
 treedf<-read.csv("treefall.csv",row.names= 1)
 ggplot(treedf,aes(x=Site,y=mean,ymin=lower,ymax=upper)) + geom_pointrange(size=1) + theme_bw() + labs(y="Tree Falls per 1km^2")
-
-treedf %>% inner_join(df[,c("Site","n")]) %>% ggplot(.,aes(x=n,y=mean,ymin=lower,ymax=upper)) + geom_pointrange() + geom_text(aes(label=Site),vjust=0.25,hjust=-0.25) + labs(x="Trees per 1km^2",y="Tree Falls per 1km^2")
 ggsave("TreeFalls.png",height=4,width=6)
+
+treedf %>% inner_join(df[,c("Site","n")]) %>% ggplot(.,aes(x=n,y=mean,ymin=lower,ymax=upper)) + geom_pointrange() + geom_text(aes(label=Site),vjust=0.25,hjust=-0.25,size=2) + labs(x="Trees per 1km^2",y="Tree Falls per 1km^2") + scale_x_continuous(label=comma)
+ggsave("TreeFallsRate.png",height=4,width=6)
 ```
 
 ```{r}
-treedf %>% inner_join(df[,c("Site","n")]) %>% ggplot(.,aes(x=n,y=mean,ymin=lower,ymax=upper)) + geom_pointrange(alpha=0.7) + geom_text(aes(label=Site),vjust=-1,hjust=0,size=2) + labs(x="Trees per 1km^2",y="Tree Falls per 1km^2")
-ggsave("TreeFallRate.png",height=4,width=6)
+treedf %>% inner_join(df[,c("Site","n")]) %>% ggplot(.,aes(x=n,y=mean/n,ymin=lower/n,ymax=upper/n)) + geom_pointrange() + geom_text(aes(label=Site),vjust=0.25,hjust=-0.25,size=2) + labs(x="Trees per 1km^2",y="Tree Fall Rate per 1km^2") + scale_x_continuous(label=comma) + scale_y_continuous(labels = percent)
+ggsave("TreeFallsRate_km.png",height=4,width=6)
 ```
 
 
+```{r}
+df<-read.csv("tile_averages.csv",row.names = 1)
+colnames(df)[colnames(df) %in% "X0"]<-"count"
 
+ggplot(df,aes(x=height_mean)) + geom_density(fill="black") + facet_wrap(~Site) + theme_bw() + labs(x="Mean Height in each 1km^2")
+```
+
+```{r}
+ggplot(df,aes(x=count/1000)) + geom_density(fill="black") + facet_wrap(~Site,scales="free") + theme_bw() + labs(x="Tree Count in each 1km^2 (1000's)") 
+```
 
