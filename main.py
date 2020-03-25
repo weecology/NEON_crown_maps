@@ -18,6 +18,10 @@ def lookup_CHM_path(path, lidar_list):
     geo_index = re.search("(\d+_\d+)_image",path).group(1)
     CHM_path = [ lidar_list[index] for index, x in enumerate(lidar_name) if geo_index in x]
     
+    #Match years        
+    year = re.search("DP3.30010.001/(\d+\\/FullSite)",path).group(1)
+    CHM_path = [x for x in CHM_path if year in x]
+    
     return CHM_path
 
 def lookup_rgb_path(tfrecord,rgb_list):
