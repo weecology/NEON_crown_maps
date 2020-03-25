@@ -15,6 +15,7 @@ def check_RGB(tile_path):
         return None
     
     #Test if a large portion of the image is black
+    numpy_image = np.array(raster)    
     is_black =np.sum(np.all(numpy_image == [0,0,0], axis=-1))/numpy_image.size
     
     #If more than 3% black, remove edge tile
