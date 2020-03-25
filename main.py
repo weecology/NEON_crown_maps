@@ -22,7 +22,10 @@ def lookup_CHM_path(path, lidar_list):
     year = re.search("DP3.30010.001/(\d+\\/FullSite)",path).group(1)
     CHM_path = [x for x in CHM_path if year in x]
     
-    return CHM_path
+    if len(CHM_path) > 1:
+        raise ValueError("CHM path has length > 1: {}".format(CHM_path))
+    
+    return CHM_path[0]
 
 def lookup_rgb_path(tfrecord,rgb_list):
     #match rgb list to tfrecords
