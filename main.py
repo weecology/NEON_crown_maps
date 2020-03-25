@@ -10,26 +10,20 @@ import LIDAR
 from utils import verify
 import time
 
-def lookup_CHM_path(shp_path, lidar_list):
-    """Find CHM file based on the shp filename"""
+def lookup_CHM_path(path, lidar_list):
+    """Find CHM file based on the image filename"""
     
-    #Get geoindex from shapefile and match it to inventory of CHM rifles
+    #Get geoindex from path and match it to inventory of CHM rifles
     lidar_name = [os.path.splitext(os.path.basename(x))[0] for x in lidar_list]
-    geo_index = re.search("(\d+_\d+)_image",shp_path).group(1)
-    index = np.where([geo_index in x for x in lidar_name])
+    geo_index = re.search("(\d+_\d+)_image",path).group(1)
+    CHM_path = [ lidar_list[index] for index, x in enumerate(lidar_name) if geo_index in x]
     
-    if len(index) == 0:
-        raise ValueError("SHP file {} has no CHM matching file".format(shp_path))
-    if len(index) > 1:
-        raise ValueError("SHP file {} matches more than one .tif CHM file".format(shp_path))
-    else:
-        #Tuple to numeric
-        index = list(index)[0][0]
-        
-    # lookup Lidar CHM path
-    CHM_path = lidar_list[index]
-    
-    return CHM_path
+    if not index:
+        raise ValueError("File {} has no CHM matching file".format(path))
+    elif len(index) > 1:
+        raise ValueError("File {} matches more than one .tif CHM file".format(path))
+    else:    
+        return CHM_path
 
 def lookup_rgb_path(tfrecord,rgb_list):
     #match rgb list to tfrecords
@@ -80,13 +74,12 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
         random.shuffle(tile_list)
         tile_list = tile_list[:n]
     
-    
     #Verify RGB records
     RGB_verification = client.map(verify.check_RGB, tile_list)
     rgb_list_verified = [x.result() for x in RGB_verification]
     rgb_list_verified = [i for i in rgb_list_verified if i] 
     
-    #Find Corresponding CHM records
+    #Find corresponding CHM records
     futures = [ ]
     for path in rgb_list_verified:
         lidar_path = lookup_CHM_path(path, lidar_pool)
@@ -207,6 +200,8 @@ if __name__ == "__main__":
         try:
             result = future.result()
             CHM_path = lookup_CHM_path(result, lidar_list)
+            if not CHM_path:
+                raise IOError("Image file: {} has no matching CHM".format(result))
             postprocessed_filename = cpu_client.submit(run_lidar, result, CHM_path=CHM_path, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
             print("Postprocessing submitted: {}".format(result))                           
             draped_files.append(postprocessed_filename)            
