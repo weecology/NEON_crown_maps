@@ -141,8 +141,8 @@ def run_lidar(shp, CHM_path, min_height=3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 50, mem_size ="10GB")
-    gpu_client = start(gpus=11,mem_size ="12GB")
+    cpu_client = start(cpus = 10, mem_size ="10GB")
+    gpu_client = start(gpus=4,mem_size ="11GB")
  
     #Overwrite existing file?
     overwrite=True
@@ -175,7 +175,7 @@ if __name__ == "__main__":
     generated_records = generate_tfrecord(tile_list=rgb_list,
                                           lidar_pool=lidar_list,
                                           client=cpu_client,
-                                          n=None,
+                                          n=10,
                                           target_list = target_list,
                                           site_list=site_list,
                                           year_list=year_list,
@@ -195,7 +195,7 @@ if __name__ == "__main__":
                 
         #Predict record
         gpu_result = gpu_client.submit(run_rgb, result, rgb_path,overwrite=overwrite)
-        print("Completed prediction for tfrecord {}, future index is {}".format(result, gpu_result))        
+        print("Submitted prediction for tfrecord {}, future is {}".format(result, gpu_result))        
         predictions.append(gpu_result)
             
     ###As predictions complete, run postprocess to drape LiDAR and extract height
@@ -203,6 +203,9 @@ if __name__ == "__main__":
     for future in as_completed(predictions):
         try:
             result = future.result()
+            
+            if not result:
+                raise IOError("No prediction from future: {}".format(future))
             
             #Look up corresponding CHM path
             CHM_path = lookup_CHM_path(result, lidar_list)
