@@ -10,7 +10,7 @@ import LIDAR
 from utils import verify
 import time
 
-def lookup_CHM_path(path, lidar_list):
+def lookup_CHM_path(path, lidar_list, shp=True):
     """Find CHM file based on the image filename"""
     
     #Get geoindex from path and match it to inventory of CHM rifles
@@ -20,8 +20,12 @@ def lookup_CHM_path(path, lidar_list):
     
     #If there are records, check that there is the correct year
     if CHM_path:
-        #Match years        
-        year = re.search("DP3.30010.001/(\d+\\/FullSite)",path).group(1)
+        #Match years 
+        if shp:
+            basename = os.path.basename(path)
+            year = re.search("^(\d+)_",basename).group(1)
+        else:
+            year = re.search("/(\d+\\/FullSite)",path).group(1)
         CHM_path = [x for x in CHM_path if year in x]
         
         #Sanity check for length 1
@@ -89,9 +93,8 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     #Find corresponding CHM records
     futures = [ ]
     for path in rgb_list_verified:
-        print(path)
-        lidar_path = lookup_CHM_path(path, lidar_pool)
-        print(lidar_path)
+        #Lookup path from image
+        lidar_path = lookup_CHM_path(path, lidar_pool, shp=False)
         future = client.submit(verify.check_CHM, lidar_path)
         futures.append(future)
     
@@ -147,7 +150,7 @@ if __name__ == "__main__":
     
     #Create dask clusters
     cpu_client = start(cpus = 10, mem_size ="10GB")
-    gpu_client = start(gpus=4,mem_size ="11GB")
+    gpu_client = start(gpus=5,mem_size ="11GB")
  
     #Overwrite existing file?
     overwrite=True
@@ -210,7 +213,7 @@ if __name__ == "__main__":
             result = future.result()
                        
             #Look up corresponding CHM path
-            CHM_path = lookup_CHM_path(result, lidar_list)
+            CHM_path = lookup_CHM_path(result, lidar_list,shp=True)
             
             if not CHM_path:
                 raise IOError("Image file: {} has no matching CHM".format(result))
