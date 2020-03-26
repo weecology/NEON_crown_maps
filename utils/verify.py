@@ -42,3 +42,12 @@ def check_CHM(tile_path):
     else:
         return True
 
+def get_year(path):
+    basename = os.path.basename(path)
+    year = re.search("^(\d+)_",basename).group(1)
+    return year
+
+def get_site(path):
+    basename = os.path.basename(path)                
+    site = re.search("^\d+_(\w+)_\d_",basename).group(1)
+    return site

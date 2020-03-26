@@ -1,14 +1,15 @@
 import glob
+import time
 import os
 import re
 import gc
-from start_cluster import start
-from distributed import wait, as_completed
 import numpy as np
 import random
+from distributed import wait, as_completed
+import pandas as pd
+from start_cluster import start
 import LIDAR
 from utils import verify
-import time
 
 def lookup_CHM_path(path, lidar_list, shp=True):
     """Find CHM file based on the image filename
@@ -100,13 +101,13 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
         try:
             lidar_path = lookup_CHM_path(x, lidar_pool, shp=False)
             if lidar_path:  
-                chm_path = client.submit(verify.check_CHM,lidar_path)
+                check = client.submit(verify.check_CHM,lidar_path)
             else:
                 print("{} has no matching CHM".format(x))
-                chm_path = None
-            CHM_verification.append(x)
+                check = False
+            CHM_verification.append(check)
         except Exception as e:                
-            print("Path CHM {} lookup failed with {}".format(x,e))
+            print("Path CHM {} lookup failed with {}".format(check,e))
     
     CHM_verified = client.gather(CHM_verification)
     print("There are {} verified CHM tiles before checking matches".format(len(CHM_verified)))
@@ -116,8 +117,8 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     
     df = pd.DataFrame({"path":final_rgb_list})
     
-    df["year"] = df.path.apply(lambda x: get_year(x))
-    df["site"] = df.path.apply(lambda x: get_site(x))
+    df["year"] = df.path.apply(lambda x: verify.get_year(x))
+    df["site"] = df.path.apply(lambda x: verify.get_site(x))
     site_totals = df.groupby(["site","year"]).size()
     print(site_totals)
 
@@ -167,7 +168,7 @@ if __name__ == "__main__":
     #Create dask clusters
     #Start GPU Client
     cpu_client = start(cpus = 80, mem_size ="7GB")
-    gpu_client = start(gpus=13,mem_size ="12GB")    
+    gpu_client = start(gpus=10,mem_size ="12GB")    
  
     #Overwrite existing file?
     overwrite=True
@@ -200,7 +201,7 @@ if __name__ == "__main__":
     generated_records = generate_tfrecord(tile_list=rgb_list,
                                           lidar_pool=lidar_list,
                                           client=cpu_client,
-                                          n=None,
+                                          n=10,
                                           target_list = target_list,
                                           site_list=site_list,
                                           year_list=year_list,
