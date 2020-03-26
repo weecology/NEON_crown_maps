@@ -99,7 +99,10 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     for x in rgb_verified:
         try:
             lidar_path = lookup_CHM_path(x, lidar_pool, shp=False)
-            chm_path = client.submit(verify.check_CHM,lidar_path)
+            if lidar_path:
+                chm_path = client.submit(verify.check_CHM,lidar_path)
+            else:
+                chm_path = None
             CHM_verification.append(chm_path)
         except Exception as e:                
             print("Path CHM {} lookup failed with {}".format(x,e))
