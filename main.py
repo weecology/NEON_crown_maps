@@ -109,6 +109,8 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     
     #Gather checks and filter out bad tiles
     chm_verfied = client.gather(futures)
+    wait(RGB_verification)
+    rgb_list_verified = [x.result() for x in RGB_verification]
     
     #Filter out RGB tiles that have no CHM    
     rgb_list_verified = [rgb_list_verified[index] for index, x in enumerate(chm_verfied) if not x==None]
