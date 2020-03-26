@@ -1,5 +1,6 @@
 #Check tile utility functions. Remove poor quality tiles from pool
 from PIL import Image
+import os
 import rasterio
 import numpy as np
 
