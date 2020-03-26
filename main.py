@@ -33,7 +33,7 @@ def lookup_CHM_path(path, lidar_list, shp=True):
         
         #Sanity check for length 1
         if len(CHM_path) is not 1:
-            raise ValueError("CHM path has invalid length : {}".format(CHM_path))
+            raise ValueError("{} CHM path has invalid match length : {}".format(path, CHM_path))
         
         return CHM_path[0]
     else:
@@ -90,17 +90,26 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     
     #Verify RGB records
     RGB_verification = client.map(verify.check_RGB, tile_list)
-    rgb_list_verified = [x.result() for x in RGB_verification]
-    rgb_list_verified = [i for i in rgb_list_verified if i] 
-    
+
     #Find corresponding CHM records
     futures = [ ]
-    for path in rgb_list_verified:
-        #Lookup path from image
-        lidar_path = lookup_CHM_path(path, lidar_pool, shp=False)
+    for x in as_completed(RGB_verification):
+        #Lookup path from image if it exists
+        try:
+            path = x.result()
+            if path:
+                lidar_path = lookup_CHM_path(path, lidar_pool, shp=False)
+            else:
+                continue
+        except Exception as e:
+            print("Path CHM {} lookup failed with {}".format(path,e))
+            continue
+        
+        #If there is a matching CHM submit check
         future = client.submit(verify.check_CHM, lidar_path)
         futures.append(future)
     
+    #Gather checks and filter out bad tiles
     chm_verfied = client.gather(futures)
     
     #Filter out RGB tiles that have no CHM    
