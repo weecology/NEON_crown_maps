@@ -79,7 +79,7 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
             extra=['--resources gpu=1'],     
             dashboard_address=":8787",            
             local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)    
-        cluster.scale(gpus)
+        cluster.adapt(maximum_jobs=gpus)
         
 
     dask_client = Client(cluster)
