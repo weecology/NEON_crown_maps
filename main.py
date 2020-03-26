@@ -186,7 +186,7 @@ if __name__ == "__main__":
     generated_records = generate_tfrecord(tile_list=rgb_list,
                                           lidar_pool=lidar_list,
                                           client=cpu_client,
-                                          n=10,
+                                          n=None,
                                           target_list = target_list,
                                           site_list=site_list,
                                           year_list=year_list,
