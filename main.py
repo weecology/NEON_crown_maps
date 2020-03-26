@@ -14,11 +14,10 @@ def lookup_CHM_path(path, lidar_list, shp=True):
     """Find CHM file based on the image filename
     shp: Whether the input path is a shapefile (True)
     """
-    
-    #Get geoindex from path and match it to inventory of CHM rifles
+    #Get geoindex from path and match it to inventory of CHM tiles
     lidar_name = [os.path.splitext(os.path.basename(x))[0] for x in lidar_list]
     geo_index = re.search("(\d+_\d+)_image",path).group(1)
-    CHM_path = [ lidar_list[index] for index, x in enumerate(lidar_name) if geo_index in x]
+    CHM_path = [lidar_list[index] for index, x in enumerate(lidar_name) if geo_index in x]
     
     #If there are records, check that there is the correct year
     if CHM_path:
@@ -34,10 +33,9 @@ def lookup_CHM_path(path, lidar_list, shp=True):
         #Sanity check for length 1
         if len(CHM_path) is not 1:
             raise ValueError("{} CHM path has invalid match length : {}".format(path, CHM_path))
-        
         return CHM_path[0]
     else:
-        return None
+        raise ValueError("{} CHM path has no matches in tile pool".format(path))
 
 def lookup_rgb_path(tfrecord,rgb_list):
     #match rgb list to tfrecords
@@ -161,8 +159,8 @@ def run_lidar(shp, CHM_path, min_height=3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 50, mem_size ="10GB")
-    gpu_client = start(gpus=12,mem_size ="11GB")
+    cpu_client = start(cpus = 10, mem_size ="9GB")
+    gpu_client = start(gpus=3,mem_size ="10GB")
  
     #Overwrite existing file?
     overwrite=True
@@ -195,7 +193,7 @@ if __name__ == "__main__":
     generated_records = generate_tfrecord(tile_list=rgb_list,
                                           lidar_pool=lidar_list,
                                           client=cpu_client,
-                                          n=None,
+                                          n=3,
                                           target_list = target_list,
                                           site_list=site_list,
                                           year_list=year_list,
