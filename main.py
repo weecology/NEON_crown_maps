@@ -32,10 +32,10 @@ def lookup_CHM_path(path, lidar_list, shp=True):
         
         #Sanity check for length 1
         if len(CHM_path) is not 1:
-            raise ValueError("{} CHM path has invalid match length : {}".format(path, CHM_path))
+            return None
         return CHM_path[0]
     else:
-        raise ValueError("{} CHM path has no matches in tile pool".format(path))
+        return None
 
 def lookup_rgb_path(tfrecord,rgb_list):
     #match rgb list to tfrecords
@@ -86,38 +86,30 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
         random.shuffle(tile_list)
         tile_list = tile_list[:n]
     
-    #Verify RGB records
+    #Check RGB for black tiles
     RGB_verification = client.map(verify.check_RGB, tile_list)
-
-    #Find corresponding CHM records
-    futures = [ ]
-    for x in as_completed(RGB_verification):
-        #Lookup path from image if it exists
+    rgb_verified = [x.result() for x in RGB_verification]
+    
+    #Remove missing tiles
+    rgb_verified  = [x for x in rgb_verified if x]
+    print("There are {} verified RGB tiles before checking LiDAR".format(len(rgb_verified)))
+    
+    #Check corresponding CHMs
+    CHM_verified = [ ]
+    for x in rgb_verified:
         try:
-            path = x.result()
-            if path:
-                lidar_path = lookup_CHM_path(path, lidar_pool, shp=False)
-            else:
-                continue
-        except Exception as e:
+            lidar_path = lookup_CHM_path(path, lidar_pool, shp=False)
+            CHM_verified.append(lidar_path)
+        except Exception as e:                
             print("Path CHM {} lookup failed with {}".format(path,e))
-            continue
-        
-        #If there is a matching CHM submit check
-        future = client.submit(verify.check_CHM, lidar_path)
-        futures.append(future)
     
-    #Gather checks and filter out bad tiles
-    chm_verfied = client.gather(futures)
-    wait(RGB_verification)
-    rgb_list_verified = [x.result() for x in RGB_verification]
+    print("There are {} verified CHM tiles before checking matches".format(len(CHM_verified)))
     
-    #Filter out RGB tiles that have no CHM    
-    rgb_list_verified = [rgb_list_verified[index] for index, x in enumerate(chm_verfied) if not x==None]
+    final_rgb_list = [rgb_verified[index] for index, x in enumerate(CHM_verified) if not x==None]
     
-    print("Running {} verified tiles: \n {} ...".format(len(rgb_list_verified),rgb_list_verified[:10]))    
+    print("There are {} RGB tiles with matching verified CHMs".format(len(final_rgb_list)))
     
-    written_records = client.map(tfrecords.create_tfrecords, rgb_list_verified, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/",overwrite=overwrite)
+    written_records = client.map(tfrecords.create_tfrecords, final_rgb_list, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/",overwrite=overwrite)
     
     return written_records
 
@@ -161,8 +153,8 @@ def run_lidar(shp, CHM_path, min_height=3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 50, mem_size ="9GB")
-    gpu_client = start(gpus=13,mem_size ="10GB")
+    cpu_client = start(cpus = 50, mem_size ="10GB")
+    gpu_client = start(gpus=13,mem_size ="12GB")
  
     #Overwrite existing file?
     overwrite=True
