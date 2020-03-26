@@ -28,12 +28,14 @@ def lookup_CHM_path(path, lidar_list, shp=True):
             year = re.search("^(\d+)_",basename).group(1)
         else:
             year = re.search("/(\d+\\/FullSite)",path).group(1)
+        
         CHM_path = [x for x in CHM_path if year in x]
         
         #Sanity check for length 1
         if len(CHM_path) > 1:
             raise ValueError("CHM path has length > 1: {}".format(CHM_path))
-    
+        
+        print(CHM_path)
         return CHM_path[0]
     else:
         return None
@@ -151,8 +153,8 @@ def run_lidar(shp, CHM_path, min_height=3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 40, mem_size ="10GB")
-    gpu_client = start(gpus=13,mem_size ="11GB")
+    cpu_client = start(cpus = 10, mem_size ="10GB")
+    gpu_client = start(gpus=4,mem_size ="11GB")
  
     #Overwrite existing file?
     overwrite=True
@@ -185,7 +187,7 @@ if __name__ == "__main__":
     generated_records = generate_tfrecord(tile_list=rgb_list,
                                           lidar_pool=lidar_list,
                                           client=cpu_client,
-                                          n=None,
+                                          n=10,
                                           target_list = target_list,
                                           site_list=site_list,
                                           year_list=year_list,
