@@ -32,10 +32,9 @@ def lookup_CHM_path(path, lidar_list, shp=True):
         CHM_path = [x for x in CHM_path if year in x]
         
         #Sanity check for length 1
-        if len(CHM_path) > 1:
-            raise ValueError("CHM path has length > 1: {}".format(CHM_path))
+        if len(CHM_path) is not 1:
+            raise ValueError("CHM path has invalid length : {}".format(CHM_path))
         
-        print(CHM_path)
         return CHM_path[0]
     else:
         return None
