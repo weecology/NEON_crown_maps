@@ -95,18 +95,19 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     print("There are {} verified RGB tiles before checking LiDAR".format(len(rgb_verified)))
     
     #Check corresponding CHMs
-    CHM_verified = [ ]
+    CHM_verification = [ ]
     for x in rgb_verified:
         try:
             lidar_path = lookup_CHM_path(x, lidar_pool, shp=False)
-            CHM_verified.append(lidar_path)
+            chm_path = client.submit(verify.check_CHM,lidar_path)
+            CHM_verification.append(chm_path)
         except Exception as e:                
             print("Path CHM {} lookup failed with {}".format(x,e))
     
+    CHM_verified = [x.result() for x in CHM_verification]
     print("There are {} verified CHM tiles before checking matches".format(len(CHM_verified)))
     
-    final_rgb_list = [rgb_verified[index] for index, x in enumerate(CHM_verified) if not x==None]
-    
+    final_rgb_list = [rgb_verified[index] for index, x in enumerate(CHM_verified) if not x is None]
     print("There are {} RGB tiles with matching verified CHMs".format(len(final_rgb_list)))
     
     written_records = client.map(tfrecords.create_tfrecords, final_rgb_list, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/",overwrite=overwrite)
@@ -153,7 +154,7 @@ def run_lidar(shp, CHM_path, min_height=3, save_dir=""):
 if __name__ == "__main__":
     
     #Create dask clusters
-    cpu_client = start(cpus = 50, mem_size ="10GB")
+    cpu_client = start(cpus = 70, mem_size ="9GB")
     gpu_client = start(gpus=13,mem_size ="12GB")
  
     #Overwrite existing file?
