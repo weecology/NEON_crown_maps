@@ -58,7 +58,7 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
             local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)
     
         print(cluster.job_script())
-        cluster.scale(cpus)
+        cluster.adapt(maximum_jobs=cpus)
         
     if gpus:
         #job args

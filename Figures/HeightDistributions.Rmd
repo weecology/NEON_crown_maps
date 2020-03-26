@@ -20,6 +20,8 @@ library(stringr)
 df<-read.csv("averages.csv",row.names =1)
 counts<-read.csv("counts.csv")
 colnames(counts)<-c("Site","geo_index","Year","n")
+
+counts %>% group_by(Site) %>% summarize(n=sum(n)) %>% summarize(total=sum(n))
 ```
 
 ```{r}

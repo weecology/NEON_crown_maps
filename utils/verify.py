@@ -3,6 +3,7 @@ from PIL import Image
 import rasterio
 import numpy as np
 
+
 #Tile checks for validity
 
 def check_RGB(tile_path):
@@ -36,8 +37,8 @@ def check_CHM(tile_path):
     
     proportion_nodata=np.sum(numpy_array==CHM.nodatavals)/numpy_array.size
     
-    if proportion_nodata + proportion_empty > 0.1:
-        return None
+    if proportion_nodata + proportion_empty > 0.2:
+        return False
     else:
-        return tile_path
+        return True
 

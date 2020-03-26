@@ -86,15 +86,15 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
         random.shuffle(tile_list)
         tile_list = tile_list[:n]
     
-    #Check RGB for black tiles
-    RGB_verification = client.map(verify.check_RGB, tile_list)
+    print("There are {} files found in dir".format(len(rgb)))
+    
+    RGB_verification = client.map(verify.check_RGB, rgb)
     rgb_verified = [x.result() for x in RGB_verification]
     
-    #Remove missing tiles
+    #Remove None
     rgb_verified  = [x for x in rgb_verified if x]
     print("There are {} verified RGB tiles before checking LiDAR".format(len(rgb_verified)))
     
-    #Check corresponding CHMs
     CHM_verification = [ ]
     for x in rgb_verified:
         try:
@@ -102,17 +102,25 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
             if lidar_path:  
                 chm_path = client.submit(verify.check_CHM,lidar_path)
             else:
+                print("{} has no matching CHM".format(x))
                 chm_path = None
-            CHM_verification.append(chm_path)
+            CHM_verification.append(x)
         except Exception as e:                
             print("Path CHM {} lookup failed with {}".format(x,e))
     
     CHM_verified = client.gather(CHM_verification)
     print("There are {} verified CHM tiles before checking matches".format(len(CHM_verified)))
     
-    final_rgb_list = [rgb_verified[index] for index, x in enumerate(CHM_verified) if not x is None]
+    final_rgb_list = [rgb_verified[index] for index, x in enumerate(CHM_verified) if x]
     print("There are {} RGB tiles with matching verified CHMs".format(len(final_rgb_list)))
     
+    df = pd.DataFrame({"path":final_rgb_list})
+    
+    df["year"] = df.path.apply(lambda x: get_year(x))
+    df["site"] = df.path.apply(lambda x: get_site(x))
+    site_totals = df.groupby(["site","year"]).size()
+    print(site_totals)
+
     written_records = client.map(tfrecords.create_tfrecords, final_rgb_list, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/",overwrite=overwrite)
     
     return written_records
@@ -158,7 +166,7 @@ if __name__ == "__main__":
     
     #Create dask clusters
     #Start GPU Client
-    cpu_client = start(cpus = 70, mem_size ="8GB")
+    cpu_client = start(cpus = 80, mem_size ="7GB")
     gpu_client = start(gpus=13,mem_size ="12GB")    
  
     #Overwrite existing file?
