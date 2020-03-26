@@ -86,9 +86,9 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
         random.shuffle(tile_list)
         tile_list = tile_list[:n]
     
-    print("There are {} files found in dir".format(len(rgb)))
+    print("There are {} files found in dir".format(len(tile_list)))
     
-    RGB_verification = client.map(verify.check_RGB, rgb)
+    RGB_verification = client.map(verify.check_RGB, tile_list)
     rgb_verified = [x.result() for x in RGB_verification]
     
     #Remove None
