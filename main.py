@@ -98,10 +98,10 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     CHM_verified = [ ]
     for x in rgb_verified:
         try:
-            lidar_path = lookup_CHM_path(path, lidar_pool, shp=False)
+            lidar_path = lookup_CHM_path(x, lidar_pool, shp=False)
             CHM_verified.append(lidar_path)
         except Exception as e:                
-            print("Path CHM {} lookup failed with {}".format(path,e))
+            print("Path CHM {} lookup failed with {}".format(x,e))
     
     print("There are {} verified CHM tiles before checking matches".format(len(CHM_verified)))
     
