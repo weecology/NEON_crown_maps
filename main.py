@@ -167,7 +167,7 @@ if __name__ == "__main__":
     #Create dask clusters
     #Start GPU Client
     cpu_client = start(cpus = 80, mem_size ="7GB")
-    gpu_client = start(gpus=10,mem_size ="12GB")    
+    gpu_client = start(gpus=13,mem_size ="12GB")    
  
     #Overwrite existing file?
     overwrite=True
