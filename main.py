@@ -168,7 +168,7 @@ if __name__ == "__main__":
     #Create dask clusters
     #Start GPU Client
     cpu_client = start(cpus = 80, mem_size ="7GB")
-    gpu_client = start(gpus=10,mem_size ="12GB")    
+    gpu_client = start(gpus=13,mem_size ="12GB")    
  
     #Overwrite existing file?
     overwrite=True
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     generated_records = generate_tfrecord(tile_list=rgb_list,
                                           lidar_pool=lidar_list,
                                           client=cpu_client,
-                                          n=10,
+                                          n=None,
                                           target_list = target_list,
                                           site_list=site_list,
                                           year_list=year_list,
