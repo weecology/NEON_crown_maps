@@ -110,7 +110,6 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
             print("Path CHM {} lookup failed with {}".format(check,e))
     
     CHM_verified = client.gather(CHM_verification)
-    print("There are {} verified CHM tiles before checking matches".format(len(CHM_verified)))
     
     final_rgb_list = [rgb_verified[index] for index, x in enumerate(CHM_verified) if x]
     print("There are {} RGB tiles with matching verified CHMs".format(len(final_rgb_list)))
@@ -201,7 +200,7 @@ if __name__ == "__main__":
     generated_records = generate_tfrecord(tile_list=rgb_list,
                                           lidar_pool=lidar_list,
                                           client=cpu_client,
-                                          n=10,
+                                          n=None,
                                           target_list = target_list,
                                           site_list=site_list,
                                           year_list=year_list,
