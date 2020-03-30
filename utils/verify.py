@@ -5,9 +5,7 @@ import re
 import rasterio
 import numpy as np
 
-
 #Tile checks for validity
-
 def check_RGB(tile_path):
     """Return name if passes checks, None if not"""
     #Load image    
@@ -19,10 +17,11 @@ def check_RGB(tile_path):
     
     #Test if a large portion of the image is black
     numpy_image = np.array(raster)    
-    is_black =np.sum(np.all(numpy_image == [0,0,0], axis=-1))/numpy_image.size
+    img_reshaped = numpy_image.reshape(-1, 3)
+    is_black = np.sum(img_reshaped == [0,0,0])/img_reshaped.size    
     
-    #If more than 3% black, remove edge tile
-    if is_black > 0.03:
+    #If more than 5% black, remove edge tile
+    if is_black > 0.05:
         print("{} is an edge tile, {number:.{digits}f}% black pixels".format(tile_path,number=is_black*100,digits=1))
         return None
     
