@@ -7,6 +7,8 @@ from shapely.geometry import box, Point
 from start_cluster import start
 from check_site import get_site, get_year
 from matplotlib import pyplot as plt
+import dask
+
 
 def select_tile(tile_list):
     """
@@ -140,8 +142,8 @@ def run(tile_list):
 if __name__ == "__main__":
 
     #Start dask client
-    client = start(cpus=20)
-
+    client = start(cpus=50)
+    
     #Get pool of predictions    
     shps = glob.glob("/orange/ewhite/b.weinstein/NEON/draped/*.shp")
     
@@ -153,14 +155,16 @@ if __name__ == "__main__":
     #Construct list of site+year combinations
     site_lists = df.groupby(['site','year']).path.apply(list).to_dict()
     
-    #for each site/year combo draw 1000 plots
-    simulation_futures = [ ]
-    for x in site_lists:
-        for i in np.arange(1000):
-                future = client.submit(run, site_lists[x])
-                simulation_futures.append(future)
-            
-    results = [x.result() for x in simulation_futures]
+    tile_lists = [ ]
+    for key, value in site_lists.items():
+        tile_lists.append(value)
+    
+    simulation_results = [ ]
+    for x in tile_lists:
+        for i in np.arange(10000):
+            result = dask.delayed(run)(x)
+            simulation_results.append(result)
+    results = dask.compute(*simulation_results)
     
     #Combine results
     results = pd.concat(results)
@@ -168,6 +172,6 @@ if __name__ == "__main__":
     results["site"] = results.path.apply(lambda x: get_site(x))
     
     results.to_csv("Figures/sampling.csv", index=False)
-    
+        
     
         
