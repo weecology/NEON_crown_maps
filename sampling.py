@@ -15,17 +15,18 @@ def select_tile(tile_list):
     Returns:
         shp: a path to a shapefile
     """
+    import random
     
     #Select one tile
     shp = random.choice(tile_list)
     return shp
 
-def create_plot(gdf, length = 40, n=2):
+def create_plot(gdf):
     """Select a point to serve as plot center
     gdf: A geodataframe of predictions
-    length: size in m of one side of the plot
-    n: number of subplots quarters
     """
+    
+    import random 
     
     #Find spatial extent
     tile_left, tile_bottom, tile_right, tile_top  = gdf.total_bounds
@@ -36,7 +37,13 @@ def create_plot(gdf, length = 40, n=2):
     
     return plot_center_x, plot_center_y
 
-def create_subplots(plot_center_x,plot_center_y):
+def create_subplots(plot_center_x,plot_center_y,length = 40, n=2):
+    """
+    length: size in m of one side of the plot
+    n: number of subplots quarters
+    """
+    import random
+    
     #Get plot edges
     plot_left = plot_center_x - length/2
     plot_bottom = plot_center_y - length/2
