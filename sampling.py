@@ -141,18 +141,17 @@ if __name__ == "__main__":
     #for each site/year combo draw 1000 plots
     simulation_futures = [ ]
     for x in site_lists:
-        for i in np.arange(10):
+        for i in np.arange(100):
                 future = client.submit(run, site_lists[x])
                 simulation_futures.append(future)
             
     results = [x.result() for x in simulation_futures]
     
     #Combine results
-    df = pd.DataFrame(results)
-    df["year"] = df.path.apply(lambda x: get_year(x))
-    df["site"] = df.path.apply(lambda x: get_site(x))
+    results["year"] = results.path.apply(lambda x: get_year(x))
+    results["site"] = results.path.apply(lambda x: get_site(x))
     
-    df.to_csv("/orange/idtrees-collab/sampling.csv")
+    results.to_csv("/orange/idtrees-collab/sampling.csv")
     
     
         
