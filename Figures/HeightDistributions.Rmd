@@ -26,8 +26,8 @@ counts %>% group_by(Site) %>% summarize(n=sum(n)) %>% summarize(total=sum(n))
 
 ```{r}
 ggplot(df,aes(x=height_mean,y=area_mean,size=n)) + geom_point(alpha=0.5) + labs(x="Crown Height (m)",y="Crown Area (m^2)",size="Trees/km^2") + geom_text(aes(label=Site),size=2,hjust=0.5,vjust=-0.5) + theme_bw()
-ggsave("Attributes.png",height=4,width=7)
-ggsave("Attributes.svg", height=4,width=7)
+ggsave("Attributes.png",height=3.5,width=6)
+ggsave("Attributes.svg", height=3.5,width=6)
 ```
 
 ## Counts through time

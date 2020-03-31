@@ -1,36 +1,84 @@
 #Sampling module. Simulate 40m NEON plots across the landscape.
 import glob
-from shapely.geometry import box
+import random
+import numpy as np
 import geopandas as gpd
 import pandas as pd
+from shapely.geometry import box, Point
 from start_cluster import start
+from check_site import get_site, get_year
+from matplotlib import pyplot as plt
 
-def select_tile(dirname):
+def select_tile(tile_list):
     """
     Args:
-        dirname: a directory to search for completed .shp predictions
+        tile_list: a list of tiles to choose from
     Returns:
         shp: a path to a shapefile
     """
+    #Select one tile
+    shp = pd.Series(tile_list).sample(1).values[0]
+
     return shp
+
+def create_plot(gdf, length = 40, n=2):
+    """Select a point to serve as plot center
+    gdf: A geodataframe of predictions
+    length: size in m of one side of the plot
+    n: number of subplots quarters
+    """
+    
+    #Find spatial extent
+    tile_left, tile_bottom, tile_right, tile_top  = gdf.total_bounds
+    
+    #Select a point
+    p = Point(random.uniform(tile_left, tile_right), random.uniform(tile_bottom, tile_top))    
+    plot_center_x, plot_center_y = list(p.coords)[0]
+    
+    #Get plot edges
+    plot_left = plot_center_x - length/2
+    plot_bottom = plot_center_y - length/2
+    plot_right = plot_center_x + length/2
+    plot_top = plot_center_y + length/2 
+    
+    plot_bounds = box(plot_left,plot_bottom,plot_right, plot_top)
+    
+    #Select subplots
+    subplot_list = random.sample([1,2,3,4], n)
+    subplot_bounds = [ ]
+    
+    #For each subplot get quarter coordinates
+    for subplot in subplot_list:
+        if subplot == 1:
+            selected_subplot = box(plot_left, plot_center_y, plot_center_x, plot_top)
+        elif subplot == 2:
+            selected_subplot = box(plot_center_x, plot_center_y, plot_right, plot_top)
+        elif subplot ==3:
+            selected_subplot = box(plot_right, plot_bottom, plot_center_x, plot_center_y)
+        elif subplot == 4:
+            selected_subplot = box(plot_center_x, plot_bottom, plot_right, plot_center_y)
+        subplot_bounds.append(selected_subplot)    
+            
+    return subplot_bounds
 
 #create a simulated plot
 def simulate_plot(shp):
     """
     Simulate a 40mx40m plot with 2 subplots for tree statistics
     """
-    
     #Read shapefile
     df = gpd.read_file(shp)
-    plot_data = [ ]
+    
+    #select plot center
+    subplot_bounds = create_plot(df)
     
     #Two subplots within the plot
-    for x in np.arange(2):
-        box = create_subplot(shp)
-        selected_trees = select_trees(df, box)
+    plot_data = [ ]    
+    for subplot in subplot_bounds:
+        selected_trees = select_trees(df, subplot)
         plot_data.append(selected_trees)
    
-    plot_data =  pd.concat(pd.DataFrame(plot_data))
+    plot_data =  pd.concat(plot_data)
     
     #Calculate statistics
     tree_density = calculate_density(plot_data)
@@ -38,54 +86,72 @@ def simulate_plot(shp):
     
     #Create data holder
     data =  {
-        "tile": shp,
-        "left": box[0],
-        "bottom": box[1],
-        "right": box[2],
-        "top": box[3],
-        "tree_density":tree_density,
-        "average_height": average_height
+        "path": [shp],
+        "tree_density": [tree_density],
+        "average_height": [average_height]
     }
     
-    return data
+    return pd.DataFrame(data)
         
-def select_trees(box):
-    """Return a pandas dataframe of trees based on shapely box"""
-    pass
-
-def create_subplot(box):
-    return box
+def select_trees(gdf, subplot):
+    """
+    Args:
+        gdf: a geopandas dataframe
+        subplot: a shapely box
+    Returns:
+        selected_trees: pandas dataframe of trees
+    """
+    selected_trees = gdf[gdf.intersects(subplot)]
+    return selected_trees
 
 #Calculate tree density
-def calculate_density(box):
-    pass
+def calculate_density(plot_data):
+    return plot_data.size
 
 #Calculate mean height
-def calculate_height():
-    pass
+def calculate_height(plot_data):
+    return plot_data.height.mean()
 
-def run(dirname):
+def run(tile_list):
+    
     #Select tile
-    shp = select_tile(dirname)
+    shp = select_tile(tile_list)
     
     #Create a plot
-    results = simulate_plot()
-    return results
+    results = simulate_plot(shp)
     
+    return results
     
 if __name__ == "__main__":
 
     #Start dask client
-    client = start(cpus=80)
+    client = start(cpus=20)
 
     #Get pool of predictions
     shps = glob.glob("/orange/ewhite/b.weinstein/NEON/draped/*.shp")
     
-    simulation_futures = client.map(run, shps)
+    #Get site names
+    df = pd.DataFrame({"path":shps})
+    df["year"] = df.path.apply(lambda x: get_year(x))
+    df["site"] = df.path.apply(lambda x: get_site(x))
+    
+    #Construct list of site+year combinations
+    site_lists = df.groupby(['site','year']).path.apply(list).to_dict()
+    
+    #for each site/year combo draw 1000 plots
+    simulation_futures.append()
+    for x in site_lists:
+        for i in np.arange(10):
+                future = client.submit(run, site_lists[x])
+                simulation_futures.append(future)
+            
     results = [x.result() for x in simulation_futures]
     
     #Combine results
     df = pd.DataFrame(results)
+    df["year"] = df.path.apply(lambda x: get_year(x))
+    df["site"] = df.path.apply(lambda x: get_site(x))
+    
     df.to_csv("/orange/idtrees-collab/sampling.csv")
     
     

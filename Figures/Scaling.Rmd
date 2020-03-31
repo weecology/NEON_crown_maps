@@ -1,0 +1,119 @@
+---
+title: "Scaling"
+author: "Ben Weinstein"
+date: "3/23/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(scales)
+library(dplyr)
+library(rstanarm)
+library(tidybayes)
+library(tidyr)
+library(stringr)
+library(broom)
+```
+
+```{r}
+df<-read.csv("tile_averages.csv",row.names = 1)
+colnames(df)[colnames(df) %in% "X0"]<-"count"
+
+#mean across year
+df<-df %>% group_by(Site,geo_index) %>% summarize(count=mean(count))
+ggplot(df) + geom_density(aes(x=count)) + facet_wrap(~Site)
+```
+
+Estimate total counts by square km for the DeepForest predictions
+
+```{r}
+sample_data<-function(df, n=10){
+  df[sample(nrow(df),n),]
+}
+
+results<-list()
+for(y in 1:200){
+  subtotal<-list()
+for(x in seq(0.01,1,0.1)){
+  subtotal[[as.character(x)]]<-df %>% group_by(Site) %>% sample_frac(x) %>% summarize(total=sum(count)) %>% mutate(frac=x)
+}
+  results[[y]]<-bind_rows(subtotal)
+}
+
+results<-bind_rows(results)
+#Get sq km
+sqkm<-df %>% group_by(Site) %>% summarize(n=n())
+results<-merge(results,sqkm)
+results<-results %>% mutate(sqkm=floor(frac*n))
+
+#Summarize by fraction
+results<-results %>% group_by(Site,sqkm) %>% summarize(mean=mean(total),lower=quantile(total,0.05),upper=quantile(total,0.95))
+
+
+ggplot(results,aes(x=sqkm,y=mean)) +facet_wrap(~Site,scales="free") + geom_line() + geom_ribbon(aes(ymin=lower,ymax=upper)) + scale_y_continuous(label=comma) + labs(x="Extent (km^2)",y="Tree Count")
+```
+
+Estimate total counts from the field data
+
+```{r}
+field<-read.csv("/Users/Ben/Documents/NeonTreeEvaluation/field_data.csv")
+```
+
+How large of trees should we include. Many don't have height measurements.
+
+```{r}
+field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter < 8) %>% ggplot(.,aes(x=height,fill=siteID)) + geom_density(alpha=0.5) 
+```
+
+```{r}
+#drop 2015 data
+#field<-field %>% filter(!str_detect(eventID,"2015"))
+
+#Scaling factor from a 40m plot to 1km tile
+scaling=(1000 * 1000) /((20*20)*2)
+
+#TODO plot type? Individual ID for multi-bole?
+plot_totals<-field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter > 7.5) %>% filter(is.na(height)|height>3) %>% group_by(Site=siteID,plotID,eventID) %>% summarize(n=n()) %>% summarize(n=round(mean(n)))
+
+stan_glm <- stan_glm(n~0 + Site,data = plot_totals,family = poisson,cores=4, iter=10000) 
+```
+
+```{r}
+newdata <- results %>% group_by(Site,sqkm) %>% distinct() %>% dplyr::select(Site,sqkm)
+  
+estimated <- fitted_draws(stan_glm, newdata,draws=2000) %>% mutate(total=(sqkm * .value)*scaling)  %>% group_by(Site,sqkm,.draw) %>% summarize(total=sum(total)) %>% summarize(mean=mean(total),lower=quantile(total,0.05),upper=quantile(total,0.95))
+
+ggplot(estimated,aes(x=sqkm,y=mean)) +facet_wrap(~Site,scales="free") + geom_line() + geom_ribbon(aes(ymin=lower,ymax=upper)) + scale_y_continuous(label=comma) + labs(x="Extent (km^2)",y="Tree Count")
+
+#Combined
+results$Data<-c("Remote Sensing")
+estimated$Data<-c("Field")
+combined<-bind_rows(list(results,estimated))
+
+ggplot(combined,aes(x=sqkm,y=mean,fill=Data)) +facet_wrap(~Site,scales="free") + geom_line(col="black") + geom_ribbon(aes(ymin=lower,ymax=upper),alpha=0.5) + scale_y_continuous(label=comma) + labs(x="Extent (km^2)",y="Tree Count")  + theme_bw()
+ggsave("Scaling.png",height=5,width=8)
+```
+
+## Compare total counts
+
+```{r}
+combined %>% group_by(Data,Site) %>% filter(sqkm == max(sqkm)) %>% ungroup() %>% pivot_wider(names_from=Data,values_from=c(mean,lower,upper)) %>% ggplot(., aes(x=mean_Field,y=`mean_Remote Sensing`)) + geom_point() + scale_x_continuous(labels=comma) + scale_y_continuous(labels=comma) + labs(x="Field",y="Remote Sensing") + ggtitle("Tree Count") + geom_abline(linetype="dashed") + coord_fixed() + xlim(.2e7,1.2e7) + ylim(.2e7,1.2e7) + geom_text(aes(label=Site),size=2,hjust=1,vjust=1) + theme_bw()
+ggsave("FullSiteScale.png",height=4.5,width=4.5)
+```
+
+# Compare distributions
+
+```{r}
+field_height<-field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter > 7.5) %>% filter(is.na(height)|height>3)
+  
+#ggplot(.,aes(x=height)) + geom_density(fill="black",alpha=0.5)
+
+#sample n sites
+
+#Fit model
+
+#Predict
+```
