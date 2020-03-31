@@ -139,7 +139,7 @@ if __name__ == "__main__":
     site_lists = df.groupby(['site','year']).path.apply(list).to_dict()
     
     #for each site/year combo draw 1000 plots
-    simulation_futures.append()
+    simulation_futures = [ ]
     for x in site_lists:
         for i in np.arange(10):
                 future = client.submit(run, site_lists[x])
