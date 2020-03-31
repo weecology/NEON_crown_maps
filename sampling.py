@@ -148,6 +148,7 @@ if __name__ == "__main__":
     results = [x.result() for x in simulation_futures]
     
     #Combine results
+    results = pd.concat(results)
     results["year"] = results.path.apply(lambda x: get_year(x))
     results["site"] = results.path.apply(lambda x: get_site(x))
     
