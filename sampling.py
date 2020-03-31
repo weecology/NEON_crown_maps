@@ -17,8 +17,7 @@ def select_tile(tile_list):
         shp: a path to a shapefile
     """
     #Select one tile
-    shp = pd.Series(tile_list).sample(1).values[0]
-
+    shp = random.choice(tile_list)
     return shp
 
 def create_plot(gdf, length = 40, n=2):
@@ -141,7 +140,7 @@ if __name__ == "__main__":
     #for each site/year combo draw 1000 plots
     simulation_futures = [ ]
     for x in site_lists:
-        for i in np.arange(10000):
+        for i in np.arange(1000):
                 future = client.submit(run, site_lists[x])
                 simulation_futures.append(future)
             
@@ -152,7 +151,7 @@ if __name__ == "__main__":
     results["year"] = results.path.apply(lambda x: get_year(x))
     results["site"] = results.path.apply(lambda x: get_site(x))
     
-    results.to_csv("Figures/sampling.csv")
+    results.to_csv("Figures/sampling.csv", index=False)
     
     
         
