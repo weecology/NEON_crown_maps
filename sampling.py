@@ -6,9 +6,7 @@ import pandas as pd
 from shapely.geometry import box, Point
 from start_cluster import start
 from check_site import get_site, get_year
-from matplotlib import pyplot as plt
 import dask
-
 
 def select_tile(tile_list):
     """
@@ -142,7 +140,7 @@ def run(tile_list):
 if __name__ == "__main__":
 
     #Start dask client
-    client = start(cpus=50)
+    client = start(cpus=50, mem_size="5GB")
     
     #Get pool of predictions    
     shps = glob.glob("/orange/ewhite/b.weinstein/NEON/draped/*.shp")
@@ -161,7 +159,7 @@ if __name__ == "__main__":
     
     simulation_results = [ ]
     for x in tile_lists:
-        for i in np.arange(10000):
+        for i in np.arange(10):
             result = dask.delayed(run)(x)
             simulation_results.append(result)
     results = dask.compute(*simulation_results)
