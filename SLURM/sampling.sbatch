@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=Figures   # Job name
+#SBATCH --job-name=Sampling   # Job name
 #SBATCH --mail-type=END               # Mail events
 #SBATCH --mail-user=benweinstein2010@gmail.com  # Where to send mail
 #SBATCH --account=ewhite
