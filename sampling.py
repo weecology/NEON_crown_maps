@@ -1,6 +1,5 @@
 #Sampling module. Simulate 40m NEON plots across the landscape.
 import glob
-import random
 import numpy as np
 import geopandas as gpd
 import pandas as pd
@@ -16,6 +15,7 @@ def select_tile(tile_list):
     Returns:
         shp: a path to a shapefile
     """
+    
     #Select one tile
     shp = random.choice(tile_list)
     return shp
@@ -34,6 +34,9 @@ def create_plot(gdf, length = 40, n=2):
     p = Point(random.uniform(tile_left, tile_right), random.uniform(tile_bottom, tile_top))    
     plot_center_x, plot_center_y = list(p.coords)[0]
     
+    return plot_center_x, plot_center_y
+
+def create_subplots(plot_center_x,plot_center_y):
     #Get plot edges
     plot_left = plot_center_x - length/2
     plot_bottom = plot_center_y - length/2
@@ -57,9 +60,9 @@ def create_plot(gdf, length = 40, n=2):
         elif subplot == 4:
             selected_subplot = box(plot_center_x, plot_bottom, plot_right, plot_center_y)
         subplot_bounds.append(selected_subplot)    
-            
-    return subplot_bounds
-
+        
+        return subplot_bounds
+    
 #create a simulated plot
 def simulate_plot(shp):
     """
@@ -69,7 +72,8 @@ def simulate_plot(shp):
     df = gpd.read_file(shp)
     
     #select plot center
-    subplot_bounds = create_plot(df)
+    plot_center_x, plot_center_y = create_plot(df)
+    subplot_bounds = create_subplots(plot_center_x, plot_center_y)
     
     #Two subplots within the plot
     plot_data = [ ]    
@@ -86,6 +90,8 @@ def simulate_plot(shp):
     #Create data holder
     data =  {
         "path": [shp],
+        "plot_center_x": plot_center_x,
+        "plot_center_y": plot_center_y,
         "tree_density": [tree_density],
         "average_height": [average_height]
     }
@@ -113,6 +119,9 @@ def calculate_height(plot_data):
 
 def run(tile_list):
     
+    #Load random at runtime to set state
+    import random
+    
     #Select tile
     shp = select_tile(tile_list)
     
@@ -126,7 +135,7 @@ if __name__ == "__main__":
     #Start dask client
     client = start(cpus=20)
 
-    #Get pool of predictions
+    #Get pool of predictions    
     shps = glob.glob("/orange/ewhite/b.weinstein/NEON/draped/*.shp")
     
     #Get site names

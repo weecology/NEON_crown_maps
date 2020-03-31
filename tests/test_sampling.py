@@ -25,4 +25,4 @@ def test_simulate_plot():
         for i in np.arange(2):
             df = sampling.run(site_lists[x])
             print(df)
-            assert df.shape == (1,3)
+            assert df.shape == (1,5)

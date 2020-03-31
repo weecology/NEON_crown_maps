@@ -112,7 +112,7 @@ sampling <- read.csv("sampling.csv")
 
 #Plot sampling curves
 p <- ggplot(sampling,aes(x=tree_density)) + geom_density(aes(fill=as.factor(year)),alpha=0.4) + facet_wrap(~site,scales="free") + labs(fill="year")
-
+p
 #Get site curve
 field_density<-field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter > 7.5) %>% filter(is.na(height)|height>3) %>% group_by(site=siteID,plotID) %>% summarize(tree_density=n()) 
   
