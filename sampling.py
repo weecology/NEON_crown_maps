@@ -118,7 +118,7 @@ def select_trees(gdf, subplot):
 
 #Calculate tree density
 def calculate_density(plot_data):
-    return plot_data.size
+    return plot_data.shape[0]
 
 #Calculate mean height
 def calculate_height(plot_data):
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     
     simulation_results = [ ]
     for x in tile_lists:
-        for i in np.arange(1000):
+        for i in np.arange(5000):
             result = dask.delayed(run)(x)
             simulation_results.append(result)
     results = dask.compute(*simulation_results)
