@@ -113,7 +113,7 @@ def select_trees(gdf, subplot):
     Returns:
         selected_trees: pandas dataframe of trees
     """
-    selected_trees = gdf[gdf.intersects(subplot)]
+    selected_trees = gdf[gdf.within(subplot)]
     return selected_trees
 
 #Calculate tree density
@@ -140,7 +140,7 @@ def run(tile_list):
 if __name__ == "__main__":
 
     #Start dask client
-    client = start(cpus=50, mem_size="5GB")
+    client = start(cpus=80, mem_size="3GB")
     
     #Get pool of predictions    
     shps = glob.glob("/orange/ewhite/b.weinstein/NEON/draped/*.shp")
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     
     simulation_results = [ ]
     for x in tile_lists:
-        for i in np.arange(10000):
+        for i in np.arange(1000):
             result = dask.delayed(run)(x)
             simulation_results.append(result)
     results = dask.compute(*simulation_results)
