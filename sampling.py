@@ -113,7 +113,7 @@ def select_trees(gdf, subplot):
     Returns:
         selected_trees: pandas dataframe of trees
     """
-    selected_trees = gdf[gdf.within(subplot)]
+    selected_trees = gdf[gdf.intersects(subplot)]
     return selected_trees
 
 #Calculate tree density
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     
     simulation_results = [ ]
     for x in tile_lists:
-        for i in np.arange(5000):
+        for i in np.arange(10000):
             result = dask.delayed(run)(x)
             simulation_results.append(result)
     results = dask.compute(*simulation_results)
