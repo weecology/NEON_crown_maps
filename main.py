@@ -121,11 +121,11 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     site_totals = df.groupby(["site","year"]).size()
     print(site_totals)
 
-    written_records = client.map(tfrecords.create_tfrecords, final_rgb_list, patch_size=400, patch_overlap=0.05, savedir="/orange/ewhite/b.weinstein/NEON/crops/",overwrite=overwrite)
+    written_records = client.map(tfrecords.create_tfrecords, final_rgb_list, patch_size=400, patch_overlap=0.05, savedir="/orange/idtrees-collab/crops/",overwrite=overwrite)
     
     return written_records
 
-def run_rgb(records, rgb_paths, overwrite=True, save_dir = "/orange/ewhite/b.weinstein/NEON/predictions/"):
+def run_rgb(records, rgb_paths, overwrite=True, save_dir = "/orange/idtrees-collab/predictions/"):
     from deepforest import deepforest
     from keras import backend as K            
     import predict
@@ -166,11 +166,11 @@ if __name__ == "__main__":
     
     #Create dask clusters
     #Start GPU Client
-    cpu_client = start(cpus = 80, mem_size ="7GB")
-    gpu_client = start(gpus=13,mem_size ="12GB")    
+    cpu_client = start(cpus = 100, mem_size ="10GB")
+    gpu_client = start(gpus=12,mem_size ="11GB")    
  
     #Overwrite existing file?
-    overwrite=True
+    overwrite=False
     
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
@@ -241,7 +241,7 @@ if __name__ == "__main__":
                 raise IOError("Image file: {} has no matching CHM".format(result))
             
             #Submit draping future
-            postprocessed_filename = cpu_client.submit(run_lidar, result, CHM_path=CHM_path, save_dir="/orange/ewhite/b.weinstein/NEON/draped/")
+            postprocessed_filename = cpu_client.submit(run_lidar, result, CHM_path=CHM_path, save_dir="/orange/idtrees-collab/draped/")
             
             print("Postprocessing submitted: {}".format(result))                           
             draped_files.append(postprocessed_filename)            

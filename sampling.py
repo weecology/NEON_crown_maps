@@ -143,7 +143,7 @@ if __name__ == "__main__":
     client = start(cpus=80, mem_size="3GB")
     
     #Get pool of predictions    
-    shps = glob.glob("/orange/ewhite/b.weinstein/NEON/draped/*.shp")
+    shps = glob.glob("/orange/idtrees-collab/draped/*.shp")
     
     #Get site names
     df = pd.DataFrame({"path":shps})

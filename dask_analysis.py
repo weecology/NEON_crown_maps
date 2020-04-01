@@ -16,7 +16,7 @@ if debug:
 else:
     #Start cluster
     client = start(cpus=20)
-    shps = glob.glob("/orange/ewhite/b.weinstein/NEON/draped/*.shp")
+    shps = glob.glob("/orange/idtrees-collab/draped/*.shp")
     CHMs = glob.glob("/orange/ewhite/NeonData/**/CanopyHeightModelGtif/*.tif",recursive=True)
     savedir = "/orange/idtrees-collab/"
 
