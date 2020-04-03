@@ -13,7 +13,7 @@
 #SBATCH --gpus=1
 
 export SLURM_TMPDIR=/orange/idtrees-collab/tmp/
-export TMPIDR=/orange/idtrees-collab/tmp/
+export TMPDIR=/orange/idtrees-collab/tmp/
 
 module load tensorflow/1.14.0
 
