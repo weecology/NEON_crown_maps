@@ -231,29 +231,30 @@ if __name__ == "__main__":
         gpu_result = gpu_client.submit(run_rgb, result, rgb_path,overwrite=overwrite)
         print("Submitted prediction for tfrecord {}, future is {}".format(result, gpu_result))        
         predictions.append(gpu_result)
-            
+    wait(predictions)
+    
     ###As predictions complete, run postprocess to drape LiDAR and extract height
-    draped_files = [ ]
-    for future in as_completed(predictions):
-        try:
-            result = future.result()
+    #draped_files = [ ]
+    #for future in as_completed(predictions):
+        #try:
+            #result = future.result()
                        
-            #Look up corresponding CHM path
-            CHM_path = lookup_CHM_path(result, lidar_list,shp=True)
+            ##Look up corresponding CHM path
+            #CHM_path = lookup_CHM_path(result, lidar_list,shp=True)
             
-            if not CHM_path:
-                raise IOError("Image file: {} has no matching CHM".format(result))
+            #if not CHM_path:
+                #raise IOError("Image file: {} has no matching CHM".format(result))
             
-            #Submit draping future
-            postprocessed_filename = cpu_client.submit(run_lidar, result, CHM_path=CHM_path, save_dir="/orange/idtrees-collab/draped/")
+            ##Submit draping future
+            #postprocessed_filename = cpu_client.submit(run_lidar, result, CHM_path=CHM_path, save_dir="/orange/idtrees-collab/draped/")
             
-            print("Postprocessing submitted: {}".format(result))                           
-            draped_files.append(postprocessed_filename)            
-        except Exception as e:
-            print("Lidar draping future: {} failed with {}".format(future, e.with_traceback(future.traceback())))   
+            #print("Postprocessing submitted: {}".format(result))                           
+            #draped_files.append(postprocessed_filename)            
+        #except Exception as e:
+            #print("Lidar draping future: {} failed with {}".format(future, e.with_traceback(future.traceback())))   
     
-    wait(draped_files)
+    #wait(draped_files)
     
-    #Give the scheduler some time to cleanup
-    time.sleep(3)
+    ##Give the scheduler some time to cleanup
+    #time.sleep(3)
 
