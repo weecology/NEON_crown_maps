@@ -10,6 +10,7 @@ import pandas as pd
 from start_cluster import start
 import LIDAR
 from utils import verify
+import dask
 
 def lookup_CHM_path(path, lidar_list, shp=True):
     """Find CHM file based on the image filename
@@ -169,6 +170,9 @@ if __name__ == "__main__":
     cpu_client = start(cpus = 100, mem_size ="10GB")
     gpu_client = start(gpus=12,mem_size ="11GB")    
  
+    #Set dask temp dir
+    dask.config.set({'temporary_directory': '/orange/idtrees-collab/tmp/'})
+    
     #Overwrite existing file?
     overwrite=False
     
