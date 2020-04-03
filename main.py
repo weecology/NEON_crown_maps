@@ -204,7 +204,7 @@ if __name__ == "__main__":
                                           lidar_pool=lidar_list,
                                           client=cpu_client,
                                           n=None,
-                                          target_list = target_list,
+                                          target_list = None,
                                           site_list=site_list,
                                           year_list=year_list,
                                           overwrite=overwrite)

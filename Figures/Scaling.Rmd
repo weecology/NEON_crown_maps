@@ -101,7 +101,7 @@ ggsave("Scaling.png",height=5,width=8)
 
 ```{r}
 combined %>% group_by(Data,Site) %>% filter(sqkm == max(sqkm)) %>% ungroup() %>% pivot_wider(names_from=Data,values_from=c(mean,lower,upper)) %>% ggplot(., aes(x=mean_Field,y=`mean_Remote Sensing`)) + geom_point()  + labs(x="Field",y="Remote Sensing") + ggtitle("Tree Count") + geom_abline(linetype="dashed") + coord_fixed()    + geom_text(aes(label=Site),size=2,hjust=1.1,vjust=1.2) + theme_bw()  + scale_x_continuous(limits=c(.2e7,1.1e7),labels=comma) + scale_y_continuous(limits=c(.2e7,1.1e7),labels=comma) + geom_errorbarh(aes(xmin=lower_Field,xmax=upper_Field))
-ggsave("FullSiteScale.png",height=4.5,width=4.5)
+ggsave("FullSiteScale.png",height=3.5,width=4)
 ```
 
 # Compare distributions
