@@ -1,17 +1,21 @@
 import glob
+import tempfile
 import time
 import os
 import re
 import gc
 import numpy as np
 import random
-from distributed import wait, as_completed
 import pandas as pd
-from start_cluster import start
-import LIDAR
-from utils import verify
+from keras import backend as K            
+
 import dask
-import tempfile
+from distributed import wait, as_completed
+from start_cluster import start
+from utils import verify
+from deepforest import deepforest
+import predict
+import LIDAR
 
 def lookup_CHM_path(path, lidar_list, shp=True):
     """Find CHM file based on the image filename
@@ -128,9 +132,6 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     return written_records
 
 def run_rgb(records, rgb_paths, overwrite=True, save_dir = "/orange/idtrees-collab/predictions/"):
-    from deepforest import deepforest
-    from keras import backend as K            
-    import predict
 
     #Create model and set config
     model = deepforest.deepforest(weights= '/home/b.weinstein/miniconda3/envs/crowns/lib/python3.7/site-packages/deepforest/data/NEON.h5')
@@ -200,12 +201,15 @@ if __name__ == "__main__":
    "2019_DELA_5_421000_3606000_image.tif",
     "2019_BONA_3_476000_7233000_image.tif"]
     
-    target_list = None
-    site_list = ["ABBY","ARIK","BARR","BART","BLAN","BONA","CLBJ","CPER","CUPE","DEJU","DELA","DSNY","GRSM","GUAN",
-    "GUIL","HARV","HEAL","HOPB","JERC","JORN","KONZ","LAJA","LENO","LIRO","MCDI","MLBS","MOAB","NIWO","NOGP","OAES","OSBS","PRIN","PUUM","REDB","RMNP","SCBI","SERC","SJER","SOAP","SRER","STEI","STER","TALL","TEAK","TOOL","UKFS","UNDE","WLOU","WOOD","WREF","YELL"]
+    #target_list = None
+    #site_list = ["ABBY","ARIK","BARR","BART","BLAN","BONA","CLBJ","CPER","CUPE","DEJU","DELA","DSNY","GRSM","GUAN",
+    #"GUIL","HARV","HEAL","HOPB","JERC","JORN","KONZ","LAJA","LENO","LIRO","MCDI","MLBS","MOAB","NIWO","NOGP","OAES","OSBS","PRIN","PUUM","REDB","RMNP","SCBI","SERC","SJER","SOAP","SRER","STEI","STER","TALL","TEAK","TOOL","UKFS","UNDE","WLOU","WOOD","WREF","YELL"]
     #site_list = ["OSBS","DELA","BART","TEAK","BONA","SOAP","WREF"]
     #year_list = None    
+    site_list = None
     year_list = ["2019","2018"]
+    
+    #Generate records
     generated_records = generate_tfrecord(tile_list=rgb_list,
                                           lidar_pool=lidar_list,
                                           client=cpu_client,
