@@ -127,7 +127,7 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     site_totals = df.groupby(["site","year"]).size()
     print(site_totals)
 
-    written_records = client.map(tfrecords.create_tfrecords, final_rgb_list, patch_size=400, patch_overlap=0.05, savedir="/orange/idtrees-collab/crops/",overwrite=overwrite)
+    written_records = client.map(tfrecords.create_tfrecords, final_rgb_list, patch_size=400, patch_overlap=0.05, savedir="/orange/idtrees-collab/crops/tfrecords/",overwrite=overwrite)
     
     return written_records
 
@@ -140,12 +140,12 @@ def run_rgb(records, rgb_paths, overwrite=True, save_dir = "/orange/idtrees-coll
     model.config["batch_size"] = 9    
     
     #Predict
-    shp = predict.predict_tiles(model, [records], patch_size=400, rgb_paths=[rgb_paths], save_dir=save_dir, batch_size=model.config["batch_size"],overwrite=overwrite)
+    shps = predict.predict_tiles(model, records, patch_size=400, rgb_paths=rgb_paths, save_dir=save_dir, batch_size=model.config["batch_size"],overwrite=overwrite)
     
     gc.collect()
     K.clear_session()
         
-    return shp[0]
+    return shps
 
 def run_lidar(shp, CHM_path, min_height=3, save_dir=""):
     """
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     
     #Create dask clusters
     #Start GPU Client
-    cpu_client = start(cpus = 100, mem_size ="9GB")
+    cpu_client = start(cpus = 100, mem_size ="8GB")
     gpu_client = start(gpus=12,mem_size ="11GB")    
  
     #Set dask temp dir
@@ -177,7 +177,7 @@ if __name__ == "__main__":
     print("Temp dir is: {} ".format(tempfile.gettempdir()))
     
     #Overwrite existing file?
-    overwrite=False
+    overwrite=True
     
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
@@ -221,41 +221,49 @@ if __name__ == "__main__":
     
     predictions = []    
     
-    #As records are created, predict.
-    for future, result in as_completed(generated_records, with_results=True):
+    #As records are created, predict in batches
+    for batch in as_completed(generated_records, with_results=True).batches():
         
-        #Lookup rgb path to create tfrecord. If it was a blank tile, result will be Nonetype
-        if result:
-            rgb_path = lookup_rgb_path(tfrecord = result, rgb_list = rgb_list)
-        else:
-            print("future {} had no tfrecord generated".format(future))
-            continue
+        batch_results = [ ]
+        batch_rgb_path = [ ]
+        for future, result in batch:
+            #Lookup rgb path to create tfrecord. If it was a blank tile, result will be Nonetype
+            if result:
+                #Add to batch
+                batch_results.append(result)
                 
+                #Get RGB path
+                rgb_path = lookup_rgb_path(tfrecord = result, rgb_list = rgb_list)
+                batch_rgb_path.append(rgb_path)
+            else:
+                print("future {} had no tfrecord generated".format(future))
+                continue
+                    
         #Predict record
-        gpu_result = gpu_client.submit(run_rgb, result, rgb_path,overwrite=overwrite)
-        print("Submitted prediction for tfrecord {}, future is {}".format(result, gpu_result))        
-        predictions.append(gpu_result)
+        gpu_results = gpu_client.submit(run_rgb, batch_results, batch_rgb_path , overwrite=overwrite)
+        print("Submitted prediction for tfrecords {}, future are {}".format(result, gpu_results))        
+        predictions.append(gpu_results)
     
     ##As predictions complete, run postprocess to drape LiDAR and extract height
     draped_files = [ ]
     for future in as_completed(predictions):
-        try:
-            result = future.result()
-                       
-            #Look up corresponding CHM path
-            CHM_path = lookup_CHM_path(result, lidar_list,shp=True)
+        result = future.result()
+        for shp in result:
+            try:
+                #Look up corresponding CHM path
+                CHM_path = lookup_CHM_path(shp, lidar_list,shp=True)
+                
+                if not CHM_path:
+                    raise IOError("Image file: {} has no matching CHM".format(shp))
+                
+                #Submit LiDAR draping future
+                postprocessed_filename = cpu_client.submit(run_lidar, shp, CHM_path=CHM_path, save_dir="/orange/idtrees-collab/draped/")
+                print("Postprocessing submitted: {}".format(shp))                           
+                draped_files.append(postprocessed_filename)            
             
-            if not CHM_path:
-                raise IOError("Image file: {} has no matching CHM".format(result))
-            
-            #Submit draping future
-            postprocessed_filename = cpu_client.submit(run_lidar, result, CHM_path=CHM_path, save_dir="/orange/idtrees-collab/draped/")
-            
-            print("Postprocessing submitted: {}".format(result))                           
-            draped_files.append(postprocessed_filename)            
-        except Exception as e:
-            print("Lidar draping future: {} failed with {}".format(future, e.with_traceback(future.traceback())))   
-    
+            except Exception as e:
+                print("Lidar draping future: {} failed with {}".format(future, e.with_traceback(future.traceback())))   
+        
     wait(draped_files)
     
     #Give the scheduler some time to cleanup

@@ -49,7 +49,6 @@ def predict_tiles(model, records, rgb_paths, patch_size=400, batch_size=1, score
     results = [ ]    
     for index, tfrecord in enumerate(records):
         
-
         #Find correponding rgb record and shp paths
         raster_path = rgb_paths[index]
         raster_name = os.path.splitext(os.path.basename(raster_path))[0]
