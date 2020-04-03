@@ -167,7 +167,7 @@ if __name__ == "__main__":
     
     #Create dask clusters
     #Start GPU Client
-    cpu_client = start(cpus = 100, mem_size ="10GB")
+    cpu_client = start(cpus = 100, mem_size ="9GB")
     gpu_client = start(gpus=12,mem_size ="11GB")    
  
     #Set dask temp dir
@@ -199,12 +199,12 @@ if __name__ == "__main__":
     "2019_BONA_3_476000_7233000_image.tif"]
     
     target_list = None
-    #site_list = ["ABBY","ARIK","BARR","BART","BLAN","BONA","CLBJ","CPER","CUPE","DEJU","DELA","DSNY","GRSM","GUAN",
-    #"GUIL","HARV","HEAL","HOPB","JERC","JORN","KONZ","LAJA","LENO","LIRO","MCDI","MLBS","MOAB","NIWO","NOGP","OAES","OSBS","PRIN","PUUM","REDB","RMNP","SCBI","SERC","SJER","SOAP","SRER","STEI","STER","TALL","TEAK","TOOL","UKFS","UNDE","WLOU","WOOD","WREF","YELL"]
+    site_list = ["ABBY","ARIK","BARR","BART","BLAN","BONA","CLBJ","CPER","CUPE","DEJU","DELA","DSNY","GRSM","GUAN",
+    "GUIL","HARV","HEAL","HOPB","JERC","JORN","KONZ","LAJA","LENO","LIRO","MCDI","MLBS","MOAB","NIWO","NOGP","OAES","OSBS","PRIN","PUUM","REDB","RMNP","SCBI","SERC","SJER","SOAP","SRER","STEI","STER","TALL","TEAK","TOOL","UKFS","UNDE","WLOU","WOOD","WREF","YELL"]
     year_list = None
     site_list = None
     #site_list = ["OSBS","DELA","BART","TEAK","BONA","SOAP","WREF"]
-    site_list = ["HARV","MLBS"]
+    #site_list = ["DELA","DEJU"]
     year_list = ["2019","2018"]
     generated_records = generate_tfrecord(tile_list=rgb_list,
                                           lidar_pool=lidar_list,
