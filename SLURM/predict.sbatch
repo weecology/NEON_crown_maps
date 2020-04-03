@@ -12,6 +12,9 @@
 #SBATCH --partition=gpu
 #SBATCH --gpus=1
 
+export SLURM_TMPDIR=/orange/idtrees-collab/tmp/
+export TMPIDR=/orange/idtrees-collab/tmp/
+
 module load tensorflow/1.14.0
 
 export PATH=${PATH}:/home/b.weinstein/miniconda3/envs/crowns/bin/
