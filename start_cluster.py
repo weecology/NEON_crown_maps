@@ -41,9 +41,9 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
     if cpus > 0:
         #job args
         extra_args=[
-            "--error=/home/b.weinstein/logs/dask-worker-%j.err",
+            "--error=/orange/idtrees-collab/logs/dask-worker-%j.err",
             "--account=ewhite",
-            "--output=/home/b.weinstein/logs/dask-worker-%j.out"
+            "--output=/orange/idtrees-collab/logs/dask-worker-%j.out"
         ]
     
         cluster = SLURMCluster(
@@ -55,7 +55,7 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
             job_extra=extra_args,
             extra=['--resources cpu=1'],
             dashboard_address=":8781",
-            local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)
+            local_directory="/orange/idtrees-collab/tmp/", death_timeout=300)
     
         print(cluster.job_script())
         cluster.adapt(maximum_jobs=cpus)
@@ -63,9 +63,9 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
     if gpus:
         #job args
         extra_args=[
-            "--error=/home/b.weinstein/logs/dask-worker-%j.err",
+            "--error=/orange/idtrees-collab/logs/dask-worker-%j.err",
             "--account=ewhite",
-            "--output=/home/b.weinstein/logs/dask-worker-%j.out",
+            "--output=/orange/idtrees-collab/logs/dask-worker-%j.out",
             "--partition=gpu",
             "--gpus=1"
         ]
@@ -78,7 +78,7 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
             job_extra=extra_args,
             extra=['--resources gpu=1'],     
             dashboard_address=":8787",            
-            local_directory="/orange/ewhite/b.weinstein/NEON/logs/dask/", death_timeout=300)    
+            local_directory="/orange/idtrees-collab/tmp/", death_timeout=300)    
         cluster.adapt(maximum_jobs=gpus)
         
 

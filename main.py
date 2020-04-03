@@ -199,10 +199,11 @@ if __name__ == "__main__":
     "2019_BONA_3_476000_7233000_image.tif"]
     
     #target_list = None
-    site_list = ["ABBY","ARIK","BARR","BART","BLAN","BONA","CLBJ","CPER","CUPE","DEJU","DELA","DSNY","GRSM","GUAN",
-    "GUIL","HARV","HEAL","HOPB","JERC","JORN","KONZ","LAJA","LENO","LIRO","MCDI","MLBS","MOAB","NIWO","NOGP","OAES","OSBS","PRIN","PUUM","REDB","RMNP","SCBI","SERC","SJER","SOAP","SRER","STEI","STER","TALL","TEAK","TOOL","UKFS","UNDE","WLOU","WOOD","WREF","YELL"]
+    #site_list = ["ABBY","ARIK","BARR","BART","BLAN","BONA","CLBJ","CPER","CUPE","DEJU","DELA","DSNY","GRSM","GUAN",
+    #"GUIL","HARV","HEAL","HOPB","JERC","JORN","KONZ","LAJA","LENO","LIRO","MCDI","MLBS","MOAB","NIWO","NOGP","OAES","OSBS","PRIN","PUUM","REDB","RMNP","SCBI","SERC","SJER","SOAP","SRER","STEI","STER","TALL","TEAK","TOOL","UKFS","UNDE","WLOU","WOOD","WREF","YELL"]
     #year_list = None
     #site_list = ["OSBS","DELA","BART","TEAK","BONA","SOAP","WREF"]
+    site_list = ["HARV","MLBS"]
     year_list = ["2019","2018"]
     generated_records = generate_tfrecord(tile_list=rgb_list,
                                           lidar_pool=lidar_list,
@@ -212,8 +213,6 @@ if __name__ == "__main__":
                                           site_list=site_list,
                                           year_list=year_list,
                                           overwrite=overwrite)
-    
-
     
     predictions = []    
     
@@ -233,28 +232,28 @@ if __name__ == "__main__":
         predictions.append(gpu_result)
     wait(predictions)
     
-    ###As predictions complete, run postprocess to drape LiDAR and extract height
-    #draped_files = [ ]
-    #for future in as_completed(predictions):
-        #try:
-            #result = future.result()
+    ##As predictions complete, run postprocess to drape LiDAR and extract height
+    draped_files = [ ]
+    for future in as_completed(predictions):
+        try:
+            result = future.result()
                        
-            ##Look up corresponding CHM path
-            #CHM_path = lookup_CHM_path(result, lidar_list,shp=True)
+            #Look up corresponding CHM path
+            CHM_path = lookup_CHM_path(result, lidar_list,shp=True)
             
-            #if not CHM_path:
-                #raise IOError("Image file: {} has no matching CHM".format(result))
+            if not CHM_path:
+                raise IOError("Image file: {} has no matching CHM".format(result))
             
-            ##Submit draping future
-            #postprocessed_filename = cpu_client.submit(run_lidar, result, CHM_path=CHM_path, save_dir="/orange/idtrees-collab/draped/")
+            #Submit draping future
+            postprocessed_filename = cpu_client.submit(run_lidar, result, CHM_path=CHM_path, save_dir="/orange/idtrees-collab/draped/")
             
-            #print("Postprocessing submitted: {}".format(result))                           
-            #draped_files.append(postprocessed_filename)            
-        #except Exception as e:
-            #print("Lidar draping future: {} failed with {}".format(future, e.with_traceback(future.traceback())))   
+            print("Postprocessing submitted: {}".format(result))                           
+            draped_files.append(postprocessed_filename)            
+        except Exception as e:
+            print("Lidar draping future: {} failed with {}".format(future, e.with_traceback(future.traceback())))   
     
-    #wait(draped_files)
+    wait(draped_files)
     
-    ##Give the scheduler some time to cleanup
-    #time.sleep(3)
+    #Give the scheduler some time to cleanup
+    time.sleep(3)
 
