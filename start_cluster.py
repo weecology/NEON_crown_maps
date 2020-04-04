@@ -86,12 +86,7 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
             dashboard_address=":8787",            
             local_directory="/orange/idtrees-collab/tmp/", death_timeout=300)    
         
-        if gpus > 5:
-            minimum_jobs = 5
-        else:
-            minimum_jobs = 0
-            
-        cluster.adapt(minimum_jobs = minimum_jobs, maximum_jobs=gpus)
+        cluster.scale(gpus)
         
 
     dask_client = Client(cluster)
