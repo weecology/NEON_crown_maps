@@ -78,6 +78,9 @@ def simulate_plot(shp):
     #Read shapefile
     df = gpd.read_file(shp)
     
+    if df.empty:
+        return None
+    
     #select plot center
     plot_center_x, plot_center_y = create_plot(df)
     subplot_bounds = create_subplots(plot_center_x, plot_center_y)
@@ -163,6 +166,9 @@ if __name__ == "__main__":
             result = dask.delayed(run)(x)
             simulation_results.append(result)
     results = dask.compute(*simulation_results)
+    
+    #Remove None for blank rows
+    results = [x for x in results if x]
     
     #Combine results
     results = pd.concat(results)

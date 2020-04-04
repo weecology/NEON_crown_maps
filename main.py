@@ -172,7 +172,7 @@ if __name__ == "__main__":
     
     #Create dask clusters
     #Start GPU Client
-    gpu_client = start(gpus=12,mem_size ="10GB")        
+    gpu_client = start(gpus=12,mem_size ="12GB")        
     cpu_client = start(cpus = 60, mem_size ="6GB")
  
     #Set dask temp dir
@@ -252,7 +252,7 @@ if __name__ == "__main__":
                         
             #Predict record
             gpu_results = gpu_client.submit(run_rgb, batch_results, batch_rgb_path , overwrite=overwrite, priority=10)
-            print("Submitted prediction for a batch of {} tfrecords".format(len(batch_results)))     
+            #print("Submitted prediction for a batch of {} tfrecords".format(len(batch_results)))     
             sys.stdout.flush()
             predictions.append(gpu_results)
         
