@@ -220,7 +220,7 @@ if __name__ == "__main__":
                                               client=cpu_client,
                                               n=None,
                                               target_list = target_list,
-                                              site_list=site_list,
+                                              site_list=sites,
                                               year_list=year_list,
                                               overwrite=overwrite)
         
