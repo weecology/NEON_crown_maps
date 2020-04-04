@@ -208,7 +208,7 @@ if __name__ == "__main__":
     site_list = [["ABBY","ARIK","BARR","BART","BLAN"],["BONA","CLBJ","CPER","CUPE","DEJU","DELA"],["DSNY","GRSM","GUAN",
     "GUIL","HARV","HEAL"],["HOPB","JERC","JORN","KONZ","LAJA","LENO"],["LIRO","MCDI","MLBS","MOAB","NIWO","NOGP"],["OAES","OSBS","PRIN","PUUM","REDB","RMNP"],["SCBI","SERC","SJER","SOAP","SRER","STEI"],["STER","TALL","TEAK","TOOL","UKFS"],["UNDE","WLOU","WOOD","WREF","YELL"]]
     
-    site_list = ["OSBS","DELA","BART","TEAK","BONA","SOAP","WREF"]
+    #site_list = ["OSBS","DELA","BART","TEAK","BONA","SOAP","WREF"]
     #year_list = None    
     year_list = ["2019","2018"]
     
