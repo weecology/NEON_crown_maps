@@ -95,7 +95,7 @@ if __name__ == "__main__":
     client = start_client(debug=False)
     
     #Create dataframe and compute summary statistics
-    daskdf = load_predictions("/orange/ewhite/b.weinstein/NEON/draped/")
+    daskdf = load_predictions("/orange/idtrees-collab/draped/")
     
     #How many records total?
     total_trees = daskdf.shape[0].compute()
