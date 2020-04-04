@@ -128,7 +128,7 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     site_totals = df.groupby(["site","year"]).size()
     print(site_totals)
 
-    written_records = client.map(tfrecords.create_tfrecords, final_rgb_list, patch_size=400, patch_overlap=0.05, savedir="/orange/idtrees-collab/crops/tfrecords/",overwrite=overwrite)
+    written_records = client.map(tfrecords.create_tfrecords, final_rgb_list, patch_size=400, patch_overlap=0.05, savedir="/orange/idtrees-collab/crops/",overwrite=overwrite)
     
     return written_records
 
@@ -188,29 +188,28 @@ if __name__ == "__main__":
 
     #Create tfrecords, either specify a set of tiles or sample random
     
-    target_list =[
-    "2019_WREF_3_582000_5073000_image.tif",
-    "2018_ABBY_2_557000_5065000_image.tif",
-    "2018_CLBJ_3_627000_3694000_image.tif",
-    "2018_OSBS_4_400000_3285000_image.tif",
-    "2018_SRER_2_503000_3520000_image.tif",
-    "2019_DSNY_5_462000_3100000_image.tif",
-    "2019_NOGP_3_353000_5187000_image.tif",
-    "2019_SERC_4_364000_4308000_image.tif",
-    "2019_TALL_5_465000_3646000_image.tif",
-   "2019_TEAK_4_315000_4104000_image.tif",
-   "2019_KONZ_5_704000_4335000_image.tif",
-   "2018_BART_4_317000_4874000_image.tif",
-   "2019_DELA_5_421000_3606000_image.tif",
-    "2019_BONA_3_476000_7233000_image.tif"]
+    #target_list =[
+    #"2019_WREF_3_582000_5073000_image.tif",
+    #"2018_ABBY_2_557000_5065000_image.tif",
+    #"2018_CLBJ_3_627000_3694000_image.tif",
+    #"2018_OSBS_4_400000_3285000_image.tif",
+    #"2018_SRER_2_503000_3520000_image.tif",
+    #"2019_DSNY_5_462000_3100000_image.tif",
+    #"2019_NOGP_3_353000_5187000_image.tif",
+    #"2019_SERC_4_364000_4308000_image.tif",
+    #"2019_TALL_5_465000_3646000_image.tif",
+   #"2019_TEAK_4_315000_4104000_image.tif",
+   #"2019_KONZ_5_704000_4335000_image.tif",
+   #"2018_BART_4_317000_4874000_image.tif",
+   #"2019_DELA_5_421000_3606000_image.tif",
+    #"2019_BONA_3_476000_7233000_image.tif"]
     
+    target_list = []
     target_list = None
     
     #List of sites broken into chunks
-    #site_list = [["ABBY","ARIK","BART","BLAN"],["BONA","CLBJ","CPER","CUPE","DEJU","DELA"],["DSNY","GRSM","GUAN",
-    #"GUIL","HARV","HEAL"],["HOPB","JERC","JORN","KONZ","LAJA","LENO"],["LIRO","MCDI","MLBS","MOAB","NIWO","NOGP"],["OAES","OSBS","PRIN","PUUM","REDB","RMNP"],["SCBI","SERC","SJER","SOAP","SRER","STEI"],["STER","TALL","TEAK","TOOL","UKFS"],["UNDE","WLOU","WOOD","WREF","YELL"]]
-    
-    site_list=[["SCBI","SERC","SJER","SOAP","SRER","STEI"],["STER","TALL","TEAK","TOOL","UKFS"],["UNDE","WLOU","WOOD","WREF","YELL"]]
+    site_list = [["SCBI","SERC","SJER","SOAP","SRER","STEI"],["STER","TALL","TEAK","TOOL","UKFS"],["UNDE","WLOU","WOOD","WREF","YELL"], ["ABBY","ARIK","BART","BLAN"],["BONA","CLBJ","CPER","CUPE","DEJU","DELA"],["DSNY","GRSM","GUAN",
+    "GUIL","HARV","HEAL"],["HOPB","JERC","JORN","KONZ","LAJA","LENO"],["LIRO","MCDI","MLBS","MOAB","NIWO","NOGP"],["OAES","OSBS","PRIN","PUUM","REDB","RMNP"],["SCBI","SERC","SJER","SOAP","SRER","STEI"],["STER","TALL","TEAK","TOOL","UKFS"],["UNDE","WLOU","WOOD","WREF","YELL"]]
     
     #site_list = ["OSBS","DELA","BART","TEAK","BONA","SOAP","WREF"]
     #year_list = None    

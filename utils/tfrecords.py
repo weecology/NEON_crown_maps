@@ -43,24 +43,28 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir=".",
     #Load image    
     try:
         raster = Image.open(tile_path)
-    except:
-        print("Image {} is corrupt".format(tile_path))
-        return None
+    except Exception as e:
+        print("Image {} is corrupt: {}".format(tile_path, e))
+        return None 
         
     numpy_image = np.array(raster)
     image_name = os.path.splitext(os.path.basename(tile_path))[0]
     
+    #Create folder to hold crops
+    tile_dir = "{}/{}".format(savedir,image_name)
+    tfrecord_filename = os.path.join(tile_dir, "{}.tfrecord".format(image_name))    
+
+    try:
+        os.mkdir(tile_dir)
+    except Exception as e:
+        if overwrite:
+            pass
+        else:
+            return tfrecord_filename
+    
     #Create window crop index
     windows = preprocess.compute_windows(numpy_image, patch_size, patch_overlap)
     written_files = []
-    
-    #Tensorflow writer
-    tfrecord_filename = os.path.join(savedir, "{}.tfrecord".format(image_name))    
-    
-    #Check for overwrite
-    if not overwrite:
-        if os.path.exists(tfrecord_filename):
-            return tfrecord_filename
         
     tfwriter = tf.io.TFRecordWriter(tfrecord_filename)
     
@@ -77,7 +81,7 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir=".",
         #crop        = keras_retinanet_image.preprocess_image(crop)
         
         #crop, scale = keras_retinanet_image.resize_image(crop)    
-        filename = os.path.join(savedir,"{}_{}.png".format(image_name,index))
+        filename = os.path.join(tile_dir,"{}_{}.png".format(image_name,index))
         
         #Write crop to file
         cv2.imwrite(img=crop,filename=filename)
