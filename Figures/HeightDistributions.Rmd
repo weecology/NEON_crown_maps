@@ -33,7 +33,8 @@ ggsave("Attributes.svg", height=3.5,width=6)
 ## Counts through time
 
 ```{r}
-counts %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point(aes(col=Site),alpha=0.5) + geom_abline(linetype="dashed") + coord_equal() + stat_smooth(method="lm")
+counts %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point(aes(col=Site),alpha=0.5) + geom_abline(linetype="dashed") + coord_equal() + stat_smooth(method="lm") + theme(legend.position = "none") + scale_x_continuous(labels=comma) + scale_y_continuous(labels=comma) + ggtitle("Tree Count Across Years")
+ggsave("CrossYears.png",height=4,width=7)
 ```
 
 #Tree Falls

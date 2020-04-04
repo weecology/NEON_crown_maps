@@ -58,13 +58,7 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
             local_directory="/orange/idtrees-collab/tmp/", death_timeout=300)
     
         print(cluster.job_script())
-        
-        #Adapt but keep some workers around
-        if cpus > 5:
-            minimum_jobs = 5
-        else:
-            minimum_jobs = 0
-        cluster.adapt(minimum_jobs = minimum_jobs, maximum_jobs=cpus)
+        cluster.scale(cpus)
         
     if gpus:
         #job args
