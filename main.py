@@ -207,7 +207,7 @@ if __name__ == "__main__":
     target_list = None
     
     #List of sites broken into chunks
-    #site_list = [["ABBY","ARIK","BARR","BART","BLAN"],["BONA","CLBJ","CPER","CUPE","DEJU","DELA"],["DSNY","GRSM","GUAN",
+    #site_list = [["ABBY","ARIK","BART","BLAN"],["BONA","CLBJ","CPER","CUPE","DEJU","DELA"],["DSNY","GRSM","GUAN",
     #"GUIL","HARV","HEAL"],["HOPB","JERC","JORN","KONZ","LAJA","LENO"],["LIRO","MCDI","MLBS","MOAB","NIWO","NOGP"],["OAES","OSBS","PRIN","PUUM","REDB","RMNP"],["SCBI","SERC","SJER","SOAP","SRER","STEI"],["STER","TALL","TEAK","TOOL","UKFS"],["UNDE","WLOU","WOOD","WREF","YELL"]]
     
     site_list=[["SCBI","SERC","SJER","SOAP","SRER","STEI"],["STER","TALL","TEAK","TOOL","UKFS"],["UNDE","WLOU","WOOD","WREF","YELL"]]
@@ -259,7 +259,11 @@ if __name__ == "__main__":
         ##As predictions complete, run postprocess to drape LiDAR and extract height
         draped_files = [ ]
         for future in as_completed(predictions):
-            result = future.result()
+            try:
+                result = future.result()
+            except Exception as e:
+                print("GPU submit failed with {}".format(e))
+                continue
             for shp in result:
                 try:
                     #Look up corresponding CHM path
