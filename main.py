@@ -162,7 +162,9 @@ def run_lidar(shp, CHM_path, min_height=3, save_dir=""):
     #Save shapefile
     bname = os.path.basename(shp)
     postprocessed_filename = os.path.join(save_dir, bname)
-    boxes.to_file(postprocessed_filename, driver='ESRI Shapefile')
+    
+    if not boxes.empty:
+        boxes.to_file(postprocessed_filename, driver='ESRI Shapefile')
     
     return postprocessed_filename
     

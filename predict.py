@@ -186,10 +186,15 @@ def predict_tile(model, tfrecord, patch_size=400, patch_overlap=0.05, image_size
 
     #pandas frame
     record_df = pd.concat(record_results)
-    mosaic_df = run_non_max_suppression(record_df)
-    mosaic_df["filename"] = tfrecord    
-
-    return mosaic_df
+    
+    #if empty, return None
+    if record_df.empty:
+        return record_df
+    else:
+        mosaic_df = run_non_max_suppression(record_df)
+        mosaic_df["filename"] = tfrecord    
+    
+        return mosaic_df
     
 def project(raster_path, boxes):
     """Project boxes into utm"""
