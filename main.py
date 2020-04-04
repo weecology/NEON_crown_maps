@@ -247,7 +247,7 @@ if __name__ == "__main__":
                     continue
                         
             #Predict record
-            gpu_results = gpu_client.submit(run_rgb, batch_results, batch_rgb_path , overwrite=overwrite)
+            gpu_results = gpu_client.submit(run_rgb, batch_results, batch_rgb_path , overwrite=overwrite, priority=10)
             print("Submitted prediction for a batch of {} tfrecords".format(len(batch_results)))     
             sys.stdout.flush()
             predictions.append(gpu_results)
