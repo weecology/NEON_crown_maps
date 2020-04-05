@@ -100,7 +100,7 @@ def create_tfrecords(tile_path, patch_size=400, patch_overlap=0.05, savedir=".",
     #Write metadata
     df = pd.concat(metadata)
     
-    csv_filename = os.path.join(savedir,"{}.csv".format(image_name))
+    csv_filename = os.path.join(tile_dir,"{}.csv".format(image_name))
     df.to_csv(csv_filename, index=False)
     
     return tfrecord_filename
