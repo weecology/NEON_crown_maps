@@ -170,7 +170,7 @@ if __name__ == "__main__":
         results = dask.compute(*simulation_results)
         
         #Remove None for blank rows
-        results = [x for x in results if x]
+        results = [x for x in results if x is not None]
         
         #Combine results and label with site
         results = pd.concat(results)
