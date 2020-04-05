@@ -52,7 +52,6 @@ results<-results %>% mutate(sqkm=floor(frac*n))
 #Summarize by fraction
 results<-results %>% group_by(Site,sqkm) %>% summarize(mean=mean(total),lower=quantile(total,0.05),upper=quantile(total,0.95))
 
-
 ggplot(results,aes(x=sqkm,y=mean)) +facet_wrap(~Site,scales="free") + geom_line() + geom_ribbon(aes(ymin=lower,ymax=upper)) + scale_y_continuous(label=comma) + labs(x="Extent (km^2)",y="Tree Count")
 ```
 
@@ -82,7 +81,7 @@ stan_glm <- stan_glm(n~0 + Site,data = plot_totals,family = poisson,cores=4, ite
 ```
 
 ```{r}
-newdata <- results %>% group_by(Site,sqkm) %>% distinct() %>% dplyr::select(Site,sqkm)
+newdata <- results %>% group_by(Site,sqkm) %>% distinct() %>% dplyr::select(Site,sqkm) %>% filter(Site %in% plot_totals$Site)
   
 estimated <- fitted_draws(stan_glm, newdata,draws=2000) %>% mutate(total=(sqkm * .value)*scaling)  %>% group_by(Site,sqkm,.draw) %>% summarize(total=sum(total)) %>% summarize(mean=mean(total),lower=quantile(total,0.05),upper=quantile(total,0.95))
 
@@ -94,26 +93,30 @@ estimated$Data<-c("Field")
 combined<-bind_rows(list(results,estimated))
 
 ggplot(combined,aes(x=sqkm,y=mean,fill=Data)) +facet_wrap(~Site,scales="free") + geom_line(col="black") + geom_ribbon(aes(ymin=lower,ymax=upper),alpha=0.5) + scale_y_continuous(label=comma) + labs(x="Extent (km^2)",y="Tree Count")  + theme_bw()
-ggsave("Scaling.png",height=5,width=8)
+ggsave("Scaling_all.png",height=10,width=12)
+
+combined %>% filter(Site %in% c("DSNY","TEAK","OSBS","BART","BLAN","SJER","MLBS","WREF","KONZ")) %>% ggplot(. ,aes(x=sqkm,y=mean,fill=Data)) +facet_wrap(~Site,scales="free") + geom_line(col="black") + geom_ribbon(aes(ymin=lower,ymax=upper),alpha=0.5) + scale_y_continuous(label=comma) + labs(x="Extent (km^2)",y="Tree Count")  + theme_bw()
+ggsave("Scaling_subset.png",height=7,width=10)
 ```
 
 ## Compare total counts
 
 ```{r}
-combined %>% group_by(Data,Site) %>% filter(sqkm == max(sqkm)) %>% ungroup() %>% pivot_wider(names_from=Data,values_from=c(mean,lower,upper)) %>% ggplot(., aes(x=mean_Field,y=`mean_Remote Sensing`)) + geom_point()  + labs(x="Field",y="Remote Sensing") + ggtitle("Tree Count") + geom_abline(linetype="dashed") + coord_fixed()    + geom_text(aes(label=Site),size=2,hjust=1.1,vjust=1.2) + theme_bw()  + scale_x_continuous(limits=c(.2e7,1.1e7),labels=comma) + scale_y_continuous(limits=c(.2e7,1.1e7),labels=comma) + geom_errorbarh(aes(xmin=lower_Field,xmax=upper_Field))
-ggsave("FullSiteScale.png",height=3.5,width=4)
+combined %>% group_by(Data,Site) %>% filter(sqkm == max(sqkm)) %>% ungroup() %>% pivot_wider(names_from=Data,values_from=c(mean,lower,upper)) %>% ggplot(., aes(x=mean_Field,y=`mean_Remote Sensing`)) + geom_point()  + labs(x="Field",y="Remote Sensing") + ggtitle("Tree Count") + geom_abline(linetype="dashed") + coord_fixed()    + geom_text(aes(label=Site),size=2,hjust=1.1,vjust=1.2) + theme_bw()  + scale_x_continuous(limits=c(0e7,1.5e7),labels=comma) + scale_y_continuous(limits=c(0e7,1e7),labels=comma) + geom_errorbarh(aes(xmin=lower_Field,xmax=upper_Field))
+ggsave("FullSiteScale.png",height=6,width=9)
 ```
 
 # Compare distributions
 
 ```{r}
 #Load data from HPC
-f<-list.files("sampling")
+f<-list.files(pattern="sampling")
+f<-f[str_detect(f,".csv")]
 sampling<-bind_rows(lapply(f,read.csv))
 
 #Plot sampling curves
 p <- ggplot() + geom_density(data=sampling,aes(x=tree_density,fill=as.factor(year)),alpha=0.4) + facet_wrap(~site,scales="free") + labs(fill="year")
-p
+
 
 #Get site curve
 field_density<-field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter > 7.5) %>% filter(is.na(height)|height>3) %>% group_by(site=siteID,plotID,eventID) %>% summarize(n=n()) %>% summarize(tree_density=round(mean(n)))
@@ -122,4 +125,9 @@ rects<-field_density %>% group_by(site) %>% summarize(mean=mean(tree_density),lo
   
 p +geom_rect(data=rects,aes(xmin=lower,xmax=upper,ymin=0,ymax=Inf),fill="black",alpha=0.2) + geom_vline(data=rects,aes(xintercept=mean),linetype="dashed") + theme_bw() + labs(x="Trees per plot",fill="Year")
 ggsave("sampling3.png",height=4,width=7)
+
+rect_subset <- rects %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","UKFS","WREF","LENO"))
+sampling %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","UKFS","WREF","LENO")) %>% ggplot(.) + 
+geom_density(aes(x=tree_density,fill=as.factor(year)),alpha=0.4) + facet_wrap(~site,scales="free") + labs(fill="year") +geom_rect(data=rect_subset,aes(xmin=lower,xmax=upper,ymin=0,ymax=Inf),fill="black",alpha=0.2) + geom_vline(data=rect_subset,aes(xintercept=mean),linetype="dashed") + theme_bw() + labs(x="Trees per plot",fill="Year")
+ggsave("Sampling_subset.png")
 ```

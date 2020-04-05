@@ -177,7 +177,8 @@ if __name__ == "__main__":
         results["year"] = results.path.apply(lambda x: get_year(x))
         results["site"] = results.path.apply(lambda x: get_site(x))
         site = results["site"].unique()[0]
+        year = results["year"].unique()[0]
         
         #Write
-        results.to_csv("Figures/sampling_{}.csv".format(site), index=False)
+        results.to_csv("Figures/sampling_{}_{}.csv".format(site,year), index=False)
         
