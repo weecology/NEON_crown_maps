@@ -143,7 +143,7 @@ def run(tile_list):
 if __name__ == "__main__":
 
     #Start dask client
-    client = start(cpus=80, mem_size="3GB")
+    client = start(cpus=100, mem_size="4GB")
     
     #Get pool of predictions    
     shps = glob.glob("/orange/idtrees-collab/draped/*.shp")
@@ -160,22 +160,24 @@ if __name__ == "__main__":
     for key, value in site_lists.items():
         tile_lists.append(value)
     
-    simulation_results = [ ]
     for x in tile_lists:
+        simulation_results = [ ]        
         for i in np.arange(10000):
             result = dask.delayed(run)(x)
             simulation_results.append(result)
-    results = dask.compute(*simulation_results)
-    
-    #Remove None for blank rows
-    results = [x for x in results if x]
-    
-    #Combine results
-    results = pd.concat(results)
-    results["year"] = results.path.apply(lambda x: get_year(x))
-    results["site"] = results.path.apply(lambda x: get_site(x))
-    
-    results.to_csv("Figures/sampling.csv", index=False)
         
-    
+        #Gather on scheduler and write
+        results = dask.compute(*simulation_results)
+        
+        #Remove None for blank rows
+        results = [x for x in results if x]
+        
+        #Combine results and label with site
+        results = pd.concat(results)
+        results["year"] = results.path.apply(lambda x: get_year(x))
+        results["site"] = results.path.apply(lambda x: get_site(x))
+        site = results["site"].unique()[0]
+        
+        #Write
+        results.to_csv("Figures/sampling_{}.csv".format(site), index=False)
         
