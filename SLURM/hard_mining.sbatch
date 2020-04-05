@@ -10,5 +10,16 @@
 #SBATCH --output=/home/b.weinstein/logs/Mining_%j.out   # Standard output and error log
 #SBATCH --error=/home/b.weinstein/logs/Mining_%j.err
 
-source activate crowns
+export SLURM_TMPDIR=/orange/idtrees-collab/tmp/
+export TMPDIR=/orange/idtrees-collab/tmp/
+
+module load tensorflow/1.14.0
+
+export PATH=${PATH}:/home/b.weinstein/miniconda3/envs/crowns/bin/
+export PYTHONPATH=${PYTHONPATH}:/home/b.weinstein/miniconda3/envs/crowns/lib/python3.7/site-packages/
+export LD_LIBRARY_PATH=/home/b.weinstein/miniconda3/envs/crowns/lib/:${LD_LIBRARY_PATH}
+
+cd /home/b.weinstein/NEON_crown_maps/
+
+#comet debug
 python hard_mining.py

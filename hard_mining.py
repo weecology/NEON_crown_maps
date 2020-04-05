@@ -8,7 +8,7 @@ import rasterio
 from rasterio import windows as rwindow
 from deepforest import preprocess
 
-def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0.15, min_tree = 1 ):
+def run(image_path,prediction_path, save_dir=".", patch_size=400,patch_overlap=0.05, min_tree = 1 ):
     """Run Hard Negative Mining. Loop through a series of DeepForest predictions, find the highest and lowest scoring quantiles and save them for retraining
         Args:
             min_tree: Minimum number of trees in an image to consider
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/*image.tif",recursive=True)
     
     #tfrecord files
-    predictions = glob.glob("/orange/ewhite/b.weinstein/NEON/draped/*.shp")
+    predictions = glob.glob("/orange/idtrees-collab/draped/*.shp")
     
     #match rgb list to tfrecords
     rgb_names = [os.path.splitext(os.path.basename(x))[0] for x in rgb_list]
@@ -115,12 +115,14 @@ if __name__ == "__main__":
     image_paths = [rgb_list[x] for x in indices]
     
     #Create cluster
-    client = start(cpus=10)
+    client = start(cpus=50)
     
     #Strategy 1 - all windows
-    futures = client.map(run,image_paths,predictions,save_dir="/orange/ewhite/b.weinstein/NEON/mining/", min_tree = 1)
+    futures = client.map(run,image_paths,predictions,save_dir="/orange/idtrees-collab/mining/", min_tree = 1)
+    
+    wait(futures)
     
     #Strategy 2 - more than 10 trees
-    futures = client.map(run,image_paths,predictions,save_dir="/orange/ewhite/b.weinstein/NEON/mining/", min_tree = 10)
+    futures = client.map(run,image_paths,predictions,save_dir="/orange/idtrees-collab/mining/", min_tree = 10)
     
     wait(futures)

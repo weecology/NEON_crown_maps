@@ -108,23 +108,16 @@ ggsave("FullSiteScale.png",height=3.5,width=4)
 
 ```{r}
 #Load data from HPC
-sampling <- read.csv("sampling.csv")
+f<-list.files("sampling")
+sampling<-bind_rows(lapply(f,read.csv))
 
 #Plot sampling curves
 p <- ggplot() + geom_density(data=sampling,aes(x=tree_density,fill=as.factor(year)),alpha=0.4) + facet_wrap(~site,scales="free") + labs(fill="year")
 p
+
 #Get site curve
 field_density<-field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter > 7.5) %>% filter(is.na(height)|height>3) %>% group_by(site=siteID,plotID,eventID) %>% summarize(n=n()) %>% summarize(tree_density=round(mean(n)))
 
-#Option 1
-p + geom_density(data=field_density,aes(x=tree_density),fill="black",alpha=0.5) + theme_bw() + labs("Tree Count")
-ggsave("sampling1.png",height=4,width=7)
-
-#Option 2
-p + geom_vline(data=field_density,aes(xintercept=mean(tree_density)),col="black",linetype="dashed") + theme_bw() + labs("Tree Count")
-ggsave("sampling2.png",height=4,width=7)
-
-#Option 3
 rects<-field_density %>% group_by(site) %>% summarize(mean=mean(tree_density),lower=quantile(tree_density,0.05), upper=quantile(tree_density,0.95))
   
 p +geom_rect(data=rects,aes(xmin=lower,xmax=upper,ymin=0,ymax=Inf),fill="black",alpha=0.2) + geom_vline(data=rects,aes(xintercept=mean),linetype="dashed") + theme_bw() + labs(x="Trees per plot",fill="Year")

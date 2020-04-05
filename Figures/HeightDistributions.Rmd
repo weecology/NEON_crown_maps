@@ -22,6 +22,8 @@ counts<-read.csv("counts.csv")
 colnames(counts)<-c("Site","geo_index","Year","n")
 
 counts %>% group_by(Site) %>% summarize(n=sum(n)) %>% summarize(total=sum(n))
+
+counts %>% group_by(Site, Year) %>% summarize(n=sum(n)) %>% data.frame()
 ```
 
 ```{r}
@@ -35,32 +37,5 @@ ggsave("Attributes.svg", height=3.5,width=6)
 ```{r}
 counts %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point(aes(col=Site),alpha=0.5) + geom_abline(linetype="dashed") + coord_equal() + stat_smooth(method="lm") + theme(legend.position = "none") + scale_x_continuous(labels=comma) + scale_y_continuous(labels=comma) + ggtitle("Tree Count Across Years")
 ggsave("CrossYears.png",height=4,width=7)
-```
-
-#Tree Falls
-```{r}
-treedf<-read.csv("treefall.csv",row.names= 1)
-ggplot(treedf,aes(x=Site,y=mean,ymin=lower,ymax=upper)) + geom_pointrange(size=1) + theme_bw() + labs(y="Tree Falls per 1km^2")
-ggsave("TreeFalls.png",height=4,width=6)
-
-treedf %>% inner_join(df[,c("Site","n")]) %>% ggplot(.,aes(x=n,y=mean,ymin=lower,ymax=upper)) + geom_pointrange() + geom_text(aes(label=Site),vjust=0.25,hjust=-0.25,size=2) + labs(x="Trees per 1km^2",y="Tree Falls per 1km^2") + scale_x_continuous(label=comma)
-ggsave("TreeFallsRate.png",height=4,width=6)
-```
-
-```{r}
-treedf %>% inner_join(df[,c("Site","n")]) %>% ggplot(.,aes(x=n,y=mean/n,ymin=lower/n,ymax=upper/n)) + geom_pointrange() + geom_text(aes(label=Site),vjust=0.25,hjust=-0.25,size=2) + labs(x="Trees per 1km^2",y="Tree Fall Rate per 1km^2") + scale_x_continuous(label=comma) + scale_y_continuous(labels = percent)
-ggsave("TreeFallsRate_km.png",height=4,width=6)
-```
-
-
-```{r}
-df<-read.csv("tile_averages.csv",row.names = 1)
-colnames(df)[colnames(df) %in% "X0"]<-"count"
-
-ggplot(df,aes(x=height_mean)) + geom_density(fill="black") + facet_wrap(~Site) + theme_bw() + labs(x="Mean Height in each 1km^2")
-```
-
-```{r}
-ggplot(df,aes(x=count/1000)) + geom_density(fill="black") + facet_wrap(~Site,scales="free") + theme_bw() + labs(x="Tree Count in each 1km^2 (1000's)") 
 ```
 
