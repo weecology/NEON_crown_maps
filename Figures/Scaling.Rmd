@@ -77,7 +77,7 @@ scaling=(1000 * 1000) /((20*20)*2)
 #TODO plot type? Individual ID for multi-bole?
 plot_totals<-field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter > 7.5) %>% filter(is.na(height)|height>3) %>% group_by(Site=siteID,plotID,eventID) %>% summarize(n=n()) %>% summarize(n=round(mean(n)))
 
-stan_glm <- stan_glm(n~0 + Site,data = plot_totals,family = poisson,cores=4, iter=10000) 
+stan_glm <- stan_glm(n~0 + Site,data = plot_totals,family = poisson,cores=4, iter=20000) 
 ```
 
 ```{r}
@@ -117,7 +117,6 @@ sampling<-bind_rows(lapply(f,read.csv))
 #Plot sampling curves
 p <- ggplot() + geom_density(data=sampling,aes(x=tree_density,fill=as.factor(year)),alpha=0.4) + facet_wrap(~site,scales="free") + labs(fill="year")
 
-
 #Get site curve
 field_density<-field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter > 7.5) %>% filter(is.na(height)|height>3) %>% group_by(site=siteID,plotID,eventID) %>% summarize(n=n()) %>% summarize(tree_density=round(mean(n)))
 
@@ -126,8 +125,25 @@ rects<-field_density %>% group_by(site) %>% summarize(mean=mean(tree_density),lo
 p +geom_rect(data=rects,aes(xmin=lower,xmax=upper,ymin=0,ymax=Inf),fill="black",alpha=0.2) + geom_vline(data=rects,aes(xintercept=mean),linetype="dashed") + theme_bw() + labs(x="Trees per plot",fill="Year")
 ggsave("sampling3.png",height=4,width=7)
 
-rect_subset <- rects %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","UKFS","WREF","LENO"))
-sampling %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","UKFS","WREF","LENO")) %>% ggplot(.) + 
+rect_subset <- rects %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","JERC","WREF","LENO"))
+sampling %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","JERC","WREF","LENO")) %>% ggplot(.) + 
 geom_density(aes(x=tree_density,fill=as.factor(year)),alpha=0.4) + facet_wrap(~site,scales="free") + labs(fill="year") +geom_rect(data=rect_subset,aes(xmin=lower,xmax=upper,ymin=0,ymax=Inf),fill="black",alpha=0.2) + geom_vline(data=rect_subset,aes(xintercept=mean),linetype="dashed") + theme_bw() + labs(x="Trees per plot",fill="Year")
-ggsave("Sampling_subset.png")
+ggsave("Sampling_subset.png",height=4,width=7)
+```
+
+#How much area is covered by a given plot?
+
+Abby 63
+1. Get the new data from sergio
+
+2. nestedsubplotid
+
+if na, right side
+is na
+3. What plot type is it?
+tower
+
+If tower
+```{r}
+
 ```
