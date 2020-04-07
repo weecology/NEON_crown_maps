@@ -1,5 +1,6 @@
 #Allometry
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 import geopandas  
 import pandas as pd
 import glob
@@ -45,10 +46,10 @@ def run(tile_list):
     X = df[["height"]]
     y = df[["area"]]   
     
-    R2 = model_fit.score(model_fit.predict(X), y)
+    R2 = r2_score(y,model_fit.predict(X))
     
     #Format 
-    data = {"slope": model_fit.coef_, "intercept":model_fit.intercept_, "min_height": df.height.min(),"max_height": df.height.quantile(0.99),"R2": R2}
+    data = {"slope": model_fit.coef_, "intercept":model_fit.intercept_[0], "min_height": df.height.min(),"max_height": df.height.quantile(0.99),"R2": R2}
     return data
     
 if __name__ == "__main__":
