@@ -52,7 +52,6 @@ def run(tile_list):
     model_fit = fit_linear_model(X,y)    
     R2 = r2_score(y,model_fit.predict(X))
     
-    
     #Format 
     data = {"intercept":model_fit.intercept_[0],"slope":model_fit.coef_[0][0], "min_height": df.height.min(),"max_height": df.height.quantile(0.99),"R2": R2,"n":len(X)}
     return data

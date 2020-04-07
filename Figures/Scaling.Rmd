@@ -59,6 +59,7 @@ Estimate total counts from the field data
 
 ```{r}
 field<-read.csv("/Users/Ben/Documents/NeonTreeEvaluation/field_data.csv")
+field$area<-field$maxCrownDiameter*field$ninetyCrownDiameter
 ```
 
 How large of trees should we include. Many don't have height measurements.
@@ -164,10 +165,28 @@ predicted<-allometry %>% group_by(Site,Year) %>% do(predict_line(.$min_height,.$
 
 labels<-predicted %>% group_by(Site) %>% summarize(x=max(x),y=max(y))
 
-predicted %>% ggplot(.,aes(x=x,y=y)) + geom_line(alpha=0.4,aes(group=group)) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() + geom_text(data=labels,aes(x=x,y=y,label=Site),size=2) + scale_x_continuous(n.breaks=10) 
-
-#labels
+p<-predicted %>% ggplot(.,aes(x=x,y=y)) + geom_line(alpha=0.4,aes(group=group)) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() + geom_text(data=labels,aes(x=x,y=y,label=Site),size=2) + scale_x_continuous(n.breaks=10) 
+p
 ggsave("Allometries.png",height=5,width=7)
 
+#Add field sampled line
+field_data<-field %>% filter(height<55, height>3,maxCrownDiameter>0)
+ggplot(field_data,aes(x=height,y=area)) + geom_point(alpha=0.1)  + stat_smooth(method="lm")
+
+m<-field_data %>% lm(data=.,area~height)
+summary(m)
+
+field_predict<-data.frame(x=seq(3,50,1),y=predict(m,newdata = data.frame(height=seq(3,50,1))))
+
+p + geom_line(data=field_predict,col="red",linetype="dashed",size=1)
+
+#labels
 ggplot(allometry,aes(x=R2)) + geom_histogram()
+```
+
+Field averages
+```{r}
+field %>% filter(height>=3) %>% group_by(siteID) %>% summarize(mean_height=mean(height), mean_area=mean(maxCrownDiameter * ninetyCrownDiameter,na.rm=T)) %>% filter(siteID=="SJER")
+
+ggplot(field,aes(x=siteID,y=maxCrownDiameter^2)) + geom_boxplot() + coord_flip() + ylim(0,200)
 ```
