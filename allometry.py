@@ -43,8 +43,9 @@ def run(tile_list):
     model_fit = fit_model(df)
     
     X = df[["height"]]
-    y = df[["area"]]    
-    R2 = model_fit.score(X, y)
+    y = df[["area"]]   
+    
+    R2 = model_fit.score(model_fit.predict(X), y)
     
     #Format 
     data = {"slope": model_fit.coef_, "intercept":model_fit.intercept_, "min_height": df.height.min(),"max_height": df.height.quantile(0.99),"R2": R2}
