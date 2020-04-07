@@ -166,8 +166,8 @@ labels<-predicted %>% group_by(Site) %>% summarize(x=max(x),y=max(y))
 
 predicted %>% ggplot(.,aes(x=x,y=y)) + geom_line(alpha=0.4,aes(group=group)) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() + geom_text(data=labels,aes(x=x,y=y,label=Site),size=2) + scale_x_continuous(n.breaks=10) 
 
-ggplot(allometry,aes(x=R2)) + geom_histogram()
-
 #labels
 ggsave("Allometries.png",height=5,width=7)
+
+ggplot(allometry,aes(x=R2)) + geom_histogram()
 ```
