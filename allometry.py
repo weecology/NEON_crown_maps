@@ -1,13 +1,16 @@
 #Allometry
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
 import geopandas  
 import pandas as pd
 import glob
 import re
+import numpy as np
 from dask import delayed
 import dask.dataframe as dd
 from check_site import get_site, get_year
+
+from sklearn.linear_model import LinearRegression
+from scipy.optimize import curve_fit
+from sklearn.metrics import r2_score
 
 def load_shp(shp):
     df = geopandas.read_file(shp)
@@ -30,26 +33,28 @@ def load_predictions(tile_lists):
     df = daskdf.compute()
     return df
 
-def fit_model(df):
+def fit_linear_model(X,y):
     model = LinearRegression()
-    X = df[["height"]]
-    y = df[["area"]]    
     fit = model.fit(X,y)
     
     return fit
     
+def func_exp(x, a, b, c):
+    return a * np.exp(b * x) + c
+
 def run(tile_list):
     #Load data in parallel and read in DataFrame locally
     df = load_predictions(tile_list)
-    model_fit = fit_model(df)
     
-    X = df[["height"]]
-    y = df[["area"]]   
+    X = np.log(df[["height"]])
+    y = np.log(df[["area"]])
     
+    model_fit = fit_linear_model(X,y)    
     R2 = r2_score(y,model_fit.predict(X))
     
+    
     #Format 
-    data = {"slope": model_fit.coef_, "intercept":model_fit.intercept_[0], "min_height": df.height.min(),"max_height": df.height.quantile(0.99),"R2": R2}
+    data = {"intercept":model_fit.intercept_[0],"slope":model_fit.coef_[0][0], "min_height": df.height.min(),"max_height": df.height.quantile(0.99),"R2": R2,"n":len(X)}
     return data
     
 if __name__ == "__main__":
