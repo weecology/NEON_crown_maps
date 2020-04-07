@@ -135,7 +135,7 @@ ggsave("Sampling_subset.png",height=4,width=7)
 
 ```{r}
 allometry<-as.data.frame(t(read.csv("allometry.csv",row.names = 1)))
-colnames(allometry)<-c("Year","slope","intercept","min_height","max_height")
+colnames(allometry)<-c("Year","slope","intercept","min_height","max_height","R2")
 allometry$Site<-rownames(allometry)
 
 #format data
@@ -149,6 +149,7 @@ allometry$intercept<-as.numeric(str_match(allometry$intercept,"(\\w+.\\d+)")[,2]
 allometry$slope<-as.numeric(str_match(allometry$slope,"(\\w+.\\d+)")[,2])
 allometry$max_height<-as.numeric(allometry$max_height)
 allometry$min_height<-as.numeric(allometry$min_height)
+allometry$R2<-as.numeric(allometry$R2)
 ```
 
 ```{r}
@@ -163,7 +164,9 @@ predicted<-allometry %>% group_by(Site,Year) %>% do(predict_line(.$min_height,.$
 
 labels<-predicted %>% group_by(Site) %>% summarize(x=max(x),y=max(y))
 
-predicted %>% ggplot(.,aes(x=x,y=y)) + geom_line(alpha=0.4,aes(group=group)) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() + geom_text(data=labels,aes(x=x,y=y,label=Site),size=2) + scale_x_continuous(n.breaks=10)
+predicted %>% ggplot(.,aes(x=x,y=y)) + geom_line(alpha=0.4,aes(group=group)) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() + geom_text(data=labels,aes(x=x,y=y,label=Site),size=2) + scale_x_continuous(n.breaks=10) 
+
+ggplot(allometry,aes(x=R2)) + geom_histogram()
 
 #labels
 ggsave("Allometries.png",height=5,width=7)
