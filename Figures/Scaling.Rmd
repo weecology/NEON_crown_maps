@@ -131,19 +131,33 @@ geom_density(aes(x=tree_density,fill=as.factor(year)),alpha=0.4) + facet_wrap(~s
 ggsave("Sampling_subset.png",height=4,width=7)
 ```
 
-#How much area is covered by a given plot?
+## Plot allometry fits
 
-Abby 63
-1. Get the new data from sergio
-
-2. nestedsubplotid
-
-if na, right side
-is na
-3. What plot type is it?
-tower
-
-If tower
 ```{r}
+allometry<-as.data.frame(t(read.csv("allometry.csv",row.names = 1)))
+colnames(allometry)<-c("Year","slope","intercept","min_height","max_height")
+allometry$Site<-rownames(allometry)
 
+#format data
+allometry<-reshape2::melt(allometry,id.vars=c("Site","Year"))
+allometry<-allometry %>% filter(!variable == "")
+colnames(allometry)<-c("Site","Year","variable","value")
+
+allometry$Site[str_detect(allometry$Site,"(\\w+).1")]<-str_match(allometry$Site[str_detect(allometry$Site,"(\\w+).1")], "(\\w+).")[,2]
+allometry<-reshape2::dcast(allometry,Site+Year~variable)
+allometry$intercept<-as.numeric(str_match(allometry$intercept,"(\\w+.\\d+)")[,2])
+allometry$slope<-as.numeric(str_match(allometry$slope,"(\\w+.\\d+)")[,2])
+allometry$max_height<-as.numeric(allometry$max_height)
+allometry$min_height<-as.numeric(allometry$min_height)
+```
+
+```{r}
+predict_line<-function(minx,maxx,intercept,slope){
+  x<-seq(minx,maxx,1)
+  y=intercept + slope*x 
+  return(data.frame(x,y))
+}
+
+allometry %>% group_by(Site,Year) %>% do(predict_line(.$min_height,.$max_height,.$intercept,.$slope)) %>% mutate(group=paste(Site,Year)) %>% ggplot(.,aes(x=x,y=y,group=group)) + geom_line(alpha=0.4) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() 
+ggsave("Allometries.png",height=5,width=7)
 ```
