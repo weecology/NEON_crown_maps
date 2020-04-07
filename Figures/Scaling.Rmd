@@ -158,6 +158,13 @@ predict_line<-function(minx,maxx,intercept,slope){
   return(data.frame(x,y))
 }
 
-allometry %>% group_by(Site,Year) %>% do(predict_line(.$min_height,.$max_height,.$intercept,.$slope)) %>% mutate(group=paste(Site,Year)) %>% ggplot(.,aes(x=x,y=y,group=group)) + geom_line(alpha=0.4) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() 
+
+predicted<-allometry %>% group_by(Site,Year) %>% do(predict_line(.$min_height,.$max_height,.$intercept,.$slope)) %>% mutate(group=paste(Site,Year)) %>% group_by(Site) %>% mutate(Year=as.numeric(Year)) %>% filter(Year==max(Year)) 
+
+labels<-predicted %>% group_by(Site) %>% summarize(x=max(x),y=max(y))
+
+predicted %>% ggplot(.,aes(x=x,y=y)) + geom_line(alpha=0.4,aes(group=group)) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() + geom_text(data=labels,aes(x=x,y=y,label=Site),size=2) + scale_x_continuous(n.breaks=10)
+
+#labels
 ggsave("Allometries.png",height=5,width=7)
 ```
