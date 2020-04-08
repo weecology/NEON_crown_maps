@@ -152,7 +152,7 @@ allometry$R2<-round(allometry$R2,3)
 ```{r}
 predict_line<-function(minx,maxx,intercept,slope){
   x<-seq(minx,maxx,1)
-  y=exp(intercept + slope*x)
+  y=exp(intercept + slope*log(x))
   return(data.frame(x,y=y))
 }
 
@@ -169,7 +169,7 @@ ggsave("Allometries.png",height=5,width=7)
 #Add field sampled line
 field_data<-field %>% filter(height<55, height>3,area>0) %>% group_by(siteID,individualID) %>% summarize(height=mean(height,na.rm=T),area=mean(area,na.rm=T))
 
-ggplot(field_data,aes(x=height,y=log(area))) + geom_point(alpha=0.1)  + stat_smooth(method="lm")
+ggplot(field_data,aes(x=height,y=area)) + geom_point(alpha=0.1)  + stat_smooth(method="lm")
 
 m<-field_data %>% lm(data=.,log(area)~height)
 summary(m)

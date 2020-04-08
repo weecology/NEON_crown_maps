@@ -37,3 +37,8 @@ def shapefile(record):
 def test_postprocess_CHM(shapefile):
     draped_boxes = LIDAR.postprocess_CHM(shapefile, CHM="data/OSBS_029_CHM.tif", min_height=2)
     assert all(draped_boxes.columns.values == ["left","bottom","right","top","score","label","geometry","height","area"])
+    
+def test_extraction_error():
+    """Initial results show some extractions are abnormally low. Here is one of those tests"""
+    draped = LIDAR.postprocess_CHM("data/test_polygon.shp", CHM="data/NEON_D03_OSBS_DP3_399000_3284000_CHM.tif", min_height=3)
+    assert draped.height.values[0] > 20

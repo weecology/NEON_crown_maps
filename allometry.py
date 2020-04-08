@@ -55,8 +55,8 @@ def run(tile_list, show=False):
     if show:
         plt.plot(np.exp(X), np.exp(y_pred),color="black")        
         plt.scatter(np.exp(X), np.exp(y),alpha=0.01)
-        plt.set_yscale('log')
-        plt.set_xscale('log')
+        plt.yscale('log')
+        plt.xscale('log')
         plt.xlabel('X')
         plt.ylabel('Y')        
         plt.show()

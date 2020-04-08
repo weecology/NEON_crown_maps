@@ -180,7 +180,7 @@ if __name__ == "__main__":
     print("Temp dir is: {} ".format(tempfile.gettempdir()))
     
     #Overwrite existing file?
-    overwrite=True
+    overwrite=False
     
     #File lists
     rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
