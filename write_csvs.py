@@ -52,6 +52,6 @@ if __name__ == "__main__":
         df = load_predictions(value)
         site = df.site.unique()[0]
         year= df.year.unique()[0]
-        df.to_csv("/orange/idtrees-collab/csv/{}_{}.csv".format(site,year))
+        df.to_csv("/orange/idtrees-collab/csv/{}.csv".format(key))
         
 
