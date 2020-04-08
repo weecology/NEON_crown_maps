@@ -172,8 +172,8 @@ if __name__ == "__main__":
     
     #Create dask clusters
     #Start GPU Client
-    gpu_client = start(gpus=12,mem_size ="12GB")        
-    cpu_client = start(cpus = 60, mem_size ="6GB")
+    gpu_client = start(gpus=2,mem_size ="12GB")        
+    cpu_client = start(cpus = 80, mem_size ="6GB")
  
     #Set dask temp dir
     dask.config.set({'temporary_directory': '/orange/idtrees-collab/tmp/'})
