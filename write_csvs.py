@@ -50,6 +50,6 @@ if __name__ == "__main__":
     model_fit = {}
     for key, value in site_lists.items():
         df = load_predictions(value)
-        df.to_csv("/orange/idtrees-collab/csv/{}.csv".format(key))
+        df.to_csv("/orange/idtrees-collab/csv/{}.csv".format("_".join(key)))
         
 
