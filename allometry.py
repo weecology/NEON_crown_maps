@@ -11,6 +11,7 @@ from check_site import get_site, get_year
 from sklearn.linear_model import LinearRegression
 from scipy.optimize import curve_fit
 from sklearn.metrics import r2_score
+from matplotlib import pyplot as plt
 
 def load_shp(shp):
     df = geopandas.read_file(shp)
@@ -40,16 +41,26 @@ def fit_linear_model(X,y):
     return fit
     
 
-def run(tile_list):
+def run(tile_list, show=False):
     #Load data in parallel and read in DataFrame locally
     df = load_predictions(tile_list)
     
-    X = df[["height"]]
+    X = np.log(df[["height"]])
     y = np.log(df[["area"]])
     
-    model_fit = fit_linear_model(X,y)    
-    R2 = r2_score(y,model_fit.predict(X))
+    model_fit = fit_linear_model(X,y)
+    y_pred = model_fit.predict(X)
+    R2 = r2_score(y,y_pred)
     
+    if show:
+        plt.plot(np.exp(X), np.exp(y_pred),color="black")        
+        plt.scatter(np.exp(X), np.exp(y),alpha=0.01)
+        plt.set_yscale('log')
+        plt.set_xscale('log')
+        plt.xlabel('X')
+        plt.ylabel('Y')        
+        plt.show()
+        
     #Format 
     data = {"intercept":model_fit.intercept_[0],"slope":model_fit.coef_[0][0], "min_height": df.height.min(),"max_height": df.height.quantile(0.99),"R2": R2,"n":len(X)}
     return data

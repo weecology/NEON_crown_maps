@@ -136,7 +136,7 @@ ggsave("Sampling_subset.png",height=4,width=7)
 
 ```{r}
 allometry<-as.data.frame(t(read.csv("allometry.csv",row.names = 1)))
-colnames(allometry)<-c("Year","slope","intercept","min_height","max_height","R2","n")
+colnames(allometry)<-c("Year","intercept","slope","min_height","max_height","R2","n")
 allometry$Site<-rownames(allometry)
 
 #format data
@@ -152,34 +152,31 @@ allometry$R2<-round(allometry$R2,3)
 ```{r}
 predict_line<-function(minx,maxx,intercept,slope){
   x<-seq(minx,maxx,1)
-  y=intercept + slope*log(x)
-  return(data.frame(x,y))
+  y=exp(intercept + slope*x)
+  return(data.frame(x,y=y))
 }
-
 
 predicted<-allometry %>% group_by(Site,Year) %>% do(predict_line(.$min_height,.$max_height,.$intercept,.$slope)) %>% mutate(group=paste(Site,Year)) %>% group_by(Site) %>% mutate(Year=as.numeric(Year)) %>% filter(Year==max(Year)) 
 
 labels<-predicted %>% group_by(Site) %>% summarize(x=max(x),y=max(y))
 
-p<-predicted %>% ggplot(.,aes(x=x,y=y)) + geom_line(alpha=0.4,aes(group=group)) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() + geom_text(data=labels,aes(x=x,y=y,label=Site),size=2) + scale_x_continuous(n.breaks=10) 
+p<-predicted %>% ggplot(.,aes(x=x,y=y)) + geom_line(alpha=0.4,aes(group=group)) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() + geom_text(data=labels,aes(x=x,y=y,label=Site),size=2) + scale_x_continuous(n.breaks=10)
 p
 ggsave("Allometries.png",height=5,width=7)
 ```
 
 ```{r}
 #Add field sampled line
-field_data<-field %>% filter(height<55, height>3,maxCrownDiameter>0) %>% group_by(siteID,individualID) %>% summarize(height=mean(height,na.rm=T),area=mean(area,na.rm=T))
-ggplot(field_data,aes(x=height,y=area,col=siteID)) + geom_point(alpha=0.1)  + stat_smooth(method="lm")
+field_data<-field %>% filter(height<55, height>3,area>0) %>% group_by(siteID,individualID) %>% summarize(height=mean(height,na.rm=T),area=mean(area,na.rm=T))
 
-m<-field_data %>% filter(siteID=="DSNY") %>% lm(data=.,area~height)
+ggplot(field_data,aes(x=height,y=log(area))) + geom_point(alpha=0.1)  + stat_smooth(method="lm")
+
+m<-field_data %>% lm(data=.,log(area)~height)
 summary(m)
 
-field_predict<-data.frame(x=seq(3,25,1),y=predict(m,newdata = data.frame(height=seq(3,25,1))))
+field_predict<-data.frame(x=seq(3,25,1),y=exp(predict(m,newdata = data.frame(height=seq(3,25,1)))))
 
 p + geom_line(data=field_predict,col="red",linetype="dashed",size=1)
-
-#labels
-ggplot(allometry,aes(x=R2)) + geom_histogram()
 ```
 
 Field averages
