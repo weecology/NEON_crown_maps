@@ -8,10 +8,6 @@ from dask import delayed
 import dask.dataframe as dd
 from check_site import get_site, get_year
 
-from sklearn.linear_model import LinearRegression
-from scipy.optimize import curve_fit
-from sklearn.metrics import r2_score
-
 def load_shp(shp):
     df = geopandas.read_file(shp)
     df["shp_path"] = shp
@@ -32,27 +28,6 @@ def load_predictions(tile_lists):
     daskdf = dd.from_delayed(lazy_dataframes, meta=lazy_dataframes[0].compute())
     df = daskdf.compute()
     return df
-
-def fit_linear_model(X,y):
-    model = LinearRegression()
-    fit = model.fit(X,y)
-    
-    return fit
-    
-
-def run(tile_list):
-    #Load data in parallel and read in DataFrame locally
-    df = load_predictions(tile_list)
-    
-    X = np.log(df[["height"]])
-    y = np.log(df[["area"]])
-    
-    model_fit = fit_linear_model(X,y)    
-    R2 = r2_score(y,model_fit.predict(X))
-    
-    #Format 
-    data = {"intercept":model_fit.intercept_[0],"slope":model_fit.coef_[0][0], "min_height": df.height.min(),"max_height": df.height.quantile(0.99),"R2": R2,"n":len(X)}
-    return data
     
 if __name__ == "__main__":
     from start_cluster import start
@@ -74,9 +49,9 @@ if __name__ == "__main__":
     #For each site year
     model_fit = {}
     for key, value in site_lists.items():
-        model_fit[key] = run(value)
-    
-    modeldf = pd.DataFrame(model_fit)
-    modeldf.to_csv("Figures/allometry.csv")
+        df = load_predictions(value)
+        site = df.site.unique()[0]
+        year= df.year.unique()[0]
+        df.to_csv("/orange/idtrees-collab/csv/{}_{}.csv".format(site,year))
         
 

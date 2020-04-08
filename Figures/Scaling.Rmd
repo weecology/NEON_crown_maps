@@ -136,7 +136,7 @@ ggsave("Sampling_subset.png",height=4,width=7)
 
 ```{r}
 allometry<-as.data.frame(t(read.csv("allometry.csv",row.names = 1)))
-colnames(allometry)<-c("Year","slope","intercept","min_height","max_height","R2")
+colnames(allometry)<-c("Year","slope","intercept","min_height","max_height","R2","n")
 allometry$Site<-rownames(allometry)
 
 #format data
@@ -146,17 +146,13 @@ colnames(allometry)<-c("Site","Year","variable","value")
 
 allometry$Site[str_detect(allometry$Site,"(\\w+).1")]<-str_match(allometry$Site[str_detect(allometry$Site,"(\\w+).1")], "(\\w+).")[,2]
 allometry<-reshape2::dcast(allometry,Site+Year~variable)
-allometry$intercept<-as.numeric(str_match(allometry$intercept,"(\\w+.\\d+)")[,2])
-allometry$slope<-as.numeric(str_match(allometry$slope,"(\\w+.\\d+)")[,2])
-allometry$max_height<-as.numeric(allometry$max_height)
-allometry$min_height<-as.numeric(allometry$min_height)
-allometry$R2<-as.numeric(allometry$R2)
+allometry$R2<-round(allometry$R2,3)
 ```
 
 ```{r}
 predict_line<-function(minx,maxx,intercept,slope){
   x<-seq(minx,maxx,1)
-  y=intercept + slope*x 
+  y=intercept + slope*x
   return(data.frame(x,y))
 }
 
@@ -168,15 +164,17 @@ labels<-predicted %>% group_by(Site) %>% summarize(x=max(x),y=max(y))
 p<-predicted %>% ggplot(.,aes(x=x,y=y)) + geom_line(alpha=0.4,aes(group=group)) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() + geom_text(data=labels,aes(x=x,y=y,label=Site),size=2) + scale_x_continuous(n.breaks=10) 
 p
 ggsave("Allometries.png",height=5,width=7)
+```
 
+```{r}
 #Add field sampled line
-field_data<-field %>% filter(height<55, height>3,maxCrownDiameter>0)
-ggplot(field_data,aes(x=height,y=area)) + geom_point(alpha=0.1)  + stat_smooth(method="lm")
+field_data<-field %>% filter(height<55, height>3,maxCrownDiameter>0) %>% group_by(siteID,individualID) %>% summarize(height=mean(height,na.rm=T),area=mean(area,na.rm=T))
+ggplot(field_data,aes(x=height,y=area,col=siteID)) + geom_point(alpha=0.1)  + stat_smooth(method="lm")
 
-m<-field_data %>% lm(data=.,area~height)
+m<-field_data %>% filter(siteID=="DSNY") %>% lm(data=.,area~height)
 summary(m)
 
-field_predict<-data.frame(x=seq(3,50,1),y=predict(m,newdata = data.frame(height=seq(3,50,1))))
+field_predict<-data.frame(x=seq(3,25,1),y=predict(m,newdata = data.frame(height=seq(3,25,1))))
 
 p + geom_line(data=field_predict,col="red",linetype="dashed",size=1)
 
