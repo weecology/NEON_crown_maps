@@ -50,8 +50,6 @@ if __name__ == "__main__":
     model_fit = {}
     for key, value in site_lists.items():
         df = load_predictions(value)
-        site = df.site.unique()[0]
-        year= df.year.unique()[0]
         df.to_csv("/orange/idtrees-collab/csv/{}.csv".format(key))
         
 
