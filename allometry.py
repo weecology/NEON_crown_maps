@@ -44,7 +44,7 @@ def run(tile_list):
     #Load data in parallel and read in DataFrame locally
     df = load_predictions(tile_list)
     
-    X = np.log(df[["height"]])
+    X = df[["height"]]
     y = np.log(df[["area"]])
     
     model_fit = fit_linear_model(X,y)    

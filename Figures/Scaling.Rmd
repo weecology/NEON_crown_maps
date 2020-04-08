@@ -152,7 +152,7 @@ allometry$R2<-round(allometry$R2,3)
 ```{r}
 predict_line<-function(minx,maxx,intercept,slope){
   x<-seq(minx,maxx,1)
-  y=intercept + slope*x
+  y=intercept + slope*log(x)
   return(data.frame(x,y))
 }
 
