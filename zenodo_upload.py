@@ -21,6 +21,6 @@ if __name__== "__main__":
     ACCESS_TOKEN = get_token()
     BASE_DIR = "/orange/idtrees-collab/dataset/"
     
-    files_to_upload = glob.glob(BASE_DIR + "*.shp")
+    files_to_upload = glob.glob(BASE_DIR + "*")
     for f in files_to_upload:
         upload(f)
