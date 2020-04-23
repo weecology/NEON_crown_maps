@@ -1,5 +1,6 @@
 ### Zenodo upload
 import requests
+import glob
 import os
 
 def get_token():
