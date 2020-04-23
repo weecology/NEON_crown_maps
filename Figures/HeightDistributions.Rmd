@@ -21,13 +21,15 @@ df<-read.csv("averages.csv",row.names =1)
 counts<-read.csv("counts.csv")
 colnames(counts)<-c("Site","geo_index","Year","n")
 
-counts %>% group_by(Site) %>% summarize(n=sum(n)) %>% summarize(total=sum(n))
+counts %>% group_by(Site, Year) %>% summarize(n=sum(n)) %>% filter(Year==max(Year)) %>% ungroup() %>% summarize(sum(n))
 
-counts %>% group_by(Site, Year) %>% summarize(n=sum(n)) %>% data.frame()
+counts %>% group_by(Site, Year) %>% summarize(n=sum(n)) %>% filter(Year==max(Year)) %>% data.frame()
+
+counts %>% group_by(Site) %>% summarize(n=sum(n)) %>% data.frame()
 ```
 
 ```{r}
-ggplot(df,aes(x=height_mean,y=area_mean,size=n)) + geom_point(alpha=0.5) + labs(x="Crown Height (m)",y="Crown Area (m^2)",size="Trees/km^2") + geom_text(aes(label=Site),size=2,hjust=0.5,vjust=-0.5) + theme_bw()
+ggplot(df,aes(x=height_mean,y=area_mean,size=n)) + geom_point(alpha=0.5) + labs(x="Crown Height (m)",y="Crown Area (m^2)",size="Trees per km^2") + geom_text(aes(label=Site),size=2,hjust=0.5,vjust=-1) + theme_bw() + scale_x_continuous(n.breaks=7)+ scale_y_continuous(n.breaks=8)
 ggsave("Attributes.png",height=3.5,width=6)
 ggsave("Attributes.svg", height=3.5,width=6)
 ```
@@ -35,7 +37,30 @@ ggsave("Attributes.svg", height=3.5,width=6)
 ## Counts through time
 
 ```{r}
-counts %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point(aes(col=Site),alpha=0.5) + geom_abline(linetype="dashed") + coord_equal() + stat_smooth(method="lm") + theme(legend.position = "none") + scale_x_continuous(labels=comma) + scale_y_continuous(labels=comma) + ggtitle("Tree Count Across Years")
+counts %>% spread(Year,n) %>% ggplot(.,aes(x=`2019`,y=`2018`)) + geom_point(aes(col=Site),alpha=0.5) + geom_abline(linetype="dashed") + coord_equal() + stat_smooth(method="lm")  + theme_bw() + theme(legend.position = "none") + scale_x_continuous(labels=comma, n.breaks=7  ) + scale_y_continuous(labels=comma,n.breaks=7 ) + ggtitle("Tree Count Across Years")
 ggsave("CrossYears.png",height=4,width=7)
+```
+
+## Comparison to field data
+
+```{r}
+field<-read.csv("/Users/Ben/Documents/NeonTreeEvaluation/field_data.csv")
+field$area<-field$maxCrownDiameter*field$ninetyCrownDiameter
+
+#mean height from the field
+field_means<-field_data %>% group_by(Site) %>% summarize(height=mean(height),area=mean(area))
+
+ggplot(field_data) + geom_density(aes(x=height),fill="blue",alpha=0.5) + facet_wrap(~Site,scales="free") + geom_vline(data=df,aes(xintercept=height_mean),col="red") + geom_vline(data=field_means,aes(xintercept=height),col="blue") + theme_bw()
+
+
+ggplot(field_data) + geom_density(aes(x=area),fill="blue",alpha=0.7) + facet_wrap(~Site,scales="free") + geom_vline(data=df,aes(xintercept=area_mean),col="red")+ geom_vline(data=field_means,aes(xintercept=area),col="blue") + theme_bw()
+```
+
+Rank order of crown area
+```{r}
+field_area<-field %>% filter(!is.na(easting)) %>% filter(stemDiameter > 7.5) %>% filter(is.na(height)|height>3) %>% group_by(site=siteID,plotID,eventID) %>% summarize(area=mean(area,na.rm=T)) %>% group_by(site) %>% summarize(field_area=mean(area,na.rm=T)) %>% arrange(desc(field_area))
+
+df %>% dplyr::select(site=Site,Remote_area=area_mean) %>% inner_join(field_area) %>% 
+ggplot(.,aes(x=field_area,y=Remote_area)) + geom_point()  + geom_abline(linetype="dashed") + xlim(0,125)+ ylim(0,125) + coord_equal() + geom_text(aes(label=site),size=2,vjust=1)
 ```
 

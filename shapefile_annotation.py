@@ -59,7 +59,7 @@ def shapefile_to_annotations(shapefile, rgb, savedir="."):
     
     #write file
     result.to_csv(csv_filename,index=False)
-
+    
 if __name__ =="__main__":
     shapefile = "/Users/ben/Downloads/predictions/2018_BART_4_318000_4876000_image.shp"
     rgb = "/Users/ben/Downloads/predictions/2018_BART_4_318000_4876000_image.tif"
