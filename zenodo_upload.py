@@ -16,7 +16,7 @@ def upload(ACCESS_TOKEN, path):
     files = {'file': open(path, 'rb')}
     r = requests.post('https://zenodo.org/api/deposit/depositions/%s/files' % deposition_id,
                       params={'access_token': ACCESS_TOKEN}, data=data, files=files)
-    print("request of path {} returns {}".format(r.json()))
+    print("request of path {} returns {}".format(path, r.json()))
     
 if __name__== "__main__":
     ACCESS_TOKEN = get_token()
