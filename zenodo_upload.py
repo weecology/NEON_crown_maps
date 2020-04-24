@@ -11,7 +11,7 @@ def upload(ACCESS_TOKEN, path):
     """Upload an item to zenodo"""
     
      # Get the deposition id from the already created record
-    deposition_id = "3764116"
+    deposition_id = "3765872"
     data = {'name': os.path.basename(path)}
     files = {'file': open(path, 'rb')}
     r = requests.post('https://zenodo.org/api/deposit/depositions/%s/files' % deposition_id,
