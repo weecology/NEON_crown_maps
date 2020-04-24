@@ -20,7 +20,7 @@ def upload(ACCESS_TOKEN, path):
     
 if __name__== "__main__":
     ACCESS_TOKEN = get_token()
-    BASE_DIR = "/orange/idtrees-collab/dataset/"
+    BASE_DIR = "/orange/idtrees-collab/zenodo/"
     
     files_to_upload = glob.glob(BASE_DIR + "*")
     for f in files_to_upload:
