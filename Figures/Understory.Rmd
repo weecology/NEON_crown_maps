@@ -1,0 +1,89 @@
+---
+title: "Understory Model"
+author: "Ben Weinstein"
+date: "5/1/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(sf)
+library(stringr)
+library(raster)
+library(NeonTreeEvaluation)
+```
+
+# Load Data
+
+```{r}
+#Read submission and turn into geospatial objects
+submission<-read.csv("plot_predictions.csv")
+RGB_DIR<-"/Users/Ben/Documents/NeonTreeEvaluation/evaluation/RGB/"
+rgb_images<-list.files(RGB_DIR,".tif",full.names = T)
+rgb_images<-rgb_images[!str_detect(rgb_images,".xml")]
+```
+
+```{r}
+field<-read.csv("/Users/Ben/Documents/NEON_crown_maps/Figures/field_heights.csv")
+field$area<-field$maxCrownDiameter*field$ninetyCrownDiameter
+```
+
+## Project prediction data in correct utm for each plot
+
+```{r}
+#Which plots overlap
+to_project<-unique(as.character(submission$plot_name[submission$plot_name %in% field$plotID]))
+
+spboxes<-list()
+for(plotID in to_project){
+  rgb_path<-rgb_images[str_detect(rgb_images,as.character(plotID))]
+  if(length(rgb_path)==1){
+      r<-stack(rgb_path)
+  spboxes[[plotID]]<-submission %>% filter(plot_name==plotID) %>% boxes_to_spatial_polygons(boxes = .,project_boxes = T,raster_object = r)
+  #plotRGB(r)
+  #plot(spboxes[[plotID]],add=T)
+  }
+}
+```
+
+Project each field points and crop the utm
+
+```{r}
+results<-list()
+for(plot_name in names(spboxes)){
+  print(plot_name)
+  project_prediction <- spboxes[[plot_name]]
+  
+  projected_field<-field %>% filter(plotID == plot_name) %>% st_as_sf(.,coords=c("easting","northing"),crs=projection(project_prediction))
+
+  if(nrow(projected_field)==1){next}
+  
+  cropped_prediction = crop(project_prediction, extent(projected_field))
+  
+  if(length(cropped_prediction)==0){next}
+  #View to confirm
+  #rgb_path<-rgb_images[str_detect(rgb_images,as.character(plot_name))]
+  #r<-stack(rgb_path)
+  #plotRGB(r)
+  #plot(st_geometry(projected_field),add=T,col="red")
+  #plot(project_prediction,add=T,border="Blue")
+  #plot(cropped_prediction,add=T)
+  
+  field_count = projected_field %>% as.data.frame() %>% group_by(individualID) %>% arrange(desc(eventID)) %>% slice(1) %>% nrow(.)
+    results[[plot_name]]<-data.frame(plotID=plot_name,rs=nrow(cropped_prediction),field=field_count)
+  
+}
+results<-bind_rows(results)
+```
+
+How many trees do we miss?
+```{r}
+ggplot(results,aes(x=field,y=rs)) + geom_point() + stat_smooth(method="lm") + geom_abline(linetype="dashed") + labs(x="Field Stems",y="Remotely Sensed Crowns")
+```
+
+```{r}
+results %>% mutate(Site = str_match(plotID,"(\\w+)_")[,2]) %>% ggplot(.,aes(x=field,y=rs)) + geom_point() + stat_smooth(method="lm") + geom_abline(linetype="dashed") + labs(x="Field Stems",y="Remotely Sensed Crowns") + facet_wrap(~Site,scales="free")
+```
