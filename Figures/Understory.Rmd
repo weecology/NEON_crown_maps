@@ -16,6 +16,52 @@ library(raster)
 library(NeonTreeEvaluation)
 ```
 
+```{r}
+
+count_trees<-function(field_data,predictions,CHM_images,show=F,rgb_images=NULL){
+     
+    plot_name<-as.character(unique(field_data$plotID))
+
+    #Does the point have positive height in the LiDAR?
+    CHM_path<-CHM_images[str_detect(CHM_images,plot_name)]
+    chm<-raster(CHM_path)
+    field_data$CHM_height<-extract(chm,field_data)
+    field_data_filter<-field_data %>% filter(CHM_height>3) 
+    if(nrow(field_data_filter)==0){return(data.frame(rs=NA,field=NA))}
+    
+    #Get prediction centroid
+    predictions<-st_as_sf(predictions)
+    prediction_centroids<-st_centroid(predictions)
+
+    e<-extent(field_data_filter)
+
+    #buffer extent by 3m
+    e@xmin<-e@xmin -1
+    e@ymin <- e@ymin - 1
+    e@xmax <- e@xmax +1
+    e@ymax<-e@ymax + 1
+
+    centroids_to_include = st_crop(prediction_centroids,e)
+    cropped_prediction<-predictions[predictions$crown_id %in% centroids_to_include$crown_id,]
+    if(length(cropped_prediction)==0){next}
+
+    #View to confirm
+    if(show){
+          rgb_path<-rgb_images[str_detect(rgb_images,as.character(plot_name))]
+    r<-stack(rgb_path)
+    plotRGB(r)
+    plot(st_geometry(field_data_filter),add=T,col=field_data$subplotID,pch=16,cex=1)
+    plot(project_prediction,add=T,border="Blue")
+    plot(st_geometry(cropped_prediction),add=T)
+    }
+
+    field_count = field_data_filter %>% as.data.frame() %>% group_by(individualID) %>% arrange(desc(eventID)) %>% slice(1) %>% nrow(.)
+  
+    data.frame(rs=nrow(cropped_prediction),field=field_count)
+}
+
+```
+
 # Load Data
 
 ```{r}
@@ -24,12 +70,37 @@ submission<-read.csv("plot_predictions.csv")
 RGB_DIR<-"/Users/Ben/Documents/NeonTreeEvaluation/evaluation/RGB/"
 rgb_images<-list.files(RGB_DIR,".tif",full.names = T)
 rgb_images<-rgb_images[!str_detect(rgb_images,".xml")]
+
+CHM_DIR<-"/Users/Ben/Documents/NeonTreeEvaluation/evaluation/CHM/"
+CHM_images<-list.files(CHM_DIR,".tif",full.names = T)
 ```
 
 ```{r}
-field<-read.csv("/Users/Ben/Documents/NEON_crown_maps/Figures/field_heights.csv")
+field<-read.csv("/Users/ben/Documents/NEON_crown_maps/Figures/vst_field_data.csv")
+
 field$area<-field$maxCrownDiameter*field$ninetyCrownDiameter
+
+#filter data, height can be NA or atleast 3m
+field<-field %>%  filter(!is.na(itcEasting),!str_detect(eventID,"2014"),growthForm %in% c("single bole tree","multi-bole tree","small tree","sapling"),stemDiameter>15) %>% droplevels() %>% filter(height>3|is.na(height)) 
+
+#get most recent date for each data point.
+field<-field %>% group_by(individualID) %>% arrange(desc(eventID)) %>% slice(1)
+
+#Match the sites from the subsampling figure
+sites<-c("BART","DELA","OSBS","LENO","JERC","SJER","TEAK","MLBS","HARV")
+field <- field %>%  filter(siteID %in% sites)
+
+ggplot(field,aes(x=stemDiameter,fill=plotType)) + geom_density(alpha=0.5) + facet_wrap(~siteID,scales="free")
 ```
+
+
+We have hand checked many plots with poor quality data, see LENO_069, subplot 23 for good example of challenges.
+
+```{r}
+poor_quality<-data.frame(plotID=c("LENO_069","LENO_062","BART_032"),subplot=c(23,40,23))
+field<-field %>% filter(!(plotID %in% poor_quality$plotID & subplotID %in% poor_quality$subplot))
+```
+
 
 ## Project prediction data in correct utm for each plot
 
@@ -57,24 +128,23 @@ for(plot_name in names(spboxes)){
   print(plot_name)
   project_prediction <- spboxes[[plot_name]]
   
-  projected_field<-field %>% filter(plotID == plot_name) %>% st_as_sf(.,coords=c("easting","northing"),crs=projection(project_prediction))
+  projected_field<-field %>% droplevels() %>% filter(plotID == plot_name) %>% st_as_sf(.,coords=c("itcEasting","itcNorthing"),crs=projection(project_prediction))
 
   if(nrow(projected_field)==1){next}
   
-  cropped_prediction = crop(project_prediction, extent(projected_field))
-  
-  if(length(cropped_prediction)==0){next}
-  #View to confirm
-  #rgb_path<-rgb_images[str_detect(rgb_images,as.character(plot_name))]
-  #r<-stack(rgb_path)
-  #plotRGB(r)
-  #plot(st_geometry(projected_field),add=T,col="red")
-  #plot(project_prediction,add=T,border="Blue")
-  #plot(cropped_prediction,add=T)
-  
-  field_count = projected_field %>% as.data.frame() %>% group_by(individualID) %>% arrange(desc(eventID)) %>% slice(1) %>% nrow(.)
-    results[[plot_name]]<-data.frame(plotID=plot_name,rs=nrow(cropped_prediction),field=field_count)
-  
+  #Was the plot completely sampled?
+  plotType<-unique(projected_field$plotType)
+  subplots<-na.omit(unique(projected_field$subplotID))
+  if(plotType=="distributed" & sum(subplots %in% c(41,31,40,32))==4){
+      results[[plot_name]] <- count_trees(field_data=projected_field,predictions=project_prediction,CHM_images = CHM_images,show=T,rgb_images=rgb_images) %>% mutate(plotID=plot_name)
+  } else{
+      plot_result<-list()
+  for(subplot in subplots){
+    projected_subplot<-projected_field %>% filter(subplotID==subplot)
+    plot_result[[subplot]]<-count_trees(field_data=projected_subplot,CHM_images = CHM_images,predictions=project_prediction,show=T,rgb_images=rgb_images) %>% mutate(plotID=plot_name,subplot=subplot)
+  }
+    results[[plot_name]]<- bind_rows(plot_result)
+  }
 }
 results<-bind_rows(results)
 ```
@@ -86,4 +156,12 @@ ggplot(results,aes(x=field,y=rs)) + geom_point() + stat_smooth(method="lm") + ge
 
 ```{r}
 results %>% mutate(Site = str_match(plotID,"(\\w+)_")[,2]) %>% ggplot(.,aes(x=field,y=rs)) + geom_point() + stat_smooth(method="lm") + geom_abline(linetype="dashed") + labs(x="Field Stems",y="Remotely Sensed Crowns") + facet_wrap(~Site,scales="free")
+```
+
+```{r}
+field %>% group_by(plotID) %>% dplyr::select(plotID,plotType) %>% distinct() %>% inner_join(results) %>% mutate(Site = str_match(plotID,"(\\w+)_")[,2]) %>% ggplot(.,aes(x=field,y=rs,col=plotType)) + geom_point() + stat_smooth(method="lm") + geom_abline(linetype="dashed") + labs(x="Field Stems",y="Remotely Sensed Crowns") + facet_wrap(~Site,scales="free")
+```
+
+```{r}
+results %>% mutate(error=rs-field) %>% arrange(desc(error))
 ```

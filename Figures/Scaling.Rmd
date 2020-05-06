@@ -58,25 +58,26 @@ ggplot(results,aes(x=sqkm,y=mean)) +facet_wrap(~Site,scales="free") + geom_line(
 Estimate total counts from the field data
 
 ```{r}
-field<-read.csv("/Users/Ben/Documents/NeonTreeEvaluation/field_data.csv")
+field<-read.csv("/Users/ben/Documents/NEON_crown_maps/Figures/vst_field_data.csv")
 field$area<-field$maxCrownDiameter*field$ninetyCrownDiameter
+
+field<-field %>%  filter(!is.na(itcEasting),!str_detect(eventID,"2014"),growthForm %in% c("single bole tree","multi-bole tree","small tree","sapling"),stemDiameter>15) %>% droplevels() %>% filter(height>3|is.na(height)) 
+
+field<-field %>% group_by(individualID) %>% arrange(desc(eventID)) %>% slice(1)
 ```
 
 How large of trees should we include. Many don't have height measurements.
 
 ```{r}
-field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter < 8) %>% ggplot(.,aes(x=height,fill=siteID)) + geom_density(alpha=0.5) 
+#field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter < 8) %>% ggplot(.,aes(x=height,fill=siteID)) + geom_density(alpha=0.5) 
 ```
 
 ```{r}
-#drop 2015 data
-#field<-field %>% filter(!str_detect(eventID,"2015"))
-
 #Scaling factor from a 40m plot to 1km tile
 scaling=(1000 * 1000) /((20*20)*2)
 
 #TODO plot type? Individual ID for multi-bole?
-plot_totals<-field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter > 7.5) %>% filter(is.na(height)|height>3) %>% group_by(Site=siteID,plotID,eventID) %>% summarize(n=n()) %>% summarize(n=round(mean(n)))
+# plot_totals<-field %>% filter(siteID %in% results$Site) %>% filter(!is.na(itcEasting)) %>% filter(stemDiameter > 7.5) %>% filter(is.na(height)|height>3) %>% group_by(Site=siteID,plotID,eventID) %>% summarize(n=n()) %>% summarize(n=round(mean(n)))
 
 stan_glm <- stan_glm(n~0 + Site,data = plot_totals,family = poisson,cores=4, iter=20000) 
 ```
@@ -96,7 +97,7 @@ combined<-bind_rows(list(results,estimated))
 ggplot(combined,aes(x=sqkm,y=mean,fill=Data)) +facet_wrap(~Site,scales="free") + geom_line(col="black") + geom_ribbon(aes(ymin=lower,ymax=upper),alpha=0.5) + scale_y_continuous(label=comma) + labs(x="Extent (km^2)",y="Tree Count")  + theme_bw()
 ggsave("Scaling_all.png",height=10,width=12)
 
-combined %>% filter(Site %in% c("DSNY","TEAK","OSBS","BART","BLAN","SJER","MLBS","WREF","KONZ")) %>% ggplot(. ,aes(x=sqkm,y=mean,fill=Data)) +facet_wrap(~Site,scales="free") + geom_line(col="black") + geom_ribbon(aes(ymin=lower,ymax=upper),alpha=0.5) + scale_y_continuous(label=comma) + labs(x="Extent (km^2)",y="Tree Count")  + theme_bw()
+combined %>% filter(Site %in% c("DSNY","TEAK","OSBS","BART","BLAN","SJER","MLBS","HARV","LENO")) %>% ggplot(. ,aes(x=sqkm,y=mean,fill=Data)) +facet_wrap(~Site,scales="free") + geom_line(col="black") + geom_ribbon(aes(ymin=lower,ymax=upper),alpha=0.5) + scale_y_continuous(label=comma) + labs(x="Extent (km^2)",y="Tree Count")  + theme_bw()
 ggsave("Scaling_subset.png",height=7,width=10)
 ```
 
@@ -119,15 +120,23 @@ sampling<-bind_rows(lapply(f,read.csv))
 p <- ggplot() + geom_density(data=sampling,aes(x=tree_density,fill=as.factor(year)),alpha=0.4) + facet_wrap(~site,scales="free") + labs(fill="year")
 
 #Get site curve
-field_density<-field %>% filter(siteID %in% results$Site) %>% filter(!is.na(easting)) %>% filter(stemDiameter > 7.5) %>% filter(is.na(height)|height>3) %>% group_by(site=siteID,plotID,eventID) %>% summarize(n=n()) %>% summarize(tree_density=round(mean(n)))
+field_density<-field %>% filter(siteID %in% results$Site) %>% group_by(site=siteID,plotID,eventID) %>% summarize(n=n()) %>% summarize(tree_density=round(mean(n)))
 
 rects<-field_density %>% group_by(site) %>% summarize(mean=mean(tree_density),lower=quantile(tree_density,0.05), upper=quantile(tree_density,0.95))
   
 p +geom_rect(data=rects,aes(xmin=lower,xmax=upper,ymin=0,ymax=Inf),fill="black",alpha=0.2) + geom_vline(data=rects,aes(xintercept=mean),linetype="dashed") + theme_bw() + labs(x="Trees per plot",fill="Year")
 ggsave("sampling3.png",height=4,width=7)
 
-rect_subset <- rects %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","JERC","WREF","LENO"))
-sampling %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","JERC","WREF","LENO")) %>% group_by(site) %>% filter(year==max(year)) %>% ggplot(.) + 
+rect_subset <- rects %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","JERC","HARV","LENO"))
+sampling %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","JERC","HARV","LENO")) %>% group_by(site) %>% filter(year==max(year)) %>% ggplot(.) + 
 geom_density(aes(x=tree_density),fill="black",alpha=0.4) + facet_wrap(~site,scales="free") +geom_rect(data=rect_subset,aes(xmin=lower,xmax=upper,ymin=0,ymax=Inf),fill="black",alpha=0.2) + geom_vline(aes(xintercept=mean(tree_density))) + geom_vline(data=rect_subset,aes(xintercept=mean),linetype="dashed") + theme_bw() + labs(x="Trees per plot")
 ggsave("Sampling_subset.png",height=4,width=7)
+
+#as a pair of distributions
+field_density$data<-c("NEON Field Plots")
+sampling$data<-c("Simulated RS Plots")
+combined<-bind_rows(field_density,sampling) %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","JERC","HARV","LENO")) %>%
+ggplot(.,aes(x=tree_density,fill=data)) + geom_density(alpha=0.3) + facet_wrap(~site,scales="free") + labs(x="Trees per plot")
+combined
+ggsave("Sampling_distributions.png",height=4,width=7)
 ```
