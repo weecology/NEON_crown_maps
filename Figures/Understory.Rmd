@@ -73,11 +73,11 @@ rgb_images<-rgb_images[!str_detect(rgb_images,".xml")]
 
 CHM_DIR<-"/Users/Ben/Documents/NeonTreeEvaluation/evaluation/CHM/"
 CHM_images<-list.files(CHM_DIR,".tif",full.names = T)
+CHM_images<-CHM_images[!str_detect(CHM_images,".xml")]
 ```
 
 ```{r}
 field<-read.csv("/Users/ben/Documents/NEON_crown_maps/Figures/vst_field_data.csv")
-
 field$area<-field$maxCrownDiameter*field$ninetyCrownDiameter
 
 #filter data, height can be NA or atleast 3m
