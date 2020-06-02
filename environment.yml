@@ -5,13 +5,14 @@ channels:
 dependencies:
   - python=3.7
   - geopandas
-  - numpy==1.16.4
+  - numpy
   - rasterio
   - dask
   - dask-jobqueue
   - distributed
   - pytest
   - sklearn
+  - yapf
   - pip
   - pip:
     - rasterstats

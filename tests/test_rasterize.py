@@ -1,6 +1,6 @@
 #test rasterize
-from .. import rasterize
 import os
+from analysis import rasterize
 
 def test_run():
     path = "/Users/ben/Dropbox/Weecology/Crowns/examples/2019_BART_5_320000_4881000_image.shp"

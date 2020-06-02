@@ -1,9 +1,14 @@
 #tests for analysis.py
-from .. import analysis
 import pytest
 import glob
 import numpy as np
 import re
+
+import os
+import sys
+sys.path.append(os.path.dirname(os.getcwd()))
+from analysis import analysis
+
 
 @pytest.fixture()
 def geo_indexes():

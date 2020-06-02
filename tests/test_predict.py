@@ -8,8 +8,8 @@ import numpy as np
 import pytest
 import glob
 from deepforest import deepforest
-from ..utils import tfrecords
-from .. import predict
+from crown_maps import tfrecords
+from crown_maps import predict
 from .. main import lookup_rgb_path
 
 @pytest.fixture()

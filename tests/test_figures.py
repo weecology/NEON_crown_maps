@@ -5,7 +5,7 @@ import sys
 import glob
 sys.path.append(os.path.dirname(os.getcwd()))
 
-from .. import figures
+from analysis import figures
 import pytest
 
 @pytest.fixture()

@@ -1,5 +1,5 @@
 #Test tfrecords to make sure they load
-from utils import tfrecords
+from crown_maps import tfrecords
 import tensorflow as tf
 import glob
 

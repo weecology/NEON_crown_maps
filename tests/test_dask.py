@@ -1,10 +1,13 @@
-from .. start_cluster import start_dask_cluster
 import platform
 import pytest
 import dask
 from dask.distributed import Client
 import time
 import random
+
+import os
+import sys
+sys.path.append(os.path.dirname(os.getcwd()))
 
 @pytest.fixture
 def test_platform():

@@ -1,0 +1,184 @@
+---
+title: "FieldPlots"
+author: "Ben Weinstein"
+date: "4/18/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(lme4)
+library(dplyr)
+library(NeonTreeEvaluation)
+library(stringr)
+library(sf)
+library(raster)
+```
+
+```{r}
+#Read submission and turn into geospatial objects
+submission<-read.csv("plot_predictions.csv")
+
+#UNDE should be dropped from the height dataset, LIDAR isn't trustworthy. 
+submission<-submission %>% filter(!str_detect(plot_name,"UNDE"))
+
+RGB_DIR<-"/Users/Ben/Documents/NeonTreeEvaluation/evaluation/RGB/"
+rgb_images<-list.files(RGB_DIR,".tif",full.names = T)
+rgb_images<-rgb_images[!str_detect(rgb_images,".xml")]
+
+CHM_DIR<-"/Users/Ben/Documents/NeonTreeEvaluation/evaluation/CHM/"
+CHM_images<-list.files(CHM_DIR,".tif",full.names = T)
+CHM_images<-CHM_images[!str_detect(CHM_images,".xml")]
+
+```
+
+```{r}
+field<-read.csv("/Users/ben/Documents/NEON_crown_maps/Figures/vst_field_data.csv")
+field$area<-field$maxCrownDiameter*field$ninetyCrownDiameter
+
+field<-field %>%  filter(!is.na(itcEasting),!str_detect(eventID,"2014"),growthForm %in% c("single bole tree","multi-bole tree","small tree","sapling"),stemDiameter>15) %>% droplevels() %>% filter(height>3|is.na(height)) 
+
+#field<-field %>% group_by(individualID) %>% arrange(desc(eventID)) %>% slice(1)
+
+
+#Limit difference in heights 
+to_remove<-field %>% group_by(individualID) %>% summarize(mean=mean(height),sum_difference = abs(sum(diff(height)))) %>% filter(sum_difference > 8)
+
+field<-field %>% filter(!individualID %in% to_remove$individualID)
+```
+
+# Height Matching 
+
+```{r}
+matched_pairs<-function(spatial_boxes,field_points){
+  
+  #Spatial join
+  possible_matches<-st_join(spatial_boxes,field_points,left=FALSE)
+  
+  #If there are heights, take the tallest height
+  tallest_points<-possible_matches %>% group_by(crown_id) %>% mutate(height_diff=height.x - height.y) %>%arrange(height_diff) %>% slice(1)  %>% as.data.frame()%>% dplyr::select(crown_id, individualID) 
+  
+  matched_height<-possible_matches %>% inner_join(tallest_points) 
+  
+  return(matched_height)
+}
+```
+
+```{r}
+site_plots<-field %>% group_by(plotID,individualID)  %>% summarize(samples=length(unique(eventID))) %>% filter(samples>1) %>% ungroup() %>% mutate(plotID=as.character(plotID))
+
+results<-list()
+for(x in unique(site_plots$plotID)){
+  print(x)
+  #x<-"OSBS_022"
+  #matching RGB tile
+  rgb_path<-rgb_images[str_detect(rgb_images,x)]
+  if(length(rgb_path)==0){next}
+  r<-raster::stack(rgb_path)
+
+  #Field data, min height threshold is 3.
+  field_points<-field %>% filter(plotID==x) %>% st_as_sf(.,coords=c("itcEasting","itcNorthing")) %>% filter(height>3)
+  st_crs(field_points)<-crs(r)
+  
+  predictions<-submission %>% filter(plot_name==x)
+  if(nrow(predictions)==0){next}
+  
+  spatial_boxes<- predictions %>% NeonTreeEvaluation::boxes_to_spatial_polygons(.,r) %>% st_as_sf() %>% mutate(height=predictions$height, score=predictions$score)
+
+    #Filter the field data for erroneous temporal connections, the CHM must have positive heights, see OSBS_022, can use as an example of all sorts of challenges.
+  CHM_path<-CHM_images[str_detect(CHM_images,x)]
+  chm<-raster(CHM_path)
+  
+  #Thresholds 
+  field_points$CHM_height<-extract(chm,field_points)
+  
+  #Could it be seen?
+  field_points<-field_points %>% filter(abs(CHM_height-height)<4)
+  
+  #Min height based on the predictions
+  #field_points<-field_points[field_points$height > quantile(spatial_boxes$height,0.01),]
+  
+  plotRGB(r)
+  plot(st_geometry(spatial_boxes),add=T)
+  plot(st_geometry(field_points),add=T,col="red",pch=20)
+  
+  #Missing
+  missing<-field_points[!lengths(st_intersects(field_points, spatial_boxes)), ]
+  plot(st_geometry(missing),add=T,col="blue",pch=20)
+
+  #Stem recall rate
+  unique_locations<-field_points %>% distinct(individualID,.keep_all = T)
+  tree_in_prediction <-unique_locations  %>% sf::st_intersects(x=.,y=spatial_boxes)
+  
+  #Which match, do not allow multiples to double count.
+  matches<-lengths(tree_in_prediction)
+  matches[matches>1]<-1
+  
+  stem_recall<-sum(matches)/nrow(unique_locations)
+  
+  #unique matches
+  joined_df<-st_join(spatial_boxes,unique_locations)
+  single_matches<-joined_df %>% group_by(crown_id) %>% filter(height.y == max(height.y)) 
+  single_recall<-nrow(single_matches)/nrow(unique_locations)
+  
+  #Create point matches between data and predictions
+  matched_df<-matched_pairs(spatial_boxes, field_points) %>% mutate(plot_name=x)
+  
+  if(nrow(matched_df)>0){
+    results[[x]]<-data.frame(matched_df,stem_recall,single_recall)
+  }
+}
+  results<-bind_rows(results)
+```
+
+```{r}
+#Show difference
+# CLBJ has 3 data points.drop
+height_summary<-results  %>% filter(!siteID %in% "CLBJ") %>% mutate(Site=str_match(plot_name,"(\\w+)_")[,2]) %>% group_by(Site,plot_name,individualID,crown_id) %>%  summarize(predicted_height=unique(height.x)[1],mean_field=mean(height.y),min_field=min(height.y),max_field=max(height.y)) %>% mutate(field_range=max_field - min_field)
+
+  ggplot(height_summary,aes(x=predicted_height,y=mean_field,ymin=min_field,ymax=max_field)) + geom_pointrange(size=0.1,alpha=0.5) + geom_abline(linetype="dashed") + coord_flip() + labs(y="Field Height (m)",x="Predicted Height (m)")  + stat_smooth(method="lm")  + facet_wrap(~Site,scales="free")
+ggsave("Height_Comparison.png",height=7,width=10)
+  ggplot(height_summary,aes(x=field_range)) + geom_density(fill="black") + facet_wrap(~Site,scales="free") + labs(x="Height difference (m) among years for the same ID")
+  
+ggplot(height_summary,aes(x=mean_field,y=field_range)) + geom_point() + labs(x="Mean Field Height",y="Range of Heights")
+```
+
+Fit a mixed effect model
+```{r}
+mod<-lmer(data=height_summary,mean_field~predicted_height|Site)
+sqrt(mean(residuals(mod)^2))
+```
+
+```{r}
+height_summary %>% mutate(error=abs(mean_field - predicted_height)) %>% group_by(Site) %>% filter(error==max(error)) %>% arrange(desc(error)) %>% as.data.frame()
+#   ylim(min(c(min(height_summary$min_field,height_summary$predicted_height))),max(c(height_summary$predicted_height,height_summary$max_field))) + xlim(min(c(min(height_summary$min_field,height_summary$predicted_height))),max(c(height_summary$predicted_height,height_summary$max_field)))
+```
+
+# Overstory Stem Recall
+
+```{r}
+#order by mean
+order_site<-results %>% group_by(siteID) %>% summarize(mean=mean(stem_recall)) %>% arrange(desc(mean)) %>% .$siteID
+
+recall_data<-results %>% group_by(plot_name,crown_id) %>% arrange(desc(eventID)) %>% slice(1) %>% group_by(siteID,plot_name)  %>% distinct(stem_recall, single_recall) %>% ungroup() %>% mutate(siteID=factor(siteID,order_site))
+
+recall_data_melt<-reshape2::melt(recall_data,id.vars=c("siteID","plot_name"))
+levels(recall_data_melt$variable)<-c("All Matches","Unique Matches")
+
+recall_data_melt%>% ggplot(.,aes(x=siteID,y=value,fill=variable)) + geom_boxplot(alpha=0.6) + theme_bw() + scale_y_continuous("Field Stem Recall (%)", label=scales::percent,limits = c(0,1)) + coord_flip() + labs(x="Site")
+ggsave("SiteStemRecall.svg",height=5,width=6)
+ggsave("SiteStemRecall.png",height=5,width=6)
+
+
+recall_data%>% ggplot(.,aes(x=siteID,y=single_recall)) + geom_boxplot(alpha=0.6) + theme_bw() + scale_y_continuous("Field Stem Recall (%)", label=scales::percent,limits = c(0,1)) + coord_flip() + labs(x="Site")
+ggsave("SiteStemRecall_unique.png",height=5,width=6)
+ggsave("SiteStemRecall_unique.svg",height=5,width=6)
+
+
+results %>% group_by(plot_name,crown_id) %>% arrange(desc(eventID)) %>% slice(1) %>% group_by(siteID)%>% summarize(stem_recall=mean(stem_recall))
+
+results %>% group_by(plot_name,crown_id) %>% arrange(desc(eventID)) %>% slice(1) %>% ungroup() %>% summarize(stem_recall=mean(stem_recall),single_recall=mean(single_recall))
+```

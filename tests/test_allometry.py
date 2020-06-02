@@ -2,10 +2,11 @@
 import os
 import sys
 sys.path.append(os.path.dirname(os.getcwd()))
+
 import glob
 import pandas as pd
-from .. import allometry
-from ..check_site import get_site, get_year
+from analysis import allometry
+from analysis.check_site import get_site, get_year
 
 def test_run():
     shps = glob.glob("data/*.shp")    

@@ -6,7 +6,7 @@ import re
 import numpy as np
 from dask import delayed
 import dask.dataframe as dd
-from check_site import get_site, get_year
+from analysis.check_site import get_site, get_year
 
 def load_shp(shp):
     df = geopandas.read_file(shp)

@@ -12,11 +12,11 @@ from keras import backend as K
 
 import dask
 from distributed import wait, as_completed
-from start_cluster import start
-from utils import verify
+from crown_maps.start_cluster import start
+from crown_maps import verify
 from deepforest import deepforest
-import predict
-import LIDAR
+from crown_maps import predict
+from crown_maps import LIDAR
 
 def lookup_CHM_path(path, lidar_list, shp=True):
     """Find CHM file based on the image filename
@@ -85,7 +85,7 @@ def generate_tfrecord(tile_list, lidar_pool, client, n=None,site_list=None, year
     year_list: list to search tile paths (e.g. ["2019","2018"])
     target_list: an optional list of files to run, just the relative path names
     """
-    from utils import tfrecords
+    from crown_maps import tfrecords
             
     #Find site files
     tile_list = find_files(tile_list, site_list=site_list, year_list=year_list, target_list=target_list)

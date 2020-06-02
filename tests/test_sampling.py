@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 sys.path.append(os.path.dirname(os.getcwd()))
 
-import sampling
+from analysis import sampling
 from check_site import get_site, get_year
 
 def test_simulate_plot():

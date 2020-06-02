@@ -1,0 +1,42 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+#Tree Falls
+```{r}
+treedf<-read.csv("treefall.csv",row.names= 1)
+df<-read.csv("averages.csv",row.names =1)
+
+ggplot(treedf,aes(x=Site,y=mean,ymin=lower,ymax=upper)) + geom_pointrange(size=1) + theme_bw() + labs(y="Tree Falls per 1km^2")
+ggsave("TreeFalls.png",height=4,width=6)
+
+treedf %>% inner_join(df[,c("Site","n")]) %>% ggplot(.,aes(x=n,y=mean,ymin=lower,ymax=upper)) + geom_pointrange() + geom_text(aes(label=Site),vjust=0.25,hjust=-0.25,size=2) + labs(x="Trees per 1km^2",y="Tree Falls per 1km^2") + scale_x_continuous(label=comma)
+ggsave("TreeFallsRate.png",height=4,width=6)
+```
+
+```{r}
+treedf %>% inner_join(df[,c("Site","n")]) %>% ggplot(.,aes(x=n,y=mean/n,ymin=lower/n,ymax=upper/n)) + geom_pointrange() + geom_text(aes(label=Site),vjust=0.25,hjust=-0.25,size=2) + labs(x="Trees per 1km^2",y="Tree Fall Rate per 1km^2") + scale_x_continuous(label=comma) + scale_y_continuous(labels = percent)
+ggsave("TreeFallsRate_km.png",height=4,width=6)
+```
+
+
+```{r}
+df<-read.csv("tile_averages.csv",row.names = 1)
+colnames(df)[colnames(df) %in% "X0"]<-"count"
+
+ggplot(df,aes(x=height_mean)) + geom_density(fill="black") + facet_wrap(~Site) + theme_bw() + labs(x="Mean Height in each 1km^2")
+```
+
+```{r}
+ggplot(df,aes(x=count/1000)) + geom_density(fill="black") + facet_wrap(~Site,scales="free") + theme_bw() + labs(x="Tree Count in each 1km^2 (1000's)") 
+```

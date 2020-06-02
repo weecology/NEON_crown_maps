@@ -6,16 +6,15 @@ import geopandas
 #relative path hack just for pytest
 sys.path.append(os.path.dirname(os.getcwd()))
 
-from .. import LIDAR
-from .. import predict
+from crown_maps import LIDAR
+from crown_maps import predict
 from deepforest import deepforest
-from ..utils import tfrecords
+from crown_maps import tfrecords
 import pytest
 
 @pytest.fixture()
 def laz_path():
     return "data/OSBS_029.laz"
-
 
 @pytest.fixture()
 def record():

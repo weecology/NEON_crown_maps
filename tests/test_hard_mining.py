@@ -1,5 +1,5 @@
 #Test Hard Negative Mining
-from .. import hard_mining
+from analysis import hard_mining
 
 def test_run():
     prediction_path = "/Users/ben/Documents/NEON_crown_maps/tests/2019_SOAP_4_306000_4099000_image.shp"

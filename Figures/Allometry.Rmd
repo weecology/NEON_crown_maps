@@ -1,0 +1,80 @@
+---
+title: "Allometry"
+author: "Ben Weinstein"
+date: "4/8/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(lme4)
+```
+
+
+## Plot allometry fits
+
+```{r}
+allometry<-as.data.frame(t(read.csv("allometry.csv",row.names = 1)))
+colnames(allometry)<-c("Year","intercept","slope","min_height","max_height","R2","n")
+allometry$Site<-rownames(allometry)
+
+#format data
+allometry<-reshape2::melt(allometry,id.vars=c("Site","Year"))
+allometry<-allometry %>% filter(!variable == "")
+colnames(allometry)<-c("Site","Year","variable","value")
+
+allometry$Site[str_detect(allometry$Site,"(\\w+).1")]<-str_match(allometry$Site[str_detect(allometry$Site,"(\\w+).1")], "(\\w+).")[,2]
+allometry<-reshape2::dcast(allometry,Site+Year~variable)
+allometry$R2<-round(allometry$R2,3)
+```
+
+```{r}
+predict_line<-function(minx,maxx,intercept,slope){
+  x<-seq(minx,maxx,1)
+  y=exp(intercept + slope*log(x))
+  return(data.frame(x,y=y))
+}
+
+predicted<-allometry %>% group_by(Site,Year) %>% do(predict_line(.$min_height,.$max_height,.$intercept,.$slope)) %>% mutate(group=paste(Site,Year)) %>% group_by(Site) %>% mutate(Year=as.numeric(Year)) %>% filter(Year==max(Year)) 
+
+labels<-predicted %>% group_by(Site) %>% summarize(x=max(x),y=max(y))
+
+p<-predicted %>% ggplot(.,aes(x=x,y=y)) + geom_line(alpha=0.4,aes(group=group)) + labs(x="Height (m)",y="Crown Area (m^2)") + theme_bw() + geom_text(data=labels,aes(x=x,y=y,label=Site),size=2) + scale_x_continuous(n.breaks=10)
+p
+ggsave("Allometries.png",height=5,width=7)
+```
+
+```{r}
+field<-read.csv("/Users/Ben/Documents/NeonTreeEvaluation/field_data.csv")
+
+#Add field sampled line
+field<-read.csv("/Users/ben/Documents/NEON_crown_maps/Figures/vst_field_data.csv")
+field$area<-field$maxCrownDiameter*field$ninetyCrownDiameter
+
+field_data<-field %>%  filter(!is.na(itcEasting),!str_detect(eventID,"2014"),growthForm %in% c("single bole tree","multi-bole tree","small tree","sapling"),stemDiameter>15) %>% droplevels() %>% filter(!is.na(height),!is.na(area)) 
+
+ggplot(field_data,aes(x=height,y=area)) + geom_point(alpha=0.1)  + stat_smooth(method="lm")
+
+m<-field_data %>% mutate(log_area=log(area), log_height=log(height)) %>% filter(!log_area==0,!log_height==0,!log_area==-Inf) 
+
+model<-m %>% lm(data=.,log_area~log_height)
+summary(model)
+
+field_predict<-data.frame(x=seq(3,50,1),y=exp(predict(model,newdata = data.frame(log_height=log(seq(3,50,1))))))
+
+p + geom_line(data=field_predict,col="red",linetype="dashed",size=1)
+```
+
+```{r}
+ggplot(allometry) + geom_histogram(aes(x=R2))
+```
+
+## Field averages
+```{r}
+field %>% filter(height>=3) %>% group_by(siteID) %>% summarize(mean_height=mean(height), mean_area=mean(maxCrownDiameter * ninetyCrownDiameter,na.rm=T))
+
+ggplot(field,aes(x=siteID,y=maxCrownDiameter^2)) + geom_boxplot() + coord_flip() + ylim(0,200)
+```

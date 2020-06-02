@@ -2,8 +2,12 @@ import matplotlib
 matplotlib.use("MacOSX")
 from matplotlib import pyplot as plt
 
-import os
+#test_lidar
 import sys
+import os
+
+#relative path hack just for pytest
+sys.path.append(os.path.dirname(os.getcwd()))
 import tensorflow as tf
 import pytest
 import numpy as np
@@ -11,7 +15,7 @@ from PIL import Image
 import cv2
 from skimage import measure
 
-from ..utils import tfrecords
+from crown_maps import tfrecords
 from deepforest import preprocess
 from keras_retinanet.utils import image as keras_retinanet_image
 
@@ -81,9 +85,9 @@ def test_create_dataset(tile_path,record, batch_size,patch_size):
         axes[2].set_title("Image difference")
         plt.show()
 
-def test_yields_all_pngs():
-    """On hipergator there is a rare error where some .png are skipped, using a sample tile that erred. Due to large file size this can only be run locally as debug"""
-    tfrecords.create_tfrecords('/Users/ben/Downloads/hipergator/2019_SRER_3_521000_3521000_image.tif', patch_size=400, patch_overlap=0.05, savedir="output",overwrite=True)
-    for i in np.arange(729):
-        assert os.path.exists("output/2019_SRER_3_521000_3521000_image/2019_SRER_3_521000_3521000_image_{}.png".format(i))
+#def test_yields_all_pngs():
+    #"""On hipergator there is a rare error where some .png are skipped, using a sample tile that erred. Due to large file size this can only be run locally as debug"""
+    #tfrecords.create_tfrecords('/Users/ben/Downloads/hipergator/2019_SRER_3_521000_3521000_image.tif', patch_size=400, patch_overlap=0.05, savedir="output",overwrite=True)
+    #for i in np.arange(729):
+        #assert os.path.exists("output/2019_SRER_3_521000_3521000_image/2019_SRER_3_521000_3521000_image_{}.png".format(i))
         

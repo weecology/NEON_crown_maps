@@ -13,3 +13,7 @@ conda env create --file=environment.yml
 # Manifest
 
 * SLURM/ Scripts for submitting parallel jobs on a SLURM based cluster of GPU nodes at the UF Hipergator supercomputer
+
+# Source scripts
+
+The crown_maps python package collects scripts for parallel prediction and exporting files to zenodo.
