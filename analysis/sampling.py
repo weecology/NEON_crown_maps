@@ -7,7 +7,7 @@ import dask
 from shapely.geometry import box, Point
 
 from crown_maps.start_cluster import start
-from check_site import get_site, get_year
+from analysis.check_site import get_site, get_year
 
 def select_tile(tile_list):
     """

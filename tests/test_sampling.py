@@ -7,11 +7,11 @@ import pandas as pd
 sys.path.append(os.path.dirname(os.getcwd()))
 
 from analysis import sampling
-from check_site import get_site, get_year
+from analysis.check_site import get_site, get_year
 
 def test_simulate_plot():
     #Find files
-    tile_list = glob.glob("data/*.shp")
+    tile_list = glob.glob("../data/*.shp")
     
     #Get site names
     df = pd.DataFrame({"path":tile_list})
