@@ -6,6 +6,7 @@ from rasterio import features
 from shapely.geometry import box
 from crown_maps import start_cluster
 import glob
+from distributed import wait
 
 def read_shapefile(path):
     shapefile = gp.read_file(path)
@@ -73,5 +74,11 @@ if __name__ =="__main__":
     #list files
     tiles_to_rasterize = glob.glob("/orange/idtrees-collab/draped/*.shp")
     
+    print("Found {} tiles to rasterize".format(len(tiles_to_rasterize)))
+    
     #apply raster function
-    client.map(run, tiles_to_rasterize, rgb_dir = "/orange/ewhite/NeonData/", savedir="/orange/idtrees-collab/rasterized/")
+    futures = client.map(run, tiles_to_rasterize, rgb_dir = "/orange/ewhite/NeonData/", savedir="/orange/idtrees-collab/rasterized/")
+    
+    wait(futures)
+    
+    
