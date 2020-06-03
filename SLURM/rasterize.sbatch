@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=30GB
 #SBATCH --time=72:00:00       #Time limit hrs:min:sec
-#SBATCH --output=/home/b.weinstein/logs/sampling_%j.out   # Standard output and error log
-#SBATCH --error=/home/b.weinstein/logs/sampling_%j.err
+#SBATCH --output=/home/b.weinstein/logs/rasterize_%j.out   # Standard output and error log
+#SBATCH --error=/home/b.weinstein/logs/rasterize_%j.err
 
 export SLURM_TMPDIR=/orange/idtrees-collab/tmp/
 export TMPDIR=/orange/idtrees-collab/tmp/
@@ -19,7 +19,7 @@ export PATH=${PATH}:/home/b.weinstein/miniconda3/envs/crowns/bin/
 export PYTHONPATH=${PYTHONPATH}:/home/b.weinstein/miniconda3/envs/crowns/lib/python3.7/site-packages/
 export LD_LIBRARY_PATH=/home/b.weinstein/miniconda3/envs/crowns/lib/:${LD_LIBRARY_PATH}
 
-cd /home/b.weinstein/NEON_crown_maps/analysis
+cd /home/b.weinstein/NEON_crown_maps/
 
 #comet debug
-python rasterize.py
+python analysis/rasterize.py
