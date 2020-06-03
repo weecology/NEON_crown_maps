@@ -4,6 +4,8 @@ import os
 import rasterio
 from rasterio import features
 from shapely.geometry import box
+from crown_maps import start_cluster
+import glob
 
 def read_shapefile(path):
     shapefile = gp.read_file(path)
@@ -56,8 +58,6 @@ def run(path,rgb_dir=".",savedir="."):
     rasterize_shapefile(shapefile, rst, out_fn)
     
 if __name__ =="__main__":
-    from ..crown_maps import start_cluster
-    import glob
     
     client = start_cluster.start(cpus=10, mem_size="7GB")
     
