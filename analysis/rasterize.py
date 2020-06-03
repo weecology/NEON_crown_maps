@@ -24,7 +24,7 @@ def find_rgb_path(path, rgb_dir=None):
     if not len(rgb_match) == 1:
         raise IOError("Cannot find matching RGB file for {}".format(basename))
     
-    return "{}.tif".format(os.path.join(rgb_dir,basename))
+    return rgb_match[0]
 
 def read_rgb(rgb_path):
     rst = rasterio.open(rgb_path)
