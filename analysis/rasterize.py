@@ -13,7 +13,16 @@ def read_shapefile(path):
     return shapefile
 
 def find_rgb_path(path, rgb_dir=None):
+    
+    #Search rgb path recursive for paths
+    rgb_pool = glob.glob(os.path.join(rgb_dir + "**/*.tif"),recursive=True)
     basename = os.path.basename(os.path.splitext(path)[0])
+    
+    rgb_match = [x for x in rgb_pool if basename in x] 
+    
+    if not len(rgb_match) == 1:
+        raise IOError("Cannot find matching RGB file for {}".format(basename))
+    
     return "{}.tif".format(os.path.join(rgb_dir,basename))
 
 def read_rgb(rgb_path):
@@ -65,4 +74,4 @@ if __name__ =="__main__":
     tiles_to_rasterize = glob.glob("/orange/idtrees-collab/draped/*.shp")
     
     #apply raster function
-    client.map(run, tiles_to_rasterize, savedir="/orange/idtrees-collab/rasterized/")
+    client.map(run, tiles_to_rasterize, rgb_dir = "/orange/ewhite/NeonData/", savedir="/orange/idtrees-collab/rasterized/")
