@@ -17,7 +17,7 @@ def submission_no_chm(eval_path, CHM_dir, min_height=3):
     return boxes
 
 
-def submission(eval_path, CHM_dir, min_height=3,iou_threshold=0.15, saved_model=None):
+def submission(eval_path, CHM_dir, min_height=3,iou_threshold=0.15, saved_model=None, tiles_to_predict=None):
     
     #Predict
     if saved_model:
@@ -26,9 +26,10 @@ def submission(eval_path, CHM_dir, min_height=3,iou_threshold=0.15, saved_model=
         model = deepforest.deepforest()
         model.use_release()
     
-    df = pd.read_csv(eval_path,names=["plot_name","xmin","ymin","xmax","ymax","label"])
-    tiles_to_predict = df.plot_name.unique()
-    tiles_to_predict = [os.path.join(os.path.dirname(eval_path),x) for x in tiles_to_predict]
+    if not tiles_to_predict:
+        df = pd.read_csv(eval_path,names=["plot_name","xmin","ymin","xmax","ymax","label"])
+        tiles_to_predict = df.plot_name.unique()
+        tiles_to_predict = [os.path.join(os.path.dirname(eval_path),x) for x in tiles_to_predict]
     
     results = []
     for tile in tiles_to_predict:
@@ -80,7 +81,11 @@ def submission(eval_path, CHM_dir, min_height=3,iou_threshold=0.15, saved_model=
 
 if __name__=="__main__":
     
-    submission(
-        eval_path="/home/b.weinstein/NeonTreeEvaluation/evaluation/RGB/benchmark_annotations.csv",
-        CHM_dir="/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/"
-    )
+    #Just xml files
+    #submission(
+        #eval_path="/home/b.weinstein/NeonTreeEvaluation/evaluation/RGB/benchmark_annotations.csv",
+        #CHM_dir="/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/"
+    #)
+    tiles_to_predict = glob.glob("/home/b.weinstein/NeonTreeEvaluation/evaluation/RGB/*.tif") 
+    df = submission(tiles_to_predict=tiles_to_predict, CHM_dir="/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/")    
+    df.to_csv("../Figures/all_images_submission.csv")

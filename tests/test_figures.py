@@ -15,17 +15,17 @@ def client():
 
 @pytest.fixture()
 def daskdf(client):
- daskdf = figures.load_predictions("../data/")
+ daskdf = figures.load_predictions("data/analysis/")
  return daskdf
 
 def test_load_shp():
- for shp in glob.glob("../data/" + "*.shp"):
+ for shp in glob.glob("data/analysis/" + "*.shp"):
   df = figures.load_shp(shp)
   df.groupby("Site").height.mean()
   assert not df.empty
  
 def test_load_predictions(client):
-    daskdf = figures.load_predictions("../data/")
+    daskdf = figures.load_predictions("data/analysis/")
     assert len(daskdf.Site.unique().compute()) == 1
     
 def test_site_averages(client,daskdf):

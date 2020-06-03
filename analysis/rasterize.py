@@ -54,3 +54,15 @@ def run(path,rgb_dir=".",savedir="."):
     out_fn = "{}_rasterized.tif".format(os.path.splitext(os.path.basename(path))[0])
     out_fn = os.path.join(savedir,out_fn)
     rasterize_shapefile(shapefile, rst, out_fn)
+    
+if __name__ =="__main__":
+    from ..crown_maps import start_cluster
+    import glob
+    
+    client = start_cluster.start(cpus=10, mem_size="7GB")
+    
+    #list files
+    tiles_to_rasterize = glob.glob("/orange/idtrees-collab/draped/*.shp")
+    
+    #apply raster function
+    client.map(run, tile_to_rasterize, savedir="/orange/idtrees-collab/rasterized/")
