@@ -65,4 +65,4 @@ if __name__ =="__main__":
     tiles_to_rasterize = glob.glob("/orange/idtrees-collab/draped/*.shp")
     
     #apply raster function
-    client.map(run, tile_to_rasterize, savedir="/orange/idtrees-collab/rasterized/")
+    client.map(run, tiles_to_rasterize, savedir="/orange/idtrees-collab/rasterized/")
