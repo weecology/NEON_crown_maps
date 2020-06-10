@@ -64,7 +64,8 @@ if __name__ == "__main__":
     file_list = glob.glob("/home/b.weinstein/NEON_crown_maps/Figures/sampling*.csv")
     for fn in file_list:
         try:
-	    run(fn)
-	except:
-	    pass
+            run(fn)
+        except Exception as e:
+            print(e)
+            pass
     
