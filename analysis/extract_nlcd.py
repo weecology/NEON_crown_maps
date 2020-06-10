@@ -4,6 +4,7 @@ import os
 import glob
 import rasterio
 import rasterstats 
+from distributed import wait
 
 from scipy.stats import mode
 from shapely.geometry import Point
@@ -61,5 +62,6 @@ def run(site_csv):
 if __name__ == "__main__":
     client = start_cluster.start(cpus=10)
     file_list = glob.glob("/home/b.weinstein/NEON_crown_maps/Figures/sampling*.csv")
-    client.map(run, file_list)
+    futures = client.map(run, file_list)
+    wait(futures)
     
