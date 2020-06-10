@@ -7,7 +7,7 @@ import rasterstats
 
 from scipy.stats import mode
 from shapely.geometry import Point
-from fiona.crs import from_epsg
+from rasterio.crs.CRS import from_epsg
 from crown_maps import start_cluster
 
 def get_epsg(site):
@@ -39,7 +39,9 @@ def run(site_csv):
     #Get spatial projection
     epsg = get_epsg(site)
     geodf = gpd.GeoDataFrame(sitedf,geometry="geometry",crs=from_epsg(get_epsg(site)))
-    geodf['geometry'] = geodf.geometry.buffer(5)
+    geodf.head()
+    print(geodf.crs)
+    #geodf['geometry'] = geodf.geometry.buffer(5)
 
     #Load NLCD
     nlcdpath = "/orange/idtrees-collab/NLCD_2016/NLCD_2016_Land_Cover_L48_20190424.img"
