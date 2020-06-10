@@ -60,8 +60,13 @@ def run(site_csv):
     sitedf.to_csv(fn)
     
 if __name__ == "__main__":
-    client = start_cluster.start(cpus=10)
+    #client = start_cluster.start(cpus=10)
     file_list = glob.glob("/home/b.weinstein/NEON_crown_maps/Figures/sampling*.csv")
-    futures = client.map(run, file_list)
-    wait(futures)
+    for fn in file_list:
+        try:
+           	run(fn)
+	except:
+		pass
+    #futures = client.map(run, file_list)
+    #wait(futures)
     
