@@ -39,7 +39,6 @@ def run(site_csv):
     geodf = gpd.GeoDataFrame(sitedf,geometry="geometry",crs=CRS.from_epsg(get_epsg(site)))
     geodf.head()
     print(geodf.crs)
-    #geodf['geometry'] = geodf.geometry.buffer(5)
 
     #Load NLCD
     nlcdpath = "/orange/idtrees-collab/NLCD_2016/NLCD_2016_Land_Cover_L48_20190424.img"
@@ -53,7 +52,7 @@ def run(site_csv):
     
     #extract nlcd class
     class_dict = rasterstats.zonal_stats(geodf, nlcdpath, stats="mean",add_stats={'mode':raster_mode})
-    sitedf["nlcd"]  = [g["mean"] for g in class_dict]
+    sitedf["nlcd"]  = [g["mode"] for g in class_dict]
     
     #write alonside original
     fn = "{}_nlcd.csv".format(os.path.splitext(site_csv)[0])
