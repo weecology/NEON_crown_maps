@@ -69,7 +69,7 @@ def run(path,rgb_dir=".",savedir="."):
     
 if __name__ =="__main__":
     
-    client = start_cluster.start(cpus=10, mem_size="7GB")
+    client = start_cluster.start(cpus=30, mem_size="6GB")
     
     #list files
     tiles_to_rasterize = glob.glob("/orange/idtrees-collab/draped/*.shp")
