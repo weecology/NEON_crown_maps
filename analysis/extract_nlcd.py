@@ -64,9 +64,7 @@ if __name__ == "__main__":
     file_list = glob.glob("/home/b.weinstein/NEON_crown_maps/Figures/sampling*.csv")
     for fn in file_list:
         try:
-           	run(fn)
+	    run(fn)
 	except:
-		pass
-    #futures = client.map(run, file_list)
-    #wait(futures)
+	    pass
     
