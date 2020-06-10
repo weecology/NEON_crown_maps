@@ -44,6 +44,13 @@ def run(site_csv):
     #Load NLCD
     nlcdpath = "/orange/idtrees-collab/NLCD_2016/NLCD_2016_Land_Cover_L48_20190424.img"
     
+    # geo transform the polygon clip
+    with rasterio.open(nlcdpath) as src:
+        out_meta = src.meta
+        nlcd_crs = src.crs
+    
+    geodf = geodf.to_crs(src.crs)
+    
     #extract nlcd class
     class_dict = rasterstats.zonal_stats(geodf, nlcdpath, stats="mean",add_stats={'mode':raster_mode})
     sitedf["nlcd"]  = [g["mean"] for g in class_dict]
