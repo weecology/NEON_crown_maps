@@ -7,12 +7,12 @@ import rasterstats
 
 from scipy.stats import mode
 from shapely.geometry import Point
-from rasterio.crs.CRS import from_epsg
+from rasterio.crs import CRS
 from crown_maps import start_cluster
 
 def get_epsg(site):
     lookup = pd.read_csv("//orange/idtrees-collab/NLCD_2016/sites_utm_zone.csv")
-    utmZone = lookup[lookup.siteID == site].utmZone.values()[0]
+    utmZone = lookup[lookup.siteID == site].utmZone.values[0]
     
     return utmZone
 
@@ -36,7 +36,7 @@ def run(site_csv):
     
     #Get spatial projection
     epsg = get_epsg(site)
-    geodf = gpd.GeoDataFrame(sitedf,geometry="geometry",crs=from_epsg(get_epsg(site)))
+    geodf = gpd.GeoDataFrame(sitedf,geometry="geometry",crs=CRS.from_epsg(get_epsg(site)))
     geodf.head()
     print(geodf.crs)
     #geodf['geometry'] = geodf.geometry.buffer(5)
