@@ -16,7 +16,7 @@ def get_epsg(site):
     utmZone = lookup['utmZone'][id]
     utmZone=utmZone.iat[0]
     
-    return(utmZone)
+    return utmZone
 
 def create_point(x,y):
     
@@ -45,8 +45,8 @@ def run(site_csv):
     nlcd_array = rasterio.read(nlcdpath)
     
     #extract nlcd class
-    class_dict = rasterstats.zonal_stats(geodf, nlcd_array, add_stats={'mode':raster_mode})
-    sitedf["nlcd"]  = [g["mode"] for g in class_dict]
+    class_dict = rasterstats.zonal_stats(geodf, nlcd_array, stats="mean",add_stats={'mode':raster_mode})
+    sitedf["nlcd"]  = [g["mean"] for g in class_dict]
     
     #write alonside original
     fn = "{}_nlcd.csv".format(os.path.splitext(site_csv))
