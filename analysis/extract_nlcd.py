@@ -12,9 +12,7 @@ from crown_maps import start_cluster
 
 def get_epsg(site):
     lookup = pd.read_csv("//orange/idtrees-collab/NLCD_2016/sites_utm_zone.csv")
-    id = lookup['siteID']==site
-    utmZone = lookup['utmZone'][id]
-    utmZone=utmZone.iat[0]
+    utmZone = lookup[lookup.siteID == site].utmZone.values()[0]
     
     return utmZone
 
