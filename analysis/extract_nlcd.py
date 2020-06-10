@@ -45,7 +45,7 @@ def run(site_csv):
     nlcdpath = "/orange/idtrees-collab/NLCD_2016/NLCD_2016_Land_Cover_L48_20190424.img"
     
     #extract nlcd class
-    class_dict = rasterstats.zonal_stats(geodf, nlcd_array, stats="mean",add_stats={'mode':raster_mode})
+    class_dict = rasterstats.zonal_stats(geodf, nlcdpath, stats="mean",add_stats={'mode':raster_mode})
     sitedf["nlcd"]  = [g["mean"] for g in class_dict]
     
     #write alonside original
