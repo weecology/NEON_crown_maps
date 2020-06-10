@@ -59,8 +59,7 @@ def run(site_csv):
     sitedf.to_csv(fn)
     
 if __name__ == "__main__":
-    #client = start_cluster.start(cpus=10)
+    client = start_cluster.start(cpus=10)
     file_list = glob.glob("/home/b.weinstein/NEON_crown_maps/Figures/sampling*.csv")
-    run(file_list[10])
-    #client.map(run, file_list)
+    client.map(run, file_list)
     
