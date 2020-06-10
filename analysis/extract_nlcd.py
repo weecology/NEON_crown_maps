@@ -23,7 +23,7 @@ def create_point(x,y):
 def raster_mode(x):
     """Get height quantile of all cells that are no zero"""
     
-    return mode(x)[0][0]
+    return mode(x)[0][0][0]
 
 def run(site_csv):
     print(site_csv)
