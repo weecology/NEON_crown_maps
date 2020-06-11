@@ -12,7 +12,6 @@ import gc
 def collect():
     gc.collect()
 
-
 def args():
     parser = argparse.ArgumentParser(
         description='Simple training script for training a RetinaNet network.')
