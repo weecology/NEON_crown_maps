@@ -11,6 +11,9 @@ proj.directory-list = [{'dirloc': loc('.'),
                         'recursive': True,
                         'watch_for_changes': True}]
 proj.file-type = 'shared'
+proj.launch-config = {loc('App/convert.py'): ('project',
+        (u'-rgb "/Users/ben/Dropbox/Weecology/NEON_Visualization/OSBS/rgb" -ann  "/Users/ben/Dropbox/Weecology/NEON_Visualization/OSBS/predictions" -out "/Users/ben/Dropbox/Weecology/NEON_Visualization/OSBS/output"',
+         ''))}
 testing.auto-test-file-specs = (('glob',
                                  'test_*'),)
 testing.test-framework = {None: ':internal pytest'}

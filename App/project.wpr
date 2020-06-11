@@ -1,0 +1,16 @@
+#!wing
+#!version=6.0
+##################################################################
+# Wing IDE project file                                          #
+##################################################################
+[project attributes]
+proj.directory-list = [{'dirloc': loc('.'),
+                        'excludes': (),
+                        'filter': u'*',
+                        'include_hidden': False,
+                        'recursive': True,
+                        'watch_for_changes': True}]
+proj.file-type = 'shared'
+proj.launch-config = {loc('convert.py'): ('project',
+        (u'-rgb /Users/ben/Dropbox/Weecology/NEON_Visualization/OSBS/rgb -ann  /Users/ben/Dropbox/Weecology/NEON_Visualization/OSBS/predictions -out /Users/ben/Dropbox/Weecology/NEON_Visualization/OSBS/output',
+         ''))}

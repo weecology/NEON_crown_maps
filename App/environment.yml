@@ -1,0 +1,14 @@
+name: neonviz
+channels:
+    - conda-forge
+dependencies:
+    - python=3.7
+    - numba
+    - rasterio
+    - dask
+    - dask-jobqueue
+    - distributed
+    - pytest
+    - pip
+    - pip:
+        - OpenVisus

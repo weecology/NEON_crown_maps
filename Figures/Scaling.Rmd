@@ -113,8 +113,27 @@ ggsave("FullSiteScale.png",height=6,width=9)
 ```{r}
 #Load data from HPC
 f<-list.files(pattern="sampling")
-f<-f[str_detect(f,".csv")]
-sampling<-bind_rows(lapply(f,read.csv))
+f<-f[str_detect(f,"nlcd")]
+fn<-lapply(f,read.csv)
+
+#rename as character
+fn<-lapply(fn, function(x){
+  x$nlcd<-as.character(x$nlcd)
+  return(x)
+})
+
+sampling<-bind_rows(fn)
+
+#remove nlcd classes
+to_remove<- sampling %>% filter(nlcd %in% c(11,12,21,22,23,31,32,33,81,82,83,84,85))
+
+ggplot(to_remove,aes(x=nlcd, y=tree_density)) + geom_boxplot()
+
+ggplot(sampling,aes(x=nlcd, y=tree_density)) + geom_boxplot()
+
+ggplot()
+
+sampling<- sampling %>% filter(!nlcd %in% c(11,12,21,22,23,31,32,33,81,82,83,84,85))
 
 #Plot sampling curves
 p <- ggplot() + geom_density(data=sampling,aes(x=tree_density,fill=as.factor(year)),alpha=0.4) + facet_wrap(~site,scales="free") + labs(fill="year")
@@ -135,7 +154,7 @@ ggsave("Sampling_subset.png",height=4,width=7)
 #as a pair of distributions
 field_density$data<-c("NEON Field Plots")
 sampling$data<-c("Simulated RS Plots")
-combined<-bind_rows(field_density,sampling) %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","JERC","HARV","LENO")) %>%
+combined<-bind_rows(field_density,sampling) %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","JERC","SOAP","LENO")) %>%
 ggplot(.,aes(x=tree_density,fill=data)) + geom_density(alpha=0.3) + facet_wrap(~site,scales="free") + labs(x="Trees per plot")
 combined
 ggsave("Sampling_distributions.png",height=4,width=7)
