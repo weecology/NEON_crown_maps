@@ -250,19 +250,20 @@ def run(rgb_images, annotation_dir, outdir):
 
 if __name__=="__main__":  
   #Create dask cluster
-  from ..crown_maps import start_cluster
+  from crown_maps import start_cluster
   client = start_cluster.start(cpus=10)
   
   #Pool of RGB images
   rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
   
   #Pool of rasterized predictions
-  annotation_dir="/orange/idtrees-collab/rasterized/"
-  outdir="/orange/idtrees-collab/OpenVisus/"
+  annotation_dir = "/orange/idtrees-collab/rasterized/"
+  outdir = "/orange/idtrees-collab/OpenVisus/"
   annotation_list = glob.glob(annotation_dir + "*.tif")
-
+  
   #filter names
-  rgb_list = [x for x in rgb_list if match_name(x) in annotation_list]
+  annotation_names = [os.path.basename(x) for x in annotation_list]
+  rgb_list = [x for x in rgb_list if match_name(x) in annotation_names]
   
   #Scatter and run in parallel
   futures = client.scatter(rgb_list)
