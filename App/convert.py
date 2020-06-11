@@ -284,5 +284,5 @@ if __name__=="__main__":
     future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, outdir=outdir)
     futures.append(future)
     
-  client.compute(*futures)
+  dask.compute(*futures)
   
