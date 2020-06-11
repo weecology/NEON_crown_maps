@@ -268,6 +268,8 @@ if __name__=="__main__":
   
   #Scatter and run in parallel
   futures = client.scatter(rgb_list)
-  client.map(run,rgb_images=futures,annotation_dir = annotation_dir, outdir=outdir)
+  for future in futures:
+    completed_futures = client.submit(run, rgb_images=future, annotation_dir=annotation_dir, outdir=outdir)
   
+  wait(completed_futures)
   
