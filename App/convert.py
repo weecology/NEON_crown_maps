@@ -279,8 +279,10 @@ if __name__=="__main__":
   site_lists = df.groupby('site')['path'].apply(list).values
     
   ##Scatter and run in parallel
-  futures = client.scatter(site_lists)
-  completed_futures = client.submit(run, rgb_images=futures, annotation_dir=annotation_dir, outdir=outdir)
-
-  distributed.wait(completed_futures)
+  futures = []
+  for site in site_lists:
+    future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, outdir=outdir)
+    futures.append(future)
+    
+  client.compute(futures)
   
