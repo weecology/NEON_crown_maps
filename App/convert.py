@@ -279,8 +279,8 @@ if __name__=="__main__":
   run(site_lists[0], annotation_dir, outdir)
   
   ##Scatter and run in parallel
-  #futures = client.scatter(site_lists)
-  #for future in futures:
-    #completed_futures = client.submit(run, rgb_images=future, annotation_dir=annotation_dir, outdir=outdir)
-  #distributed.wait(completed_futures)
+  futures = client.scatter(site_lists)
+  for future in futures:
+    completed_futures = client.submit(run, rgb_images=future, annotation_dir=annotation_dir, outdir=outdir)
+  distributed.wait(completed_futures)
   
