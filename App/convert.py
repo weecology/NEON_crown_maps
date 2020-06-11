@@ -15,6 +15,8 @@ from OpenVisus import *
 
 import dask
 import distributed
+import pandas as pd
+from crown_maps.verify import get_site
 
 #HPC
 ### Configuration
@@ -251,8 +253,8 @@ def run(rgb_images, annotation_dir, outdir):
 if __name__=="__main__":  
   #Create dask cluster
   from crown_maps import start_cluster
-  client = start_cluster.start(cpus=10)
-  client.wait_for_workers(1)
+  #client = start_cluster.start(cpus=10)
+  #client.wait_for_workers(1)
   
   #Pool of RGB images
   rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
@@ -266,9 +268,19 @@ if __name__=="__main__":
   annotation_names = [os.path.basename(x) for x in annotation_list]
   rgb_list = [x for x in rgb_list if match_name(x) in annotation_names]
   
-  #Scatter and run in parallel
-  futures = client.scatter(rgb_list)
-  for future in futures:
-    completed_futures = client.submit(run, rgb_images=future, annotation_dir=annotation_dir, outdir=outdir)
-  distributed.wait(completed_futures)
+  df = pd.DataFrame({"path":rgb_list})
+  df["site"] = df.path.apply(lambda x: get_site(x))
+  grouped = df.groupby("site")
+  
+  site_lists = df.groupby('site')['path'].apply(list).values
+  #order by site
+  
+  #run one example
+  run(site_lists[0], annotation_dir, outdir)
+  
+  ##Scatter and run in parallel
+  #futures = client.scatter(site_lists)
+  #for future in futures:
+    #completed_futures = client.submit(run, rgb_images=future, annotation_dir=annotation_dir, outdir=outdir)
+  #distributed.wait(completed_futures)
   
