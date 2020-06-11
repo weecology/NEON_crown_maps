@@ -270,6 +270,5 @@ if __name__=="__main__":
   futures = client.scatter(rgb_list)
   for future in futures:
     completed_futures = client.submit(run, rgb_images=future, annotation_dir=annotation_dir, outdir=outdir)
-  
-  wait(completed_futures)
+  distributed.wait(completed_futures)
   
