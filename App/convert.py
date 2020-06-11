@@ -114,7 +114,11 @@ def midxToIdx(filename, filename_idx):
   #dataset.compressDataset("jpg-JPEG_QUALITYSUPERB-JPEG_SUBSAMPLING_444-JPEG_OPTIMIZE")
   dataset.compressDataset("jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_444-JPEG_OPTIMIZE")
   
-def run(rgb_images, annotation_dir, outdir):
+def run(rgb_images, annotation_dir, save_dir):
+  
+  #Construct outdir variable from top level savedir and site
+  site = get_site(rgb_images[0])  
+  outdir = os.path.join(save_dir,site)
   pathlib.Path(outdir+"/temp").mkdir(parents=True, exist_ok=True)
   
   outname = outdir.split("/")[-1]
@@ -270,14 +274,10 @@ if __name__=="__main__":
   
   df = pd.DataFrame({"path":rgb_list})
   df["site"] = df.path.apply(lambda x: get_site(x))
-  grouped = df.groupby("site")
   
+  #order by site  
   site_lists = df.groupby('site')['path'].apply(list).values
-  #order by site
-  
-  #run one example
-  run(site_lists[0], annotation_dir, outdir)
-  
+    
   ##Scatter and run in parallel
   futures = client.scatter(site_lists)
   for future in futures:

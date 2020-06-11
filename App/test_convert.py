@@ -10,4 +10,4 @@ rgb_images = glob.glob(RGB_DIR + "*.tif")
 
 #local data not on travis
 def test_run():
-    convert.run(rgb_images=rgb_images, annotation_dir=ANNOTATION_DIR, outdir=OUTDIR)
+    convert.run(rgb_images=rgb_images, annotation_dir=ANNOTATION_DIR, save_dir=OUTDIR)
