@@ -281,7 +281,7 @@ if __name__=="__main__":
   ##Scatter and run in parallel
   futures = []
   for site in site_lists:
-    future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, outdir=outdir)
+    future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
     futures.append(future)
     
   dask.compute(*futures)
