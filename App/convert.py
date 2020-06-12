@@ -257,7 +257,7 @@ def run(rgb_images, annotation_dir, save_dir):
 if __name__=="__main__":  
   #Create dask cluster
   from crown_maps import start_cluster
-  client = start_cluster.start(cpus=10,mem_size="15GB")
+  client = start_cluster.start(cpus=5,mem_size="20GB")
   client.wait_for_workers(1)
   
   #Pool of RGB images
@@ -276,7 +276,7 @@ if __name__=="__main__":
   df["site"] = df.path.apply(lambda x: get_site(x))
   
   #select sites
-  df = df[df["site"].isin(["OSBS","HARV","JERC","DSNY","ABBY","YELL","TEAK","SRER","UKFS"])]
+  df = df[df["site"].isin(["OSBS","HARV","JERC","DSNY","ABBY"])]
   
   #order by site  
   site_lists = df.groupby('site')['path'].apply(list).values
