@@ -275,6 +275,9 @@ if __name__=="__main__":
   df = pd.DataFrame({"path":rgb_list})
   df["site"] = df.path.apply(lambda x: get_site(x))
   
+  #select sites
+  df = df[df["site"].isin(["OSBS","HARV","JERC","DSNY","ABBY","YELL","TEAK","SRER","UKFS"])]
+  
   #order by site  
   site_lists = df.groupby('site')['path'].apply(list).values
     
