@@ -257,7 +257,7 @@ def run(rgb_images, annotation_dir, save_dir):
 if __name__=="__main__":  
   #Create dask cluster
   from crown_maps import start_cluster
-  client = start_cluster.start(cpus=6,mem_size="20GB")
+  client = start_cluster.start(cpus=5,mem_size="20GB")
   client.wait_for_workers(1)
   
   #Pool of RGB images
@@ -276,7 +276,7 @@ if __name__=="__main__":
   df["site"] = df.path.apply(lambda x: get_site(x))
   
   #select sites
-  df = df[df["site"].isin(["OSBS","HARV","DSNY","YELL"])]
+  df = df[df["site"].isin(["OSBS","HARV","DSNY","YELL","JERC"])]
   
   #order by site  
   site_lists = df.groupby('site')['path'].apply(list).values
@@ -284,7 +284,10 @@ if __name__=="__main__":
   ##Scatter and run in parallel
   futures = []
   for site in site_lists:
-    future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
+    try:
+      future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
+    except Exception as e:
+      future = print("{} raised {}".format(site,e))
     futures.append(future)
     
   dask.compute(*futures)
