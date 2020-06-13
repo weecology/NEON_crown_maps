@@ -276,7 +276,7 @@ if __name__=="__main__":
   df["site"] = df.path.apply(lambda x: get_site(x))
   
   #select sites
-  df = df[df["site"].isin(["OSBS","HARV","JERC","DSNY","YELL","TEAK"])]
+  df = df[df["site"].isin(["OSBS","HARV","DSNY","YELL"])]
   
   #order by site  
   site_lists = df.groupby('site')['path'].apply(list).values
