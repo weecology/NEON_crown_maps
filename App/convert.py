@@ -281,19 +281,23 @@ if __name__=="__main__":
   #order by site  
   site_lists = df.groupby('site')['path'].apply(list).values
     
-  ##Scatter and run in parallel
-  futures = []
   for site in site_lists:
-    try:
-      future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
-    except Exception as e:
-      future = print("{} raised {}".format(site,e))
-    futures.append(future)
+    print(site)
+    run(rgb_images=site, annotation_dir=annotation_dir, save_dir=outdir)
     
-    persisted_values = dask.persist(*futures)
-    for pv in persisted_values:
-      try:
-        distributed.wait(pv)
-      except Exception as e:
-        print(e)
-        pass  
+  ###Scatter and run in parallel
+  #futures = []
+  #for site in site_lists:
+    #try:
+      #future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
+    #except Exception as e:
+      #future = print("{} raised {}".format(site,e))
+    #futures.append(future)
+    
+    #persisted_values = dask.persist(*futures)
+    #for pv in persisted_values:
+      #try:
+        #distributed.wait(pv)
+      #except Exception as e:
+        #print(e)
+        #pass  
