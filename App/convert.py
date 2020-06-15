@@ -257,7 +257,7 @@ def run(rgb_images, annotation_dir, save_dir):
 if __name__=="__main__":  
   #Create dask cluster
   from crown_maps import start_cluster
-  client = start_cluster.start(cpus=5,mem_size="20GB")
+  client = start_cluster.start(cpus=3,mem_size="20GB")
   client.wait_for_workers(1)
   
   #Pool of RGB images
@@ -276,28 +276,28 @@ if __name__=="__main__":
   df["site"] = df.path.apply(lambda x: get_site(x))
   
   #select sites
-  df = df[df["site"].isin(["OSBS","HARV","DSNY","YELL","JERC"])]
+  df = df[df["site"].isin(["OSBS","YELL","JERC"])]
   
   #order by site  
   site_lists = df.groupby('site')['path'].apply(list).values
     
-  for site in site_lists:
-    print(site)
-    run(rgb_images=site, annotation_dir=annotation_dir, save_dir=outdir)
+  #for site in site_lists:
+    #print(site)
+    #run(rgb_images=site, annotation_dir=annotation_dir, save_dir=outdir)
     
   ###Scatter and run in parallel
-  #futures = []
-  #for site in site_lists:
-    #try:
-      #future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
-    #except Exception as e:
-      #future = print("{} raised {}".format(site,e))
-    #futures.append(future)
+  futures = []
+  for site in site_lists:
+    try:
+      future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
+    except Exception as e:
+      future = print("{} raised {}".format(site,e))
+    futures.append(future)
     
-    #persisted_values = dask.persist(*futures)
-    #for pv in persisted_values:
-      #try:
-        #distributed.wait(pv)
-      #except Exception as e:
-        #print(e)
-        #pass  
+    persisted_values = dask.persist(*futures)
+    for pv in persisted_values:
+      try:
+        distributed.wait(pv)
+      except Exception as e:
+        print(e)
+        pass  
