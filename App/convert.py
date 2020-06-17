@@ -290,6 +290,7 @@ if __name__=="__main__":
     futures.append(future)
     
     persisted_values = dask.persist(*futures)
+    distributed.wait(persisted_values)
     for pv in persisted_values:
       try:
         pv
