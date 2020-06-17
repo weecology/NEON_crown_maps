@@ -276,20 +276,25 @@ if __name__=="__main__":
   df["site"] = df.path.apply(lambda x: get_site(x))
   df["year"] = df.path.apply(lambda x: get_year(x))
   
+  #just run OSBS
+  df = df[df.site=="OSBS"]
   #order by site  using only the most recent year
   site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
-    
-  ###Scatter and run in parallel
-  futures = []
+  
   for site in site_lists:
-    future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
-    futures.append(future)
+    run(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
     
-  persisted_values = dask.persist(*futures)
-  distributed.wait(persisted_values)
-  for pv in persisted_values:
-    try:
-      pv
-    except Exception as e:
-      print(e)
-      pass  
+    ####Scatter and run in parallel
+    #futures = []
+    #for site in site_lists:
+      #future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
+      #futures.append(future)
+      
+    #persisted_values = dask.persist(*futures)
+    #distributed.wait(persisted_values)
+    #for pv in persisted_values:
+      #try:
+        #pv
+      #except Exception as e:
+        #print(e)
+        #pass  
