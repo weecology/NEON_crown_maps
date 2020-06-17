@@ -282,17 +282,14 @@ if __name__=="__main__":
   ###Scatter and run in parallel
   futures = []
   for site in site_lists:
-    try:      
-      future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
-    except Exception as e:
-      future = print("{} raised {}".format(site,e))
+    future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
     futures.append(future)
     
-    persisted_values = dask.compute(*futures)
-    distributed.wait(persisted_values)
-    for pv in persisted_values:
-      try:
-        pv
-      except Exception as e:
-        print(e)
-        pass  
+  persisted_values = dask.persist(*futures)
+  distributed.wait(persisted_values)
+  for pv in persisted_values:
+    try:
+      pv
+    except Exception as e:
+      print(e)
+      pass  
