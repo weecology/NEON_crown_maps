@@ -22,7 +22,7 @@ from crown_maps.verify import get_site, get_year
 ### Configuration
 ext_name = ".tif"
 dtype = "uint8[3]"
-limit = 1000
+limit = 10000
 ###--------------
 
 @njit(parallel=True)
@@ -256,9 +256,9 @@ def run(rgb_images, annotation_dir, save_dir):
 
 if __name__=="__main__":  
   #Create dask cluster
-  from crown_maps import start_cluster
-  client = start_cluster.start(cpus=20,mem_size="15GB")
-  client.wait_for_workers(1)
+  #from crown_maps import start_cluster
+  #client = start_cluster.start(cpus=20,mem_size="15GB")
+  #client.wait_for_workers(1)
   
   #Pool of RGB images
   rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
@@ -278,6 +278,7 @@ if __name__=="__main__":
   
   #just run OSBS
   df = df[df.site=="OSBS"]
+  
   #order by site  using only the most recent year
   site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
   
