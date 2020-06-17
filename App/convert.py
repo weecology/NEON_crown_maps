@@ -16,7 +16,7 @@ from OpenVisus import *
 import dask
 import distributed
 import pandas as pd
-from crown_maps.verify import get_site
+from crown_maps.verify import get_site, get_year
 
 #HPC
 ### Configuration
@@ -257,7 +257,7 @@ def run(rgb_images, annotation_dir, save_dir):
 if __name__=="__main__":  
   #Create dask cluster
   from crown_maps import start_cluster
-  client = start_cluster.start(cpus=3,mem_size="20GB")
+  client = start_cluster.start(cpus=20,mem_size="15GB")
   client.wait_for_workers(1)
   
   #Pool of RGB images
@@ -274,21 +274,16 @@ if __name__=="__main__":
   
   df = pd.DataFrame({"path":rgb_list})
   df["site"] = df.path.apply(lambda x: get_site(x))
+  df["year"] = df.path.apply(lambda x: get_year(x))
   
-  #select sites
-  df = df[df["site"].isin(["OSBS","YELL","JERC"])]
-  
-  #order by site  
-  site_lists = df.groupby('site')['path'].apply(list).values
-    
-  #for site in site_lists:
-    #print(site)
-    #run(rgb_images=site, annotation_dir=annotation_dir, save_dir=outdir)
+  #order by site  using only the most recent year
+  site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
     
   ###Scatter and run in parallel
   futures = []
   for site in site_lists:
-    try:
+    try:      
+      site = site[site.year==max(site.year)]
       future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
     except Exception as e:
       future = print("{} raised {}".format(site,e))
@@ -297,7 +292,7 @@ if __name__=="__main__":
     persisted_values = dask.persist(*futures)
     for pv in persisted_values:
       try:
-        distributed.wait(pv)
+        pv
       except Exception as e:
         print(e)
         pass  
