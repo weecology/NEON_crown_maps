@@ -283,7 +283,6 @@ if __name__=="__main__":
   futures = []
   for site in site_lists:
     try:      
-      site = site[site.year==max(site.year)]
       future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
     except Exception as e:
       future = print("{} raised {}".format(site,e))
