@@ -288,7 +288,7 @@ if __name__=="__main__":
       future = print("{} raised {}".format(site,e))
     futures.append(future)
     
-    persisted_values = dask.persist(*futures)
+    persisted_values = dask.compute(*futures)
     distributed.wait(persisted_values)
     for pv in persisted_values:
       try:
