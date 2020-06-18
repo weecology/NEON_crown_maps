@@ -43,7 +43,6 @@ field<-field %>%  filter(!is.na(itcEasting),!str_detect(eventID,"2014"),growthFo
 
 #field<-field %>% group_by(individualID) %>% arrange(desc(eventID)) %>% slice(1)
 
-
 #Limit difference in heights 
 to_remove<-field %>% group_by(individualID) %>% summarize(mean=mean(height),sum_difference = abs(sum(diff(height)))) %>% filter(sum_difference > 8)
 
