@@ -22,7 +22,6 @@ from crown_maps.verify import get_site, get_year
 ### Configuration
 ext_name = ".tif"
 dtype = "uint8[3]"
-limit = 10000
 ###--------------
 
 @njit(parallel=True)
@@ -167,8 +166,6 @@ def run(rgb_images, annotation_dir, save_dir):
   
   count = 0
   for img in images:
-    if count > limit:
-      break
     count += 1
   
     try:
@@ -213,8 +210,6 @@ def run(rgb_images, annotation_dir, save_dir):
   
   count = 0
   for img in images:
-    if count > limit:
-      break
     count += 1
   
     lbox = "0 "+str(img.size[0]-1)+" 0 "+str(img.size[1]-1)
@@ -233,7 +228,7 @@ def run(rgb_images, annotation_dir, save_dir):
     #convertCommand(["create", exp_idx, "--box", lbox, "--fields", 'data '+dtype,"--time","0 0 time%03d/"])
     #convert.runFromArgs(["create", exp_idx, "--box", lbox, "--fields", 'data '+dtype,"--time","0 0 time%03d/"])
   
-    print("Converting "+str(count)+"/"+str(min(limit, len(images)))+"...")
+    print("Converting "+str(count)+"/"+str(len(images))+"...")
   
     data=numpy.asarray(Image.open(img.path))
     db.write(data)
@@ -257,7 +252,7 @@ def run(rgb_images, annotation_dir, save_dir):
 if __name__=="__main__":  
   #Create dask cluster
   from crown_maps import start_cluster
-  client = start_cluster.start(cpus=6,mem_size="15GB")
+  client = start_cluster.start(cpus=5,mem_size="20GB")
   client.wait_for_workers(1)
   
   #Pool of RGB images
@@ -277,7 +272,7 @@ if __name__=="__main__":
   df["year"] = df.path.apply(lambda x: get_year(x))
   
   #just run OSBS
-  df = df[df.site.isin(["TEAK","SRER","BONA","DEJU","WOOD","JERC"])]
+  df = df[df.site.isin(["TEAK","SRER","BONA","WOOD","JERC"])]
   
   #order by site  using only the most recent year
   site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
