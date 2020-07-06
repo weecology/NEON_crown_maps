@@ -32,7 +32,6 @@ rgb_images<-rgb_images[!str_detect(rgb_images,".xml")]
 CHM_DIR<-"/Users/Ben/Documents/NeonTreeEvaluation/evaluation/CHM/"
 CHM_images<-list.files(CHM_DIR,".tif",full.names = T)
 CHM_images<-CHM_images[!str_detect(CHM_images,".xml")]
-
 ```
 
 ```{r}

@@ -154,8 +154,12 @@ ggsave("Sampling_subset.png",height=4,width=7)
 #as a pair of distributions
 field_density$data<-c("NEON Field Plots")
 sampling$data<-c("Simulated RS Plots")
-combined<-bind_rows(field_density,sampling) %>% filter(site %in% c("DSNY","TEAK","OSBS","BART","DELA","SJER","JERC","SOAP","LENO")) %>%
-ggplot(.,aes(x=tree_density,fill=data)) + geom_density(alpha=0.3) + facet_wrap(~site,scales="free") + labs(x="Trees per plot")
-combined
+combined<-bind_rows(field_density,sampling) %>% filter(site %in% c("SOAP","TEAK","SJER","OSBS","JERC","DSNY","LENO","DELA","TALL")) %>% filter(!tree_density==0)
+
+#Level and organize by Domain
+combined$site<-factor(combined$site,levels = c("SOAP","TEAK","SJER","OSBS","JERC","DSNY","LENO","DELA","TALL"))
+
+ggplot(combined,aes(x=tree_density,fill=data)) + geom_density(alpha=0.3) + facet_wrap(~site,scales="free") + labs(x="Trees per plot")
+
 ggsave("Sampling_distributions.png",height=4,width=7)
 ```

@@ -2,13 +2,18 @@ library(sf)
 library(raster)
 library(stringr)
 
-calc_density<-function(path,res=100){
+calc_density<-function(path,res=100, outdir="/orange/idtrees-collab/tree_density/"){
+  print(path)
   polygons <- read_sf(path)
   points<-st_centroid(polygons)
   r<-raster(polygons,res=c(res,res))
   points$mask <-1
   grid_density<-rasterize(points,r,field="mask",fun="sum")
-  return(grid_density)
+  fn <- str_match(path,"/(\\w+).shp")[,2]
+  fn <- paste(outdir,fn,".tif",sep = "")
+  writeRaster(grid_density, fn, overwrite=T)
+  
+  return(fn)
 }
 
 find_files<-function(site, year="2019", dir="/orange/idtrees-collab/draped/"){
@@ -19,11 +24,9 @@ find_files<-function(site, year="2019", dir="/orange/idtrees-collab/draped/"){
 }
 
 
-tree_density<-function(site,year,dir="/orange/idtrees-collab/draped/", outdir="/orange/idtrees-collab/tree_density/"){
+tree_density<-function(site,year,dir="/orange/idtrees-collab/draped/"){
   paths<-find_files(site,year, dir)
-  rasters <-lapply(paths,calc_density)
-  merged_raster<-do.call(raster::merge,rasters)
-  fn <- paste(outdir,site,".tif")
-  writeRaster(merged_raster, fn)
+   lapply(paths,calc_density)
 }
 
+tree_density("TEAK","2019")
