@@ -17,7 +17,7 @@ module load jq
 source zenodo_token
 python /home/b.weinstein/NEON_crown_maps/zenodo_upload.py
 
-#bash /home/b.weinstein/zenodo-upload/zenodo_upload.sh 3765872 /orange/idtrees-collab/zenodo/shapefiles.zip
+bash /home/b.weinstein/zenodo-upload/zenodo_upload.sh 3765872 /orange/idtrees-collab/zenodo/shapefiles.zip
 
 for f in /orange/idtrees-collab/zenodo/*; do
   echo "File -> $f"''

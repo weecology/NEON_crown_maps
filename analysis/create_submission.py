@@ -4,9 +4,9 @@ from crown_maps.predict import project
 from crown_maps.LIDAR import non_zero_99_quantile
 import rasterstats
 import pandas as pd
+import glob
 
 def submission_no_chm(eval_path, CHM_dir, min_height=3):
-    
     #Predict
     model = deepforest.deepforest()
     model.use_release()
@@ -17,7 +17,7 @@ def submission_no_chm(eval_path, CHM_dir, min_height=3):
     return boxes
 
 
-def submission(eval_path, CHM_dir, min_height=3,iou_threshold=0.15, saved_model=None, tiles_to_predict=None):
+def submission(eval_path=None, CHM_dir=None, min_height=3,iou_threshold=0.15, saved_model=None, tiles_to_predict=None):
     
     #Predict
     if saved_model:

@@ -21,25 +21,29 @@ df<-read.csv("averages.csv",row.names =1)
 counts<-read.csv("counts.csv")
 colnames(counts)<-c("Site","geo_index","Year","n")
 
-counts %>% group_by(Site, Year) %>% summarize(n=sum(n)) %>% filter(Year==max(Year)) %>% ungroup() %>% summarize(sum(n))
+counts %>% group_by(Site, Year) %>% filter(!Site %in% c("GUIL","GRSM","PUUM")) %>% summarize(n=sum(n)) %>% filter(Year==max(Year)) %>% ungroup() %>% summarize(sum(n))
 
 counts %>% group_by(Site, Year) %>% summarize(n=sum(n)) %>% filter(Year==max(Year)) %>% data.frame()
 
-counts %>% group_by(Site) %>% summarize(n=sum(n)) %>% data.frame()
+counts %>% group_by(Site) %>% summarize(n=sum(n)) %>% data.frame() 
 ```
 
 ```{r}
 
 #Add a ecosystem color
-envdf<-read.csv("field-sites.csv")
+envdf<-read.csv("NEON vegetation cover type from steph.csv")
+sitedf<-read.csv("field-sites.csv")
 
-merged_df<-df %>% inner_join(envdf,c("Site"="siteID"))
+merged_df<-df %>% inner_join(envdf) %>% inner_join(sitedf,by=c("Site" ="siteID")) %>% filter(!Site %in% c("PUUM","GUIL","GRSM") )
 
-merged_df$label<-sapply(merged_df$Dominant.NLCD.Classes,function(x) {str_split(x,",")[[1]][1]})
 
-ggplot(merged_df,aes(x=height_mean,y=area_mean,size=n,col=Domain.Name)) + geom_point(alpha=0.5) + labs(x="Crown Height (m)",y="Crown Area (m^2)",size="Trees per km^2") + geom_text(aes(label=Site),size=2,hjust=0.5,vjust=-1) + theme_bw() + scale_x_continuous(n.breaks=7)+ scale_y_continuous(n.breaks=8)
-ggsave("Attributes.png",height=3.5,width=6)
-ggsave("Attributes.svg", height=3.5,width=6)
+ggplot(merged_df,aes(x=n,y=height_mean/sqrt(area_mean),col=Vegetation.Cover.Type)) + geom_point(alpha=0.5, size=3) + labs(x="Tree Density (trees per km^2)",y="Tree Height / Crown Width", col="Vegetation Cover") + geom_text(aes(label=Site),size=2,hjust=0.5,vjust=-1) + theme_bw() + scale_y_continuous(n.breaks=8) + scale_color_brewer(palette="Dark2")
+ggsave("Attributes.png",height=4,width=7)
+ggsave("Attributes.svg", height=4,width=7)
+
+ggplot(merged_df,aes(x=n,y=height_mean/sqrt(area_mean),col=Domain.Name)) + geom_point(alpha=0.5, size=3) + labs(x="Tree Density (trees per km^2)",y="Tree Height / Crown Width") +geom_text(aes(label=Site),size=2,hjust=0.5,vjust=-1) + theme_bw() + scale_y_continuous(n.breaks=8) 
+ggsave("Attributes_domain.png",height=3.5,width=6)
+
 ```
 
 ## Counts through time

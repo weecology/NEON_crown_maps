@@ -137,9 +137,12 @@ for(x in unique(site_plots$plotID)){
 # CLBJ has 3 data points.drop
 height_summary<-results  %>% filter(!siteID %in% "CLBJ") %>% mutate(Site=str_match(plot_name,"(\\w+)_")[,2]) %>% group_by(Site,plot_name,individualID,crown_id) %>%  summarize(predicted_height=unique(height.x)[1],mean_field=mean(height.y),min_field=min(height.y),max_field=max(height.y)) %>% mutate(field_range=max_field - min_field)
 
-  ggplot(height_summary,aes(x=predicted_height,y=mean_field,ymin=min_field,ymax=max_field)) + geom_pointrange(size=0.1,alpha=0.5) + geom_abline(linetype="dashed") + coord_flip() + labs(y="Field Height (m)",x="Predicted Height (m)")  + stat_smooth(method="lm")  + facet_wrap(~Site,scales="free")
+ggplot(height_summary,aes(x=predicted_height,y=mean_field,ymin=min_field,ymax=max_field)) + geom_pointrange(size=0.1,alpha=0.5) + geom_abline(linetype="dashed") + coord_flip() + labs(y="Field Height (m)",x="Predicted Height (m)")  + stat_smooth(method="lm")  + facet_wrap(~Site,scales="free")
 ggsave("Height_Comparison.png",height=7,width=10)
-  ggplot(height_summary,aes(x=field_range)) + geom_density(fill="black") + facet_wrap(~Site,scales="free") + labs(x="Height difference (m) among years for the same ID")
+```
+
+```{r}
+ggplot(height_summary,aes(x=field_range)) + geom_density(fill="black") + facet_wrap(~Site,scales="free") + labs(x="Height difference (m) among years for the same ID")
   
 ggplot(height_summary,aes(x=mean_field,y=field_range)) + geom_point() + labs(x="Mean Field Height",y="Range of Heights")
 ```
@@ -148,6 +151,12 @@ Fit a mixed effect model
 ```{r}
 mod<-lmer(data=height_summary,mean_field~predicted_height|Site)
 sqrt(mean(residuals(mod)^2))
+rmse_site<-height_summary %>% ungroup() %>% mutate(mod_error=as.numeric(residuals(mod)))%>% group_by(Site) %>% summarize(RMSE=sqrt(mean(mod_error^2)))
+
+ggplot(height_summary,aes(x=predicted_height,y=mean_field,ymin=min_field,ymax=max_field)) + geom_pointrange(size=0.1,alpha=0.5) + geom_abline(linetype="dashed") + coord_flip() + labs(y="Field Height (m)",x="Predicted Height (m)")  + stat_smooth(method="lm")  + facet_wrap(~Site,scales="free") 
+ggsave("Height_Comparison.svg",height=7,width=10)
+
+
 ```
 
 ```{r}
