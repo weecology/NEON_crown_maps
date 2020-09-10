@@ -6,13 +6,22 @@ import rasterstats
 import pandas as pd
 import glob
 
-def submission_no_chm(eval_path, CHM_dir, min_height=3):
+def submission_no_chm(tiles_to_predict):
     #Predict
+    results = []
     model = deepforest.deepforest()
-    model.use_release()
-    boxes = model.predict_generator(eval_path)
-    
-    boxes = boxes[["plot_name","xmin","ymin","xmax","ymax","score","label"]]
+    model.use_release()    
+    for tile in tiles_to_predict:
+        try:
+            result = model.predict_tile(tile,return_plot=False,patch_size=400, iou_threshold=iou_threshold)
+            result["plot_name"] = os.path.splitext(os.path.basename(tile))[0]
+            results.append(result)
+        except Exception as e:
+            print(e)
+            continue    
+        
+    #Create plot name groups
+    boxes = pd.concat(results)
     
     return boxes
 
@@ -86,6 +95,10 @@ if __name__=="__main__":
         #eval_path="/home/b.weinstein/NeonTreeEvaluation/evaluation/RGB/benchmark_annotations.csv",
         #CHM_dir="/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/"
     #)
+    #raw chm
     tiles_to_predict = glob.glob("/home/b.weinstein/NeonTreeEvaluation/evaluation/RGB/*.tif") 
+    df = submission_no_chm(tiles_to_predict)
+    df.to_csv("../Figures/all_images_submission.csv")
+    
     df = submission(tiles_to_predict=tiles_to_predict, CHM_dir="/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/")    
     df.to_csv("../Figures/all_images_submission.csv")
