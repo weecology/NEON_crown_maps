@@ -6,7 +6,7 @@ import rasterstats
 import pandas as pd
 import glob
 
-def submission_no_chm(tiles_to_predict):
+def submission_no_chm(tiles_to_predict, iou_threshold=0.15):
     #Predict
     results = []
     model = deepforest.deepforest()
