@@ -16,7 +16,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 
 from deepforest import preprocess
-from keras_retinanet.utils import image as keras_retinanet_image
+from deepforest.keras_retinanet.utils import image as keras_retinanet_image
 
 
 def create_tf_example(fname, original_image):
