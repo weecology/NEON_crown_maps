@@ -101,4 +101,4 @@ if __name__=="__main__":
     df.to_csv("../Figures/all_images_submission.csv")
     
     df = submission(tiles_to_predict=tiles_to_predict, CHM_dir="/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/")    
-    df.to_csv("../Figures/all_images_submission.csv")
+    df.to_csv("../Figures/all_images_submission_CHM.csv")
