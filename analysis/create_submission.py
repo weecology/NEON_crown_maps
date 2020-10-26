@@ -75,14 +75,14 @@ def submission(CHM_dir=None, RGB_dir=None, min_height=3,iou_threshold=0.15, save
 if __name__=="__main__":
     
     #Just xml files
-    submission(
-        eval_path="/home/b.weinstein/NeonTreeEvaluation/evaluation/RGB/benchmark_annotations.csv",
-        CHM_dir="/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/"
-    )
+    #submission(
+        #eval_path="/home/b.weinstein/NeonTreeEvaluation/evaluation/RGB/benchmark_annotations.csv",
+        #CHM_dir="/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/"
+    #)
     #raw chm
     tiles_to_predict = glob.glob("/home/b.weinstein/NeonTreeEvaluation/evaluation/RGB/*.tif") 
     df = submission_no_chm(tiles_to_predict)
     df.to_csv("all_images_submission_NOCHM.csv")
     
-    df = submission(tiles_to_predict, CHM_dir="/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/")    
+    df = submission(tiles_to_predict, RGB_dir = "/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/", CHM_dir="/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/")    
     df.to_csv("all_images_submission_CHM.csv")
