@@ -82,8 +82,8 @@ if __name__=="__main__":
     
     #raw chm
     tiles_to_predict = glob.glob("/home/b.weinstein/NeonTreeEvaluation/evaluation/RGB/*.tif") 
-    #df = submission_no_chm(tiles_to_predict)
-    #df.to_csv("all_images_submission_NOCHM.csv")
+    df = submission_no_chm(tiles_to_predict)
+    df.to_csv("all_images_submission_NOCHM.csv")
     
     df = submission(tiles_to_predict=tiles_to_predict, RGB_dir = "/home/b.weinstein/NeonTreeEvaluation/evaluation/RGB/", CHM_dir="/home/b.weinstein/NeonTreeEvaluation/evaluation/CHM/")    
     df.to_csv("all_images_submission_CHM.csv")
