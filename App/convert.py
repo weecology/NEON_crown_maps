@@ -247,12 +247,12 @@ def run(rgb_images, annotation_dir, save_dir):
   # moving clutter to "outdir/temp" folder
   cleanup(outdir)
 
-  print("DONE")
+  print("{} DONE".format(site))
 
 if __name__=="__main__":  
   #Create dask cluster
   from crown_maps import start_cluster
-  client = start_cluster.start(cpus=5,mem_size="20GB")
+  client = start_cluster.start(cpus=5,mem_size="40GB")
   client.wait_for_workers(1)
   
   #Pool of RGB images
@@ -272,7 +272,7 @@ if __name__=="__main__":
   df["year"] = df.path.apply(lambda x: get_year(x))
   
   #just run OSBS
-  #df = df[df.site.isin(["TEAK","SRER","BONA","WOOD","JERC"])]
+  df = df[df.site.isin(["TEAK","HARV"])]
   
   #order by site  using only the most recent year
   site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
@@ -287,7 +287,7 @@ if __name__=="__main__":
   distributed.wait(persisted_values)
   for pv in persisted_values:
     try:
-      pv
+      print(pv)
     except Exception as e:
       print(e)
-      pass  
+      continue  
