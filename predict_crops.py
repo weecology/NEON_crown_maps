@@ -19,7 +19,7 @@ def run(x):
     return results
 
 files = glob.glob("/orange/ewhite/b.weinstein/NeonTreeEvaluation/pretraining/crops/*.jpg")
-futures = client.scatter(files[:100])
+futures = client.scatter(files)
 results = client.map(run, futures)
 full_set = client.gather(results)
 full_set = pd.concat(full_set)
