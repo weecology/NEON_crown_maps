@@ -5,16 +5,15 @@ from crown_maps import start_cluster
 client = start_cluster.start(gpus=5)
 client.wait_for_workers(2)
 
-def run(paths):
+def run(x):
     from deepforest import deepforest    
     saved_model="/home/b.weinstein/miniconda3/envs/DeepTreeAttention_DeepForest/lib/python3.7/site-packages/deepforest/data/NEON.h5"
     model = deepforest.deepforest(saved_model = saved_model)
     
     results = []
-    for x in paths:
-        boxes = model.predict_image(x, return_plot = False)
-        boxes["file"] = x
-        results.append(boxes)
+    boxes = model.predict_image(x, return_plot = False)
+    boxes["file"] = x
+    results.append(boxes)
     
     results = pd.concat(results)
     return results
