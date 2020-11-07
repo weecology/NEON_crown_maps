@@ -4,7 +4,7 @@ import glob
 from crown_maps import start_cluster
 
 client = start_cluster.start(gpus=5)
-client.wait(2)
+client.wait_for_workers(2)
 
 def run(paths):
     saved_model="/home/b.weinstein/miniconda3/envs/DeepTreeAttention_DeepForest/lib/python3.7/site-packages/deepforest/data/NEON.h5"
