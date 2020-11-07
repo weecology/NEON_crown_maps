@@ -21,6 +21,6 @@ def run(x):
 files = glob.glob("/orange/ewhite/b.weinstein/NeonTreeEvaluation/pretraining/crops/*.jpg")
 futures = client.scatter(files[:100])
 results = client.map(run, futures)
-results = client.gather(results)
+full_set = client.gather(results)
 full_set = pd.concat(full_set)
 full_set.to_csv("predictions.csv")
