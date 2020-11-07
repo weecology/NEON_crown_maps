@@ -6,8 +6,8 @@ from crown_maps import start_cluster
 client = start_cluster.start(gpus=5)
 
 def run(paths):
-    model = deepforest.deepforest()
-    model.use_release()
+    saved_model="/home/b.weinstein/miniconda3/envs/DeepTreeAttention_DeepForest/lib/python3.7/site-packages/deepforest/data/NEON.h5"
+    model = deepforest.deepforest(saved_model = saved_model)
     
     results = []
     for x in paths:
