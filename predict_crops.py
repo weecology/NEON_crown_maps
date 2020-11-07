@@ -1,4 +1,3 @@
-from deepforest import deepforest
 import pandas as pd
 import glob
 from crown_maps import start_cluster
@@ -7,6 +6,7 @@ client = start_cluster.start(gpus=5)
 client.wait_for_workers(2)
 
 def run(paths):
+    from deepforest import deepforest    
     saved_model="/home/b.weinstein/miniconda3/envs/DeepTreeAttention_DeepForest/lib/python3.7/site-packages/deepforest/data/NEON.h5"
     model = deepforest.deepforest(saved_model = saved_model)
     
