@@ -15,7 +15,7 @@ def run(paths):
     for x in paths:
         boxes = model.predict_image(x, return_plot = False)
         boxes["file"] = x
-        csv_name = "/orange/ewhite/b.weinstein/NeonTreeEvaluation/pretraining/predictions/{}.csv".format(os.path.splitxt(os.path.basename(x))[0])
+        csv_name = "/orange/ewhite/b.weinstein/NeonTreeEvaluation/pretraining/predictions/{}.csv".format(os.path.splitext(os.path.basename(x))[0])
         boxes.to_csv(csv_name)
 
 files = glob.glob("/orange/ewhite/b.weinstein/NeonTreeEvaluation/pretraining/crops/*.jpg")
