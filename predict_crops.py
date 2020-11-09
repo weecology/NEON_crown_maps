@@ -20,6 +20,5 @@ def run(paths):
 files = glob.glob("/orange/ewhite/b.weinstein/NeonTreeEvaluation/pretraining/crops/*.jpg")
 chunks = np.array_split(np.array(files),5)
 futures = client.scatter(chunks)
-model_future = client.run(load_model)
-results = client.map(run, futures, model = model_future)
+results = client.map(run, chunks)
 client.gather(results)
