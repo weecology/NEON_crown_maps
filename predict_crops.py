@@ -16,7 +16,6 @@ def run(paths):
         boxes["file"] = x
         csv_name = "/orange/ewhite/b.weinstein/NeonTreeEvaluation/pretraining/predictions/{}.csv".format(x)
         boxes.to_csv(csv_name)
-    return x
 
 files = glob.glob("/orange/ewhite/b.weinstein/NeonTreeEvaluation/pretraining/crops/*.jpg")
 chunks = np.array_split(np.array(files),5)
