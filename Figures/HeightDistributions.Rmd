@@ -41,8 +41,8 @@ ggplot(merged_df,aes(x=n,y=log(height_mean/sqrt(area_mean)),col=Vegetation.Cover
 ggsave("Attributes.png",height=4,width=7)
 ggsave("Attributes.svg", height=4,width=7)
 
-ggplot(merged_df,aes(x=n,y=log(height_mean/sqrt(area_mean)),col=Domain.Name)) + geom_point(alpha=0.5, size=3) + labs(x="Tree Density (trees per km^2)",y="Tree Height / Crown Width") +geom_text(aes(label=Site),size=2,hjust=0.5,vjust=-1) + theme_bw() + scale_y_continuous(n.breaks=8) 
-ggsave("Attributes_domain.png",height=3.5,width=6)
+ggplot(merged_df,aes(x=log(n),y=log(height_mean/sqrt(area_mean)),col=Domain.Name)) + geom_point(alpha=0.5, size=3) + labs(x="Log Tree Density (trees per km^2)",y="Log Tree Height / Log Crown Width") +geom_text(aes(label=Site),size=2,hjust=0.5,vjust=-1) + theme_bw() + scale_y_continuous(n.breaks=8) 
+ggsave("Attributes_domain.png",height=4,width=8)
 
 ```
 
