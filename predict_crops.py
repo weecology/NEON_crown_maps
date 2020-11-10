@@ -13,10 +13,13 @@ def run(paths):
     model = deepforest.deepforest(saved_model = saved_model)
     
     for x in paths:
-        boxes = model.predict_image(x, return_plot = False)
-        boxes["file"] = x
         csv_name = "/orange/ewhite/b.weinstein/NeonTreeEvaluation/pretraining/predictions/{}.csv".format(os.path.splitext(os.path.basename(x))[0])
-        boxes.to_csv(csv_name)
+        if os.path.exists(csv_name):
+            continue
+        else:
+            boxes = model.predict_image(x, return_plot = False)
+            boxes["file"] = x
+            boxes.to_csv(csv_name)
 
 files = glob.glob("/orange/ewhite/b.weinstein/NeonTreeEvaluation/pretraining/crops/*.jpg")
 chunks = np.array_split(np.array(files),5)

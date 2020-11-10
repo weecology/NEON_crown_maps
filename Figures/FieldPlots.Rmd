@@ -91,7 +91,7 @@ for(x in unique(site_plots$plotID)){
   chm<-raster(CHM_path)
   
   #Thresholds 
-  field_points$CHM_height<-extract(chm,field_points)
+  field_points$CHM_height<-raster::extract(chm,field_points)
   
   #Could it be seen?
   field_points<-field_points %>% filter(abs(CHM_height-height)<4)
@@ -101,7 +101,7 @@ for(x in unique(site_plots$plotID)){
   
   plotRGB(r)
   plot(st_geometry(spatial_boxes),add=T)
-  plot(st_geometry(field_points),add=T,col="red",pch=20)
+  plot(st_geometry(field_points),add=T,col=field_points$eventID,pch=20)
   
   #Missing
   missing<-field_points[!lengths(st_intersects(field_points, spatial_boxes)), ]

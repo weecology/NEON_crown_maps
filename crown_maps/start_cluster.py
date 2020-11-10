@@ -58,7 +58,7 @@ def start(cpus=0, gpus=0, mem_size="10GB"):
                                queue='hpg2-compute',
                                cores=1,
                                memory=mem_size,
-                               walltime='24:00:00',
+                               walltime='48:00:00',
                                job_extra=extra_args,
                                extra=['--resources cpu=1'],
                                scheduler_options={"dashboard_address": ":8781"},
