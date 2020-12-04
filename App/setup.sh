@@ -12,4 +12,4 @@ azcopy copy OpenVisus/ https://neon.blob.core.windows.net/openvisus --recursive
 
 #change config, see config.js
 #change internal server settings
-sudo docker run --rm -d -p 8080:80 -v /datadrive/OpenVisus/:/converted -v /home/bweinstein/NEON_crown_maps/App/config.js:/home/OpenVisus/dataportal/ext/visus/config.js visus/dataportal
+sudo docker run --rm -d -p 8080:80 -v /datadrive/OpenVisus/:/converted -v /home/bweinstein/NEON_crown_maps/App/config.js:/home/OpenVisus/dataportal/ext/visus/config.js -v /home/bweinstein/NEON_crown_maps/App/visus.config:/home/OpenVisus/visus.config visus/dataportal
