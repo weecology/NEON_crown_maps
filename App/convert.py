@@ -272,7 +272,7 @@ if __name__=="__main__":
   df["year"] = df.path.apply(lambda x: get_year(x))
   
   #just run OSBS
-  df = df[df.site.isin(["TEAK","SOAP"])]
+  df = df[df.site.isin(["ABBY","SOAP","TEAK"])]
   
   #order by site  using only the most recent year
   site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
