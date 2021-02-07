@@ -25,17 +25,17 @@ submission<-read.csv("plot_predictions.csv")
 #UNDE should be dropped from the height dataset, LIDAR isn't trustworthy. 
 submission<-submission %>% filter(!str_detect(plot_name,"UNDE"))
 
-RGB_DIR<-"/Users/Ben/Documents/NeonTreeEvaluation/evaluation/RGB/"
+RGB_DIR<-"/Users/benweinstein//Documents/NeonTreeEvaluation/evaluation/RGB/"
 rgb_images<-list.files(RGB_DIR,".tif",full.names = T)
 rgb_images<-rgb_images[!str_detect(rgb_images,".xml")]
 
-CHM_DIR<-"/Users/Ben/Documents/NeonTreeEvaluation/evaluation/CHM/"
+CHM_DIR<-"/Users/benweinstein//Documents/NeonTreeEvaluation/evaluation/CHM/"
 CHM_images<-list.files(CHM_DIR,".tif",full.names = T)
 CHM_images<-CHM_images[!str_detect(CHM_images,".xml")]
 ```
 
 ```{r}
-field<-read.csv("/Users/ben/Documents/NEON_crown_maps/Figures/vst_field_data.csv")
+field<-read.csv("/Users/benweinstein//Documents/NEON_crown_maps/Figures/vst_field_data.csv")
 field$area<-field$maxCrownDiameter*field$ninetyCrownDiameter
 
 field<-field %>%  filter(!is.na(itcEasting),!str_detect(eventID,"2014"),growthForm %in% c("single bole tree","multi-bole tree","small tree","sapling"),stemDiameter>15) %>% droplevels() %>% filter(height>3|is.na(height)) 
@@ -101,13 +101,14 @@ for(x in unique(site_plots$plotID)){
   
   plotRGB(r)
   plot(st_geometry(spatial_boxes),add=T)
-  plot(st_geometry(field_points),add=T,col=field_points$eventID,pch=20)
+  plot(st_geometry(field_points),add=T,col=as.numeric(as.factor(field_points$eventID)),pch=20)
   
   #Missing
   missing<-field_points[!lengths(st_intersects(field_points, spatial_boxes)), ]
   plot(st_geometry(missing),add=T,col="blue",pch=20)
 
   #Stem recall rate
+  if(nrow(field_points)==0){next}
   unique_locations<-field_points %>% distinct(individualID,.keep_all = T)
   tree_in_prediction <-unique_locations  %>% sf::st_intersects(x=.,y=spatial_boxes)
   
@@ -155,7 +156,6 @@ rmse_site<-height_summary %>% ungroup() %>% mutate(mod_error=as.numeric(residual
 
 ggplot(height_summary,aes(x=predicted_height,y=mean_field,ymin=min_field,ymax=max_field)) + geom_pointrange(size=0.1,alpha=0.5) + geom_abline(linetype="dashed") + coord_flip() + labs(y="Field Height (m)",x="Predicted Height (m)")  + stat_smooth(method="lm")  + facet_wrap(~Site,scales="free") 
 ggsave("Height_Comparison.svg",height=7,width=10)
-
 
 ```
 

@@ -213,7 +213,7 @@ if __name__ == "__main__":
     
     #site_list = ["OSBS","DELA","BART","TEAK","BONA","SOAP","WREF"]
     #year_list = None    
-    year_list = ["2019","2018"]
+    year_list = ["2020"]
     
     #Hipergator cannot handle too large of sets
     for sites in site_list:
