@@ -21,6 +21,8 @@ else:
     savedir = "/orange/idtrees-collab/"
 
 #Get geoindex
+#Limit to OSBS
+shps = [x for x in shps if "OSBS" in x]
 geo_index = [re.search("(\d+_\d+)_image",x).group(1) for x in shps]
 geo_index = np.unique(geo_index)
 

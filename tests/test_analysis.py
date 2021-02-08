@@ -30,5 +30,5 @@ def test_tree_fall(geo_indexes):
     shps = glob.glob("data/analysis/*.shp")    
     CHMs = glob.glob("data/analysis/*_CHM.tif")    
     for geo_index in geo_indexes:
-        matched_df = analysis.tree_falls(geo_index, shps, CHMs,savedir="output/")
+        analysis.tree_falls(geo_index, shps, CHMs,savedir="output/")
     

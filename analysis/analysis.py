@@ -137,7 +137,7 @@ def tree_falls(geo_index, shps, CHMs,savedir="."):
     fall_df = no_matches[no_matches["height_frac"] < -0.5]
     
     #Keep predictions whose original height was greater than 5m
-    fall_df = fall_df[fall_df.height > 6]
+    #fall_df = fall_df[fall_df.height > 5]
     
     #Write tree fall shapefile
     fname = os.path.basename(shapefiles["2019"]["shp_path"].unique()[0])
@@ -145,4 +145,17 @@ def tree_falls(geo_index, shps, CHMs,savedir="."):
     fname = "{}/{}_treefall.shp".format(savedir,fname)
     fall_df.to_file(fname)
     
+    #get predictions whose height did not drop by more than 50%, indiciating poor matching
+    non_fall_df = no_matches[~(no_matches["height_frac"] < -0.5)]
+    
+    #Keep predictions whose original height was greater than 5m
+    #fall_df = fall_df[fall_df.height > 5]
+    
+    #Write tree fall shapefile
+    fname = os.path.basename(shapefiles["2019"]["shp_path"].unique()[0])
+    fname = os.path.splitext(fname)[0]
+    fname = "{}/{}_incorrect_treefall.shp".format(savedir,fname)
+    non_fall_df.to_file(fname)
+    
     return fname
+
