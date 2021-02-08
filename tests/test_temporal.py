@@ -7,7 +7,7 @@ import re
 import os
 import sys
 sys.path.append(os.path.dirname(os.getcwd()))
-from analysis import analysis
+from analysis import temporal
 
 
 @pytest.fixture()
@@ -24,11 +24,11 @@ def geo_indexes():
 def test_match_years(geo_indexes):
     shps = glob.glob("data/analysis/*.shp")    
     for geo_index in geo_indexes:
-        matched_df = analysis.match_years(geo_index, shps,savedir="output/")
+        matched_df = temporal.match_years(geo_index, shps,savedir="output/")
     
 def test_tree_fall(geo_indexes):
     shps = glob.glob("data/analysis/*.shp")    
     CHMs = glob.glob("data/analysis/*_CHM.tif")    
     for geo_index in geo_indexes:
-        analysis.tree_falls(geo_index, shps, CHMs,savedir="output/")
+        temporal.tree_falls(geo_index, shps, CHMs,savedir="output/")
     

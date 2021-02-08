@@ -1,13 +1,10 @@
 # Analysis module
-import glob
 import geopandas
 import numpy as np
-import rtree
 import re
 import os
 import rasterstats
 from geopandas.tools import sjoin
-from matplotlib import pyplot
 
 def lookup_CHM_path(shp_path, lidar_list):
     """Find CHM file based on the shp filename"""

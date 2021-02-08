@@ -1,10 +1,9 @@
 #Analysis
 from crown_maps.start_cluster import start
 import glob
-import analysis
+from analysis import temporal
 import re
 import numpy as np
-import pandas as pd
 from distributed import Client, as_completed, wait
 
 debug = False
@@ -26,8 +25,8 @@ shps = [x for x in shps if "OSBS" in x]
 geo_index = [re.search("(\d+_\d+)_image",x).group(1) for x in shps]
 geo_index = np.unique(geo_index)
 
-year_futures = client.map(analysis.match_years, geo_index, shps=shps,savedir=savedir + "growth/")
-falls_futures = client.map(analysis.tree_falls, geo_index, shps=shps, CHMs=CHMs, savedir=savedir + "treefall/")
+year_futures = client.map(temporal.match_years, geo_index, shps=shps,savedir=savedir + "growth/")
+falls_futures = client.map(temporal.tree_falls, geo_index, shps=shps, CHMs=CHMs, savedir=savedir + "treefall/")
 
 year_results = []
 for future in as_completed(year_futures):
