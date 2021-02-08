@@ -11,7 +11,7 @@
 #SBATCH --error=/home/b.weinstein/logs/analysis_%j.err
 
 source activate crowns
-cd /home/b.weinstein/NEON_crown_maps/
+cd /home/b.weinstein/NEON_crown_maps/analysis/
 
 #comet debug
 python dask_analysis.py
