@@ -4,6 +4,7 @@ import numpy as np
 import re
 import os
 import rasterstats
+import pandas as pd
 from geopandas.tools import sjoin
 
 def lookup_CHM_path(shp_path, lidar_list):
@@ -27,7 +28,7 @@ def lookup_CHM_path(shp_path, lidar_list):
     
     return CHM_path
 
-def match_years(geo_index, shps, savedir = "."):
+def match_years(geo_index, shps, savedir = ".", debug=False):
     """Match tree records across years based on heurestic criteria"""
     
     #Find matching files
@@ -38,6 +39,11 @@ def match_years(geo_index, shps, savedir = "."):
     for shp in matched_shps:
         #Load data and give it site and year and tile labels
         df = geopandas.read_file(shp)
+        
+        #allow a backdoor for small file sizes on debug
+        if debug:
+            df = df.head(100)
+            
         geo_index = re.search("(\d+_\d+)_image",shp).group(1)
         df["shp_path"] = shp
         df["geo_index"] = geo_index
@@ -45,7 +51,7 @@ def match_years(geo_index, shps, savedir = "."):
         df["Site"] = re.search("(\d+)_(\w+)_\d_\d+_\d+_image.shp",shp).group(2)
         shapefiles[df["Year"].unique()[0]] = df   
     
-    if not all([x in ["2018","2019"] for x in shapefiles.keys()]):
+    if not ["2018","2019"] == list(shapefiles.keys()):
         raise ValueError("{} does not have data from 2018 and 2019: {}".format(geo_index,shapefiles.keys()))
     
     #Join features and create a blank IoU column
@@ -80,7 +86,24 @@ def match_years(geo_index, shps, savedir = "."):
         
     #remove trees with less than threshold IoU
     threshold_boxes = joined_boxes[joined_boxes.IoU > 0.4]
+    
+    #update original frames
+    for x in shapefiles:
+        shapefiles[x]["match_id"] = None
         
+    counter = 0
+    for index, row in threshold_boxes.iterrows():
+        shapefiles["2018"].loc[index,"match_id"] = "{}_{}".format(row["geo_index_left"],counter)
+        shapefiles["2019"].loc[row["index_right"],"match_id"] = "{}_{}".format(row["geo_index_left"],counter)
+        counter+=1
+        
+    #Update original data and write to a new file
+    for x in matched_shps:
+        basename = os.path.basename(x)
+        year = re.search("(\d+)_(\w+)_\d_\d+_\d+_image.shp",shp).group(1)
+        shapefiles[year].to_file("{}/{}".format(savedir,basename))
+    
+def height_difference():
     #difference in height
     threshold_boxes["Height_difference"] = threshold_boxes["height_right"] - threshold_boxes["height_left"]
     
@@ -116,10 +139,13 @@ def tree_falls(geo_index, shps, CHMs,savedir="."):
         df["Site"] = re.search("(\d+)_(\w+)_\d_\d+_\d+_image.shp",shp).group(2)
         shapefiles[df["Year"].unique()[0]] = df   
     
+    #Difference in counts
+    mean_difference_among_years = difference_in_count(shapefiles)
+    
     #Join to find predictions that don't match
     joined_boxes = sjoin(shapefiles["2018"],shapefiles["2019"])
     no_matches = shapefiles["2018"][~(shapefiles["2018"].index.isin(joined_boxes.index))]
-    
+        
     #For each tree that does not match, check the 2019 height
     CHM = lookup_CHM_path(shapefiles["2018"]["shp_path"].unique()[0], CHMs)
     
@@ -154,5 +180,37 @@ def tree_falls(geo_index, shps, CHMs,savedir="."):
     fname = "{}/{}_incorrect_treefall.shp".format(savedir,fname)
     non_fall_df.to_file(fname)
     
+    #Stablity metrics
+    #Proportion not matched compared to the earliest year
+    p_without_match = non_fall_df.shape[0]/shapefiles["2018"].shape[0]
+    metrics = pd.DataFrame({"Mean_Count_Difference":mean_difference_among_years,"p_without_match":p_without_match})
+    fname = os.path.basename(shapefiles["2019"]["shp_path"].unique()[0])
+    fname = os.path.splitext(fname)[0]
+    fname = "{}/{}_metrics.csv".format(savedir,fname)
+    metrics.to_csv(fname)
+    
     return fname
 
+def difference_in_count(shapefiles):
+    """difference in tree count among years as a proportion
+    Args:
+         shapefiles: a dictionary of geopandas dataframe
+    Returns: the mean difference in count
+    """
+    ntrees = [shapefiles[x].shape[0] for x in shapefiles]
+    ntrees = np.mean(ntrees)
+    mean_difference_among_years = np.sum([abs(x - ntrees) for x in ntrees])/2/len(ntrees)
+    
+    return mean_difference_among_years
+
+def number_of_incorrect_matches():
+    """proportion of matched trees"""
+    
+def stability_metrics(geoindex, prediction_dir, treefall_dir):
+    """For a given set of treefall predictions, calculate metrics of accuracy"""
+    
+    proportion_incorrect()
+    
+    
+    
+    
