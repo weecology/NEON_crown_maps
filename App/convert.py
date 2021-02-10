@@ -252,7 +252,7 @@ def run(rgb_images, annotation_dir, save_dir):
 if __name__=="__main__":  
   #Create dask cluster
   from crown_maps import start_cluster
-  client = start_cluster.start(cpus=5,mem_size="40GB")
+  client = start_cluster.start(cpus=30,mem_size="40GB")
   client.wait_for_workers(1)
   
   #Pool of RGB images
