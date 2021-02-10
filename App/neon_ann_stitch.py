@@ -228,7 +228,7 @@ def midxToIdx(filename, filename_idx):
 
   #dataset.compressDataset("jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE")
   #dataset.compressDataset("jpg-JPEG_QUALITYSUPERB-JPEG_SUBSAMPLING_420-JPEG_OPTIMIZE")
-  dataset.compressDataset("jpg-JPEG_QUALITYSUPERB-JPEG_SUBSAMPLING_444-JPEG_OPTIMIZE")
+  #dataset.compressDataset("jpg-JPEG_QUALITYSUPERB-JPEG_SUBSAMPLING_444-JPEG_OPTIMIZE")
   #dataset.compressDataset("jpg-JPEG_QUALITYGOOD-JPEG_SUBSAMPLING_444-JPEG_OPTIMIZE")
 
 # Make one big photomosaic
