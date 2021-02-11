@@ -252,9 +252,9 @@ def run(rgb_images, annotation_dir, save_dir):
 
 if __name__=="__main__":  
   #Create dask cluster
-  from crown_maps import start_cluster
-  client = start_cluster.start(cpus=2,mem_size="40GB")
-  client.wait_for_workers(1)
+  #from crown_maps import start_cluster
+  #client = start_cluster.start(cpus=2,mem_size="40GB")
+  #client.wait_for_workers(1)
   
   #Pool of RGB images
   rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
@@ -278,18 +278,19 @@ if __name__=="__main__":
   #order by site  using only the most recent year
   site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
   
-  ###Scatter and run in parallel
+  ####Scatter and run in parallel
   futures = []
   for site in site_lists:
-    site = np.sort(site)
-    future = dask.delayed(run)(rgb_images=site[:10],annotation_dir=annotation_dir, save_dir=outdir)
-    futures.append(future)
+    run(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)    
+    #site = np.sort(site)
+    #future = dask.delayed(run)(rgb_images=site[:10],annotation_dir=annotation_dir, save_dir=outdir)
+    #futures.append(future)
     
-  persisted_values = dask.persist(*futures)
-  distributed.wait(persisted_values)
-  for pv in persisted_values:
-    try:
-      print(pv)
-    except Exception as e:
-      print(e)
-      continue  
+  #persisted_values = dask.persist(*futures)
+  #distributed.wait(persisted_values)
+  #for pv in persisted_values:
+    #try:
+      #print(pv)
+    #except Exception as e:
+      #print(e)
+      #continue  
