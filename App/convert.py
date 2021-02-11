@@ -252,7 +252,7 @@ def run(rgb_images, annotation_dir, save_dir):
 if __name__=="__main__":  
   #Create dask cluster
   from crown_maps import start_cluster
-  client = start_cluster.start(cpus=10,mem_size="50GB")
+  client = start_cluster.start(cpus=2,mem_size="40GB")
   client.wait_for_workers(1)
   
   #Pool of RGB images
@@ -272,7 +272,7 @@ if __name__=="__main__":
   df["year"] = df.path.apply(lambda x: get_year(x))
   
   #just run OSBS
-  df = df[df.site.isin(["BONA","CLBJ","DEJU","DELA","DSNY","HARV","JERC","KONZ","LAJA","MOAB","NIWO","OAES","SOAP","SRER","TALL","TEAK","WOOD","WREF"])]
+  df = df[df.site.isin(["ABBY"])]
   
   #order by site  using only the most recent year
   site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
