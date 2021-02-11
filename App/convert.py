@@ -17,6 +17,7 @@ import dask
 import distributed
 import pandas as pd
 from crown_maps.verify import get_site, get_year
+import numpy as np
 
 #HPC
 ### Configuration
@@ -245,7 +246,7 @@ def run(rgb_images, annotation_dir, save_dir):
   midxToIdx(os.path.abspath(midx_name), os.path.abspath(outdir+"/"+outname+".idx"))
   
   # moving clutter to "outdir/temp" folder
-  cleanup(outdir)
+  #cleanup(outdir)
 
   print("{} DONE".format(site))
 
@@ -272,7 +273,7 @@ if __name__=="__main__":
   df["year"] = df.path.apply(lambda x: get_year(x))
   
   #just run OSBS
-  df = df[df.site.isin(["ABBY"])]
+  df = df[df.site.isin(["ABBY","TEAK","OSBS"])]
   
   #order by site  using only the most recent year
   site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
@@ -280,7 +281,8 @@ if __name__=="__main__":
   ###Scatter and run in parallel
   futures = []
   for site in site_lists:
-    future = dask.delayed(run)(rgb_images=site,annotation_dir=annotation_dir, save_dir=outdir)
+    site = np.sort(site)
+    future = dask.delayed(run)(rgb_images=site[:4],annotation_dir=annotation_dir, save_dir=outdir)
     futures.append(future)
     
   persisted_values = dask.persist(*futures)
