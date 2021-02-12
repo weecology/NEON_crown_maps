@@ -246,14 +246,14 @@ def run(rgb_images, annotation_dir, save_dir):
   midxToIdx(os.path.abspath(midx_name), os.path.abspath(outdir+"/"+outname+".idx"))
   
   # moving clutter to "outdir/temp" folder
-  #cleanup(outdir)
+  cleanup(outdir)
 
   print("{} DONE".format(site))
 
 if __name__=="__main__":  
   #Create dask cluster
   from crown_maps import start_cluster
-  client = start_cluster.start(cpus=2,mem_size="40GB")
+  client = start_cluster.start(cpus=10,mem_size="40GB")
   client.wait_for_workers(1)
   
   #Pool of RGB images
