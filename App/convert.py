@@ -246,7 +246,7 @@ def run(rgb_images, annotation_dir, save_dir):
   midxToIdx(os.path.abspath(midx_name), os.path.abspath(outdir+"/"+outname+".idx"))
   
   # moving clutter to "outdir/temp" folder
-  cleanup(outdir)
+  #cleanup(outdir)
 
   print("{} DONE".format(site))
 
