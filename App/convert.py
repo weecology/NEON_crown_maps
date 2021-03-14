@@ -19,6 +19,10 @@ import pandas as pd
 from crown_maps.verify import get_site, get_year
 import numpy as np
 
+def match_name(x):
+  x = os.path.basename(x)
+  return x.replace("image.tif","image_rasterized.tif")
+
 def run(images, dst_directory):
   
   # find images
