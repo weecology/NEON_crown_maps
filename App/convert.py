@@ -107,6 +107,10 @@ if __name__=="__main__":
     site_dir = "{}/{}".format(outdir, siteID)
     try:
       os.mkdir(site_dir)
+    except:
+      os.unlink(site_dir)
+      os.mkdir(site_dir)      
+
     future = dask.delayed(run)(images=site, dst_directory=site_dir)
     futures.append(future)
     
