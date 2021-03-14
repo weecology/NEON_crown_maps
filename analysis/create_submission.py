@@ -1,3 +1,11 @@
+#srun -p gpu --gpus=1 --time 1:00:00 --mem 20GB --pty -u bash -i
+
+#module load tensorflow/1.14.0
+
+#export PATH=${PATH}:/home/b.weinstein/miniconda3/envs/crowns/bin/
+#export PYTHONPATH=${PYTHONPATH}:/home/b.weinstein/miniconda3/envs/crowns/lib/python3.7/site-packages/
+#export LD_LIBRARY_PATH=/home/b.weinstein/miniconda3/envs/crowns/lib/:${LD_LIBRARY_PATH}
+
 from deepforest import deepforest
 import os
 from crown_maps.predict import project
@@ -47,6 +55,7 @@ def submission(CHM_dir=None, RGB_dir=None, min_height=3,iou_threshold=0.15, save
     threshold_boxes = []
     for x in plot_groups:
         plot_name = x.plot_name.unique()[0]
+        print(plot_name)
         #Look up RGB image for projection
         image_path = "{}/{}.tif".format(RGB_dir,plot_name)
         result = project(image_path,x)
