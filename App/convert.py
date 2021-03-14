@@ -103,7 +103,11 @@ if __name__=="__main__":
   futures = []
   for site in site_lists:
     site = np.sort(site)
-    future = dask.delayed(run)(images=site, dst_directory=outdir)
+    siteID = get_site(site[0])
+    site_dir = "{}/{}".format(outdir, siteID)
+    try:
+      os.mkdir(site_dir)
+    future = dask.delayed(run)(images=site, dst_directory=site_dir)
     futures.append(future)
     
   persisted_values = dask.persist(*futures)
