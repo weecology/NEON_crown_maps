@@ -74,9 +74,9 @@ def run(images, dst_directory):
 
 if __name__=="__main__":  
   #Create dask cluster
-  from crown_maps import start_cluster
-  client = start_cluster.start(cpus=1,mem_size="40GB")
-  client.wait_for_workers(1)
+  #from crown_maps import start_cluster
+  #client = start_cluster.start(cpus=1,mem_size="40GB")
+  #client.wait_for_workers(1)
   
   #Pool of RGB images
   rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
@@ -104,14 +104,14 @@ if __name__=="__main__":
   futures = []
   for site in site_lists:
     site = np.sort(site)
-    future = dask.delayed(run)(rgb_images=site, dst_directory=outdir)
-    futures.append(future)
+    run(rgb_images=site, dst_directory=outdir)    
+    #futures.append(future)
     
-  persisted_values = dask.persist(*futures)
-  distributed.wait(persisted_values)
-  for pv in persisted_values:
-    try:
-      print(pv)
-    except Exception as e:
-      print(e)
-      continue  
+  #persisted_values = dask.persist(*futures)
+  #distributed.wait(persisted_values)
+  #for pv in persisted_values:
+    #try:
+      #print(pv)
+    #except Exception as e:
+      #print(e)
+      #continue  
