@@ -19,11 +19,57 @@ import pandas as pd
 from crown_maps.verify import get_site, get_year
 import numpy as np
 
+from OpenVisus.__main__ import MidxToIdx
+
+
 def match_name(x):
   x = os.path.basename(x)
   return x.replace("image.tif","image_rasterized.tif")
-def run(images, dst_directory):
+
+def blend(rgb_path, annotation_dir):
+      basename = os.path.basename(rgb_path)
+      ann_path=annotation_dir+"/"+basename.replace("image.tif", "image_rasterized.tif")
+      
+      ageo = rasterio.open(rgb_path)
+      a = ageo.read()
+      bgeo = rasterio.open(ann_path)
+      b = bgeo.read()
+      print("Blending ", rgb_path, "and", ann_path, "...")
+      blend_rgb_ann(a, b[0])
+
+      with rasterio.open(
+          outdir+"/"+basename,
+          'w',
+          driver='GTiff',
+          height=ageo.height,
+          width=ageo.width,
+          count=3,
+          dtype=a.dtype,
+          crs='+proj=latlong',
+          transform=ageo.transform,
+      ) as dst:
+          dst.write(a)
+
+  idir = outdir
   
+  return a 
+  
+def run(images, dst_directory, annotation_dir):
+  
+  #Construct outdir variable from top level savedir and site
+  site = get_site(rgb_images[0])  
+  outdir = os.path.join(save_dir,site)
+  pathlib.Path(outdir+"/temp").mkdir(parents=True, exist_ok=True)
+  
+  outname = outdir.split("/")[-1]
+  if(outname==""):
+    outname = outdir.split("/")[-2]
+  
+  # Blend rgb and annotations
+  images = []
+  for rgb_path in rgb_images:
+    images.append(blend(rgb_path, annotation_dir))
+    
   # find images
   # convert to idx
   sx,sy=1.0, 1.0
@@ -65,23 +111,25 @@ def run(images, dst_directory):
   # to see automatically computed idx file
   db=LoadDataset(midx_filename)
   print(db.getDatasetBody().toString())
-  
-  from OpenVisus.__main__ import MidxToIdx
   idx_filename=os.path.join(dst_directory,"visus.idx")
   MidxToIdx(["--midx", midx_filename, "--field","output=voronoi()", "--tile-size","4*1024", "--idx", idx_filename])
   
 
 if __name__=="__main__":  
   #Create dask cluster
-  from crown_maps import start_cluster
-  client = start_cluster.start(cpus=10,mem_size="40GB")
-  client.wait_for_workers(1)
+  #from crown_maps import start_cluster
+  #client = start_cluster.start(cpus=10,mem_size="40GB")
+  #client.wait_for_workers(1)
     
   #Pool of rasterized predictions
+  rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)  
   annotation_dir = "/orange/idtrees-collab/rasterized/"
   outdir = "/orange/idtrees-collab/OpenVisus/"
   annotation_list = glob.glob(annotation_dir + "*.tif")
-    
+  
+  annotation_names = [os.path.basename(x) for x in annotation_list]
+  rgb_list = [x for x in rgb_list if match_name(x) in annotation_names]
+  
   df = pd.DataFrame({"path":annotation_list})
   df["site"] = df.path.apply(lambda x: get_site(x))
   df["year"] = df.path.apply(lambda x: get_year(x))
@@ -99,16 +147,17 @@ if __name__=="__main__":
     siteID = get_site(site[0])
     site_dir = "{}/{}".format(outdir, siteID)
     shutil.rmtree(site_dir)
-    os.mkdir(site_dir)      
+    os.mkdir(site_dir) 
+    run(images=site[0:100],dst_directory=site_dir, annotation_dir=annotation_dir)
 
-    future = dask.delayed(run)(images=site[0:100], dst_directory=site_dir)
-    futures.append(future)
+    #future = dask.delayed(run)(images=site[0:100], dst_directory=site_dir, annotation_dir=annotation_dir)
+    #futures.append(future)
     
-  persisted_values = dask.persist(*futures)
-  distributed.wait(persisted_values)
-  for pv in persisted_values:
-    try:
-      print(pv)
-    except Exception as e:
-      print(e)
-      continue  
+  #persisted_values = dask.persist(*futures)
+  #distributed.wait(persisted_values)
+  #for pv in persisted_values:
+    #try:
+      #print(pv)
+    #except Exception as e:
+      #print(e)
+      #continue  
