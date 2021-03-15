@@ -143,7 +143,7 @@ if __name__=="__main__":
     site_dir = "{}/{}".format(outdir, siteID)
     shutil.rmtree(site_dir)
     os.mkdir(site_dir) 
-    run(images=site[0:100],dst_directory=site_dir, annotation_dir=annotation_dir)
+    run(rgb_images=site[0:100],dst_directory=site_dir, annotation_dir=annotation_dir)
 
     #future = dask.delayed(run)(images=site[0:100], dst_directory=site_dir, annotation_dir=annotation_dir)
     #futures.append(future)
