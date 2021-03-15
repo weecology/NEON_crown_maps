@@ -49,7 +49,7 @@ def blend(rgb_path, annotation_dir):
   
   return a 
   
-def run(images, dst_directory, annotation_dir):
+def run(rgb_images, dst_directory, annotation_dir):
   
   #Construct outdir variable from top level savedir and site
   site = get_site(rgb_images[0])  
