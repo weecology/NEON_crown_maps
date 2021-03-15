@@ -136,7 +136,7 @@ if __name__=="__main__":
   annotation_names = [os.path.basename(x) for x in annotation_list]
   rgb_list = [x for x in rgb_list if match_name(x) in annotation_names]
   
-  df = pd.DataFrame({"path":annotation_list})
+  df = pd.DataFrame({"path":rgb_list})
   df["site"] = df.path.apply(lambda x: get_site(x))
   df["year"] = df.path.apply(lambda x: get_year(x))
   
