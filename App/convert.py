@@ -98,11 +98,8 @@ if __name__=="__main__":
     site = np.sort(site)
     siteID = get_site(site[0])
     site_dir = "{}/{}".format(outdir, siteID)
-    try:
-      os.mkdir(site_dir)
-    except:
-      os.unlink(site_dir)
-      os.mkdir(site_dir)      
+    shutil.rmtree(site_dir)
+    os.mkdir(site_dir)      
 
     future = dask.delayed(run)(images=site[0:100], dst_directory=site_dir)
     futures.append(future)
