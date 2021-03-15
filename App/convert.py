@@ -76,10 +76,7 @@ if __name__=="__main__":
   from crown_maps import start_cluster
   client = start_cluster.start(cpus=10,mem_size="40GB")
   client.wait_for_workers(1)
-  
-  #Pool of RGB images
-  rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)
-  
+    
   #Pool of rasterized predictions
   annotation_dir = "/orange/idtrees-collab/rasterized/"
   outdir = "/orange/idtrees-collab/OpenVisus/"
