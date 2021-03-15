@@ -18,6 +18,7 @@ import distributed
 import pandas as pd
 from crown_maps.verify import get_site, get_year
 import numpy as np
+from numba import njit, prange
 
 from OpenVisus.__main__ import MidxToIdx
 
@@ -25,6 +26,16 @@ def match_name(x):
   x = os.path.basename(x)
   return x.replace("image.tif","image_rasterized.tif")
 
+@njit(parallel=True)
+def blend_rgb_ann(a, b):
+  #a[b[b>0]] = [255,0,0]
+  for i in prange(a[0].shape[0]):
+    for j in prange(a[0].shape[1]):
+      if(b[i][j] > 0):
+        a[0][i][j]=255
+        a[1][i][j]=0
+        a[2][i][j]=0
+        
 def blend(rgb_path, annotation_dir):
   basename = os.path.basename(rgb_path)
   ann_path=annotation_dir+"/"+basename.replace("image.tif", "image_rasterized.tif")
