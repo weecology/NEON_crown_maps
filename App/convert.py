@@ -36,7 +36,7 @@ def blend_rgb_ann(a, b):
         a[1][i][j]=0
         a[2][i][j]=0
         
-def blend(rgb_path, annotation_dir):
+def blend(rgb_path, annotation_dir, outdir):
   basename = os.path.basename(rgb_path)
   ann_path=annotation_dir+"/"+basename.replace("image.tif", "image_rasterized.tif")
   ageo = rasterio.open(rgb_path)
@@ -45,8 +45,9 @@ def blend(rgb_path, annotation_dir):
   b = bgeo.read()
   print("Blending ", rgb_path, "and", ann_path, "...")
   blend_rgb_ann(a, b[0])
+  out_name = outdir+"/"+basename
   with rasterio.open(
-        outdir+"/"+basename,
+        out_name,
         'w',
         driver='GTiff',
         height=ageo.height,
@@ -58,7 +59,7 @@ def blend(rgb_path, annotation_dir):
     ) as dst:
         dst.write(a)
   
-  return a 
+  return out_name
   
 def run(rgb_images, dst_directory, annotation_dir):
   
@@ -74,7 +75,7 @@ def run(rgb_images, dst_directory, annotation_dir):
   # Blend rgb and annotations
   images = []
   for rgb_path in rgb_images:
-    images.append(blend(rgb_path, annotation_dir))
+    images.append(blend(rgb_path, annotation_dir, outdir))
     
   # find images
   # convert to idx
@@ -123,9 +124,9 @@ def run(rgb_images, dst_directory, annotation_dir):
 
 if __name__=="__main__":  
   #Create dask cluster
-  from crown_maps import start_cluster
-  client = start_cluster.start(cpus=10,mem_size="40GB")
-  client.wait_for_workers(1)
+  #from crown_maps import start_cluster
+  #client = start_cluster.start(cpus=10,mem_size="40GB")
+  #client.wait_for_workers(1)
     
   #Pool of rasterized predictions
   rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)  
@@ -152,16 +153,23 @@ if __name__=="__main__":
     site = np.sort(site)
     siteID = get_site(site[0])
     site_dir = "{}/{}".format(outdir, siteID)
-    shutil.rmtree(site_dir)
-    os.mkdir(site_dir) 
-    future = dask.delayed(run)(rgb_images=site[0:100], dst_directory=site_dir, annotation_dir=annotation_dir)
-    futures.append(future)
     
-  persisted_values = dask.persist(*futures)
-  distributed.wait(persisted_values)
-  for pv in persisted_values:
     try:
-      print(pv)
-    except Exception as e:
-      print(e)
-      continue  
+      shutil.rmtree(site_dir)
+      os.mkdir(site_dir) 
+    except:
+      os.mkdir(site_dir)       
+    
+    run(rgb_images=site[0:100], dst_directory=site_dir, annotation_dir=annotation_dir)
+    
+    #future = dask.delayed(run)(rgb_images=site[0:100], dst_directory=site_dir, annotation_dir=annotation_dir)
+    #futures.append(future)
+    
+  #persisted_values = dask.persist(*futures)
+  #distributed.wait(persisted_values)
+  #for pv in persisted_values:
+    #try:
+      #print(pv)
+    #except Exception as e:
+      #print(e)
+      #continue  
