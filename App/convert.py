@@ -49,8 +49,6 @@ def blend(rgb_path, annotation_dir):
           transform=ageo.transform,
       ) as dst:
           dst.write(a)
-
-  idir = outdir
   
   return a 
   
