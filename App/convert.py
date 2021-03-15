@@ -21,34 +21,31 @@ import numpy as np
 
 from OpenVisus.__main__ import MidxToIdx
 
-
 def match_name(x):
   x = os.path.basename(x)
   return x.replace("image.tif","image_rasterized.tif")
 
 def blend(rgb_path, annotation_dir):
-      basename = os.path.basename(rgb_path)
-      ann_path=annotation_dir+"/"+basename.replace("image.tif", "image_rasterized.tif")
-      
-      ageo = rasterio.open(rgb_path)
-      a = ageo.read()
-      bgeo = rasterio.open(ann_path)
-      b = bgeo.read()
-      print("Blending ", rgb_path, "and", ann_path, "...")
-      blend_rgb_ann(a, b[0])
-
-      with rasterio.open(
-          outdir+"/"+basename,
-          'w',
-          driver='GTiff',
-          height=ageo.height,
-          width=ageo.width,
-          count=3,
-          dtype=a.dtype,
-          crs='+proj=latlong',
-          transform=ageo.transform,
-      ) as dst:
-          dst.write(a)
+  basename = os.path.basename(rgb_path)
+  ann_path=annotation_dir+"/"+basename.replace("image.tif", "image_rasterized.tif")
+  ageo = rasterio.open(rgb_path)
+  a = ageo.read()
+  bgeo = rasterio.open(ann_path)
+  b = bgeo.read()
+  print("Blending ", rgb_path, "and", ann_path, "...")
+  blend_rgb_ann(a, b[0])
+  with rasterio.open(
+        outdir+"/"+basename,
+        'w',
+        driver='GTiff',
+        height=ageo.height,
+        width=ageo.width,
+        count=3,
+        dtype=a.dtype,
+        crs='+proj=latlong',
+        transform=ageo.transform,
+    ) as dst:
+        dst.write(a)
   
   return a 
   
