@@ -53,7 +53,7 @@ def run(rgb_images, dst_directory, annotation_dir):
   
   #Construct outdir variable from top level savedir and site
   site = get_site(rgb_images[0])  
-  outdir = os.path.join(save_dir,site)
+  outdir = os.path.join(dst_directory,site)
   pathlib.Path(outdir+"/temp").mkdir(parents=True, exist_ok=True)
   
   outname = outdir.split("/")[-1]
