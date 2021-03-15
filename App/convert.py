@@ -84,17 +84,13 @@ if __name__=="__main__":
   annotation_dir = "/orange/idtrees-collab/rasterized/"
   outdir = "/orange/idtrees-collab/OpenVisus/"
   annotation_list = glob.glob(annotation_dir + "*.tif")
-  
-  #filter names
-  annotation_names = [os.path.basename(x) for x in annotation_list]
-  rgb_list = [x for x in rgb_list if match_name(x) in annotation_names]
-  
-  df = pd.DataFrame({"path":rgb_list})
+    
+  df = pd.DataFrame({"path":annotation_list})
   df["site"] = df.path.apply(lambda x: get_site(x))
   df["year"] = df.path.apply(lambda x: get_year(x))
   
   #just run OSBS
-  #df = df[df.site.isin(["ABBY"])]
+  df = df[df.site.isin(["ABBY"])]
   
   #order by site  using only the most recent year
   site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
@@ -111,7 +107,7 @@ if __name__=="__main__":
       os.unlink(site_dir)
       os.mkdir(site_dir)      
 
-    future = dask.delayed(run)(images=site, dst_directory=site_dir)
+    future = dask.delayed(run)(images=site[0:100], dst_directory=site_dir)
     futures.append(future)
     
   persisted_values = dask.persist(*futures)
