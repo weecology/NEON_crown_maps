@@ -125,7 +125,7 @@ def run(rgb_images, dst_directory, annotation_dir):
 if __name__=="__main__":  
   #Create dask cluster
   from crown_maps import start_cluster
-  client = start_cluster.start(cpus=1,mem_size="40GB")
+  client = start_cluster.start(cpus=20,mem_size="40GB")
   client.wait_for_workers(1)
     
   #Pool of rasterized predictions
@@ -142,7 +142,7 @@ if __name__=="__main__":
   df["year"] = df.path.apply(lambda x: get_year(x))
   
   #just run
-  df = df[df.site.isin(["ABBY"])]
+  #df = df[df.site.isin(["ABBY"])]
   
   #order by site  using only the most recent year
   site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
