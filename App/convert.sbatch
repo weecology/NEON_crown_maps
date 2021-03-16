@@ -10,7 +10,7 @@
 #SBATCH --output=/home/b.weinstein/logs/convert_%j.out   # Standard output and error log
 #SBATCH --error=/home/b.weinstein/logs/convert_%j.err
 
-source activate neonviz
+source ~/miniconda3/bin/activate neonviz
 
 #comet debug
 python convert.py
