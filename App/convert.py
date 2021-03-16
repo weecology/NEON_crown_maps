@@ -142,7 +142,7 @@ if __name__=="__main__":
   df["year"] = df.path.apply(lambda x: get_year(x))
   
   #just run
-  df = df[~df.site.isin(["ABBY"])]
+  df = df[df.site.isin(["ABBY"])]
   
   #order by site  using only the most recent year
   site_lists = df.groupby('site').apply(lambda x: x[x.year==x.year.max()]).reset_index(drop=True).groupby('site').path.apply(list).values
@@ -160,7 +160,7 @@ if __name__=="__main__":
     except:
       os.mkdir(site_dir)       
         
-    future = dask.delayed(run)(rgb_images=site[0:100], dst_directory=site_dir, annotation_dir=annotation_dir)
+    future = dask.delayed(run)(rgb_images=site[0:20], dst_directory=site_dir, annotation_dir=annotation_dir)
     futures.append(future)
     
   persisted_values = dask.persist(*futures)
