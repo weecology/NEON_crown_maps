@@ -111,7 +111,7 @@ def run(rgb_images, dst_directory, annotation_dir):
     file.writelines([
             "<dataset typename='IdxMultipleDataset'>\n",
                   "\t<field name='voronoi'><code>output=voronoi()</code></field>\n",
-                  *["\t<dataset url='./{}/visus.idx' name='{}' offset='{} {}'/>\n".format(tile["name"],tile["name"],tile["bounds"][0]-X1,tile["bounds"][1]-Y1) for tile in tiles],
+                  ["\t<dataset url='./{}/visus.idx' name='{}' offset='{} {}'/>\n".format(tile["name"],tile["name"],tile["bounds"][0]-X1,tile["bounds"][1]-Y1) for tile in tiles],
                   "</dataset>\n"
           ])
   
