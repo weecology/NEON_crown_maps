@@ -124,9 +124,9 @@ def run(rgb_images, dst_directory, annotation_dir):
 
 if __name__=="__main__":  
   #Create dask cluster
-  #from crown_maps import start_cluster
-  #client = start_cluster.start(cpus=10,mem_size="40GB")
-  #client.wait_for_workers(1)
+  from crown_maps import start_cluster
+  client = start_cluster.start(cpus=20,mem_size="40GB")
+  client.wait_for_workers(1)
     
   #Pool of rasterized predictions
   rgb_list = glob.glob("/orange/ewhite/NeonData/**/Mosaic/*image.tif",recursive=True)  
@@ -159,17 +159,15 @@ if __name__=="__main__":
       os.mkdir(site_dir) 
     except:
       os.mkdir(site_dir)       
+        
+    future = dask.delayed(run)(rgb_images=site[0:100], dst_directory=site_dir, annotation_dir=annotation_dir)
+    futures.append(future)
     
-    run(rgb_images=site[0:100], dst_directory=site_dir, annotation_dir=annotation_dir)
-    
-    #future = dask.delayed(run)(rgb_images=site[0:100], dst_directory=site_dir, annotation_dir=annotation_dir)
-    #futures.append(future)
-    
-  #persisted_values = dask.persist(*futures)
-  #distributed.wait(persisted_values)
-  #for pv in persisted_values:
-    #try:
-      #print(pv)
-    #except Exception as e:
-      #print(e)
-      #continue  
+  persisted_values = dask.persist(*futures)
+  distributed.wait(persisted_values)
+  for pv in persisted_values:
+    try:
+      print(pv)
+    except Exception as e:
+      print(e)
+      continue  
